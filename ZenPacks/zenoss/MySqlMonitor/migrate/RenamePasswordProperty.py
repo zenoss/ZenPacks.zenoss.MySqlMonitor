@@ -13,8 +13,6 @@
 
 import Globals
 from Products.ZenModel.migrate.Migrate import Version
-from Products.MySqlMonitor.datasources.MySqlMonitorDataSource \
-        import MySqlMonitorDataSource
 
 class RenamePasswordProperty:
     """
@@ -30,6 +28,9 @@ class RenamePasswordProperty:
 
     def migrate(self, pack):
         dmd = pack.__primary_parent__.__primary_parent__
+
+        from Products.MySqlMonitor.datasources.MySqlMonitorDataSource \
+                import MySqlMonitorDataSource
 
         # Update existing templates that use the MySqlMonitorDataSource to use
         # the new zProperty names
