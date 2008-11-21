@@ -16,6 +16,8 @@ __doc__='''MySqlMonitorDataSource.py
 Defines datasource for MySqlMonitor
 '''
 
+from Globals import InitializeClass
+
 import Products.ZenModel.BasicDataSource as BasicDataSource
 from Products.ZenModel.ZenPackPersistence import ZenPackPersistence
 from AccessControl import ClassSecurityInfo, Permissions
@@ -159,3 +161,5 @@ class MySqlMonitorDataSource(ZenPackPersistence,
                 REQUEST.form['eventClass'] = self.__class__.eventClass
         return BasicDataSource.BasicDataSource.zmanage_editProperties(self,
                 REQUEST)
+
+InitializeClass(MySqlMonitorDataSource)
