@@ -190,7 +190,7 @@
         objects here/datapoints;
         batch python:here.ZenTableManager.getBatch(tableName,objects);
 		tabletitle string:DataPoints;
-		zzzz_menu_id string:DataPoint_list;">
+		menu_id string:DataPoint_list;">
         <tal:block metal:use-macro="here/zenuimacros/macros/zentable">
 
         <!--====Optional titlebar slots=============
