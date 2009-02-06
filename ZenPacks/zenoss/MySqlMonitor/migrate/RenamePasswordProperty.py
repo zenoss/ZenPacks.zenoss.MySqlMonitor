@@ -24,7 +24,7 @@ class RenamePasswordProperty:
     zMySqlUsername and zMySqlPassword.
     """
 
-    version = Version(1, 1, 2)
+    version = Version(2, 0, 0)
 
     def migrate(self, pack):
         dmd = pack.__primary_parent__.__primary_parent__

@@ -19,7 +19,7 @@ from ZenPacks.zenoss.MySqlMonitor.datasources.MySqlMonitorDataSource \
 
 
 class ConvertMySqlMonitorDataSources(ZenPackDataSourceMigrateBase):
-    version = Version(2, 0, 0)
+    version = Version(2, 0, 1)
     
     # These provide for conversion of datasource instances to the new class
     dsClass = MySqlMonitorDataSource
