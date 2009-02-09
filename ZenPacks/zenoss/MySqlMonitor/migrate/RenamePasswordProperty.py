@@ -12,9 +12,10 @@
 ###########################################################################
 
 import Globals
+from Products.ZenModel.ZenPack import ZenPackMigration
 from Products.ZenModel.migrate.Migrate import Version
 
-class RenamePasswordProperty:
+class RenamePasswordProperty( ZenPackMigration ):
     """
     In versions of MySqlMonitor up to 1.1.1 the only zProperty was called
     zMySqlRootPassword. This was short-sighted in that you don't need root
