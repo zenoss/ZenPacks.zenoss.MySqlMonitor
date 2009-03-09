@@ -13,7 +13,7 @@
 ###########################################################################
 
 import sys
-from optparse import OptionParser
+from optparse import OptionParser, OptionValueError
 
 try:
     import MySQLdb
@@ -22,39 +22,70 @@ except:
     sys.exit(1)
 
 class ZenossMySqlStatsPlugin:
-    def __init__(self, host, port, user, passwd, gstatus):
-        self.host = host
-        self.port = port
-        self.user = user
-        self.passwd = passwd
-        if gstatus:
-            self.cmd = 'SHOW GLOBAL STATUS'
+    def __init__(self, options):
+        self.host = options.host
+        self.port = options.port
+        self.user = options.user
+        self.passwd = options.passwd
+        self.queries = self.buildQueries(options)
+    
+    def buildQueries(self, options):
+        queries = []
+        #add the standard query
+        # (QUERY, processing by row True|False)
+        if options.gstatus:
+            queries.append(("SHOW GLOBAL STATUS", True))
         else:
-            self.cmd = 'SHOW STATUS'
-
+            queries.append(("SHOW STATUS", True))
+        #add additional slave/master queries if needed
+        if options.slavestatus:
+            queries.append(("SHOW SLAVE STATUS", False))
+        if options.masterstatus:
+            queries.append(("SHOW MASTER STATUS", False))
+        return queries
+    
+    def runAndProcessQueries(self, cursor, qs):
+        status = "STATUS OK"
+        data = ""
+        for q in qs:
+            query = q[0]
+            returncode = cursor.execute(query)
+            if not returncode:
+                print "STATUS Critical | Error getting MySQL statistics for %s" % query
+                sys.exit(1)
+            #process metrics returned by row
+            if q[1]:
+                data += (' '.join([ '='.join(r) for r in cursor.fetchall() ])) + " "
+            #process metrics returned by column
+            else:   
+                data += " ".join(map(lambda meta, d: "%s=%s" % (meta[0], d[0]), cursor.description, cursor.fetchone()))
+        return "%s|%s" % (status, data)
+                
     def run(self):
         try:
-            # Specify a blank database so no privileges are required
-            # Thanks for this tip go to Geoff Franks <gfranks@hwi.buffalo.edu>
-            self.conn = MySQLdb.connect(host=self.host, port=self.port,
-                    db='', user=self.user, passwd=self.passwd)
+            try:
+                # Specify a blank database so no privileges are required
+                # Thanks for this tip go to Geoff Franks <gfranks@hwi.buffalo.edu>
+                self.conn = MySQLdb.connect(host=self.host, port=self.port,
+                            db='', user=self.user, passwd=self.passwd)
+                self.cursor = self.conn.cursor()
+            except Exception, e:
+                print "MySQL Error: %s" % (e,)
+                sys.exit(1)
+            print self.runAndProcessQueries(self.cursor, self.queries)
+        finally:
+            self.cursor.close()
+            self.conn.close()
 
-            cursor = self.conn.cursor()
-        except Exception, e:
-            print "MySQL Error: %s" % (e,)
-            sys.exit(1)
-
-        ret = cursor.execute(self.cmd)
-        if not ret:
-            cursor.close()
-            print 'Error getting MySQL statistics'
-            sys.exit(1)
-
-        print "STATUS OK|%s" % \
-                (' '.join([ '='.join(r) for r in cursor.fetchall() ]))
-
-        cursor.close()
-
+#check to make sure only -s or -m are specified
+def checkSlave(option, opt, value, parser):
+    ss = str(option).find("slavestatus") > -1
+    if ( parser.values.masterstatus and ss ) or ( parser.values.slavestatus and not ss ):
+        raise OptionValueError("Error: can't use masterstatus and slavestatus at the same time")
+    if ss:
+        parser.values.slavestatus = True
+    else:
+        parser.values.masterstatus = True
 
 if __name__ == "__main__":
     parser = OptionParser()
@@ -66,6 +97,10 @@ if __name__ == "__main__":
             help='MySQL username')
     parser.add_option('-w', '--password', dest='passwd', default='',
             help='MySQL password')
+    parser.add_option('-s', '--slavestatus', dest='slavestatus', default=False,
+            action='callback', callback=checkSlave, help="For slave servers, get slave status")
+    parser.add_option('-m', '--masterstatus', dest='masterstatus', default=False,
+            action='callback', callback=checkSlave, help="For master servers, get master status")
     parser.add_option('-g', '--global', dest='gstatus', default=False,
             action='store_true', help="Get global stats (Version 5+)")
     options, args = parser.parse_args()
@@ -73,8 +108,5 @@ if __name__ == "__main__":
     if not options.host:
         print "You must specify the host parameter."
         sys.exit(1)
-
-    cmd = ZenossMySqlStatsPlugin(options.host, options.port,
-            options.user, options.passwd, options.gstatus)
-
+    cmd = ZenossMySqlStatsPlugin(options)
     cmd.run()
