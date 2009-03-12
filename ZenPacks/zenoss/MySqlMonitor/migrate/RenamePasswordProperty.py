@@ -30,9 +30,12 @@ class RenamePasswordProperty( ZenPackMigration ):
     def migrate(self, pack):
         dmd = pack.__primary_parent__.__primary_parent__
 
-        from Products.MySqlMonitor.datasources.MySqlMonitorDataSource \
-                import MySqlMonitorDataSource
-
+        try:
+            from Products.MySqlMonitor.datasources.MySqlMonitorDataSource \
+                    import MySqlMonitorDataSource
+        except ImportError:
+            #old version of data source no longer exists; nothing to upgrade
+            return
         # Update existing templates that use the MySqlMonitorDataSource to use
         # the new zProperty names
         for template in dmd.Devices.getAllRRDTemplates():
