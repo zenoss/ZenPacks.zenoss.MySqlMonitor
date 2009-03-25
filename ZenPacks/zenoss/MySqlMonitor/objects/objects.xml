@@ -1286,7 +1286,7 @@ MySQL
 3306
 </property>
 <property visible="True" type="boolean" id="zMonitor" >
-True
+False
 </property>
 </object>
 </objects>
