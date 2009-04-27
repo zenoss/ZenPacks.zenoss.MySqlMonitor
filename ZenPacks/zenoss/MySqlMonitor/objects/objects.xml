@@ -1248,9 +1248,6 @@ False
 </object>
 <!-- ('', 'zport', 'dmd', 'Processes', 'MySQL') -->
 <object id='/zport/dmd/Processes/MySQL' module='Products.ZenModel.OSProcessOrganizer' class='OSProcessOrganizer'>
-<property visible="True" type="boolean" id="zMonitor" >
-True
-</property>
 <tomanycont id='osProcessClasses'>
 <object id='mysqld' module='Products.ZenModel.OSProcessClass' class='OSProcessClass'>
 <property type="string" id="name" mode="w" >
@@ -1284,9 +1281,6 @@ MySQL
 </property>
 <property type="int" id="port" mode="w" >
 3306
-</property>
-<property visible="True" type="boolean" id="zMonitor" >
-False
 </property>
 </object>
 </objects>

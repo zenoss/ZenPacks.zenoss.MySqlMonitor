@@ -13,7 +13,7 @@
 
 import Globals
 from Products.ZenModel.migrate.Migrate import Version
-from Products.ZenModel.ZenPack import ZenPack
+from ZenPacks.zenoss.MySqlMonitor import ZenPack
 import logging
 
 class BaseClass:
