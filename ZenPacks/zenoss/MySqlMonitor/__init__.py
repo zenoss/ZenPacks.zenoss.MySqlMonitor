@@ -30,7 +30,7 @@ class ZenPack(ZenPackBase):
 
     packZProperties = [
             ('zMySqlUsername', 'zenoss', 'string'),
-            ('zMySqlPassword', '', 'string'),
+            ('zMySqlPassword', '', 'password'),
             ]
 
     def install(self, app):
