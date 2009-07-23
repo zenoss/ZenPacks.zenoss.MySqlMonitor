@@ -14,21 +14,8 @@
 import Globals
 from Products.ZenModel.ZenPack import ZenPackMigration
 from Products.ZenModel.migrate.Migrate import Version
+from Products.ZenModel.migrate.MigrateUtils import migratePropertyType
 
-def transformZMySqlPasswords(manager):
-    """
-    Change zMySqlPassword to a password type at this level if it exists and
-    recursively for any child property managers.
-    """
-    if manager.hasProperty('zMySqlPassword'):
-        value = manager.getProperty('zMySqlPassword')
-        manager._delProperty('zMySqlPassword')
-        manager._setProperty('zMySqlPassword', value, 'password')
-    if isinstance(manager, ObjectManager):
-        for ob in manager.objectValues():
-            if isinstance(ob, ZenPropertyManager):
-                self.transformZMySqlPasswords(ob)
-                
 class PasswordType(ZenPackMigration):
     version = Version(2, 0, 2)
     
@@ -37,6 +24,5 @@ class PasswordType(ZenPackMigration):
         change zMySqlPassword to be of type 'password' and run transformer
         against it.
         """
-        dmd = pack.__primary_parent__.__primary_parent__
-        transformZMySqlPasswords(dmd.Devices)
+        migratePropertyType(pack.Devices, 'zMySqlPassword', 'password')
         
