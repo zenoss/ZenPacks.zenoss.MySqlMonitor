@@ -51,6 +51,9 @@ ${here/zMySqlPassword}
 </property>
 <tomanycont id='datapoints'>
 <object id='Bytes_received' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property type="text" id="zendoc" mode="w" >
+The number of bytes received from all clients.
+</property>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
 </property>
@@ -62,6 +65,9 @@ True
 </property>
 </object>
 <object id='Bytes_sent' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property type="text" id="zendoc" mode="w" >
+The number of bytes sent to all clients. 
+</property>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
 </property>
@@ -73,6 +79,9 @@ True
 </property>
 </object>
 <object id='Com_delete' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property type="text" id="zendoc" mode="w" >
+The number of times each delete statement has been executed.
+</property>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
 </property>
@@ -84,6 +93,9 @@ True
 </property>
 </object>
 <object id='Com_delete_multi' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property type="text" id="zendoc" mode="w" >
+The  number of times each delete_multi statement has been executed.
+</property>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
 </property>
@@ -95,6 +107,9 @@ True
 </property>
 </object>
 <object id='Com_insert' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property type="text" id="zendoc" mode="w" >
+The  number of times each insert statement has been executed.
+</property>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
 </property>
@@ -106,6 +121,9 @@ True
 </property>
 </object>
 <object id='Com_insert_select' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property type="text" id="zendoc" mode="w" >
+The  number of times each insert_select statement has been executed.
+</property>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
 </property>
@@ -117,6 +135,9 @@ True
 </property>
 </object>
 <object id='Com_select' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property type="text" id="zendoc" mode="w" >
+The number of times each select statement has been executed.
+</property>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
 </property>
@@ -128,6 +149,9 @@ True
 </property>
 </object>
 <object id='Com_update' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property type="text" id="zendoc" mode="w" >
+The number of times each update statement has been executed.
+</property>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
 </property>
@@ -139,6 +163,9 @@ True
 </property>
 </object>
 <object id='Com_update_multi' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property type="text" id="zendoc" mode="w" >
+The number of times each update_multi statement has been executed.
+</property>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
 </property>
@@ -150,6 +177,9 @@ True
 </property>
 </object>
 <object id='Handler_delete' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property type="text" id="zendoc" mode="w" >
+The number of times that rows have been deleted from tables.
+</property>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
 </property>
@@ -161,6 +191,9 @@ True
 </property>
 </object>
 <object id='Handler_read_first' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property type="text" id="zendoc" mode="w" >
+The number of times the first entry in an index was read.
+</property>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
 </property>
@@ -172,6 +205,9 @@ True
 </property>
 </object>
 <object id='Handler_read_key' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property type="text" id="zendoc" mode="w" >
+The number of requests to read a row based on a key.
+</property>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
 </property>
@@ -183,6 +219,9 @@ True
 </property>
 </object>
 <object id='Handler_read_next' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property type="text" id="zendoc" mode="w" >
+The number of requests to read the next row in key order.
+</property>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
 </property>
@@ -194,6 +233,9 @@ True
 </property>
 </object>
 <object id='Handler_read_prev' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property type="text" id="zendoc" mode="w" >
+The number of requests to read the previous row in key order.
+</property>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
 </property>
@@ -205,6 +247,9 @@ True
 </property>
 </object>
 <object id='Handler_read_rnd' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property type="text" id="zendoc" mode="w" >
+The number of requests to read a row based on a fixed position. 
+</property>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
 </property>
@@ -216,6 +261,9 @@ True
 </property>
 </object>
 <object id='Handler_read_rnd_next' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property type="text" id="zendoc" mode="w" >
+The number of requests to read the next row in the data file.
+</property>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
 </property>
@@ -227,6 +275,9 @@ True
 </property>
 </object>
 <object id='Handler_update' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property type="text" id="zendoc" mode="w" >
+The number of requests to update a row in a table. 
+</property>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
 </property>
@@ -238,6 +289,9 @@ True
 </property>
 </object>
 <object id='Handler_write' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property type="text" id="zendoc" mode="w" >
+The number of requests to insert a row in a table.
+</property>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
 </property>
@@ -249,6 +303,9 @@ True
 </property>
 </object>
 <object id='Select_full_join' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property type="text" id="zendoc" mode="w" >
+The number of joins that perform table scans because they do not use indexes.
+</property>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
 </property>
@@ -260,6 +317,9 @@ True
 </property>
 </object>
 <object id='Select_full_range_join' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property type="text" id="zendoc" mode="w" >
+The number of joins that used a range search on a reference table.
+</property>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
 </property>
@@ -271,6 +331,9 @@ True
 </property>
 </object>
 <object id='Select_range' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property type="text" id="zendoc" mode="w" >
+The number of joins that used ranges on the first table.
+</property>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
 </property>
@@ -282,6 +345,9 @@ True
 </property>
 </object>
 <object id='Select_range_check' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property type="text" id="zendoc" mode="w" >
+The number of joins without keys that check for key usage after each row.
+</property>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
 </property>
@@ -293,6 +359,9 @@ True
 </property>
 </object>
 <object id='Select_scan' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property type="text" id="zendoc" mode="w" >
+The number of joins that did a full scan of the first table. 
+</property>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
 </property>
