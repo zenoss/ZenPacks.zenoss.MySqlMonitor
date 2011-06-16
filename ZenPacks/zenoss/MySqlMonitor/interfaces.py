@@ -19,9 +19,9 @@ class IMySqlMonitorDataSourceInfo(IBasicDataSourceInfo):
     usessh = schema.Bool(title=_t(u"Use SSH"))
     cycletime = schema.Int(title=_t(u'Cycle Time (seconds)'))
     timeout = schema.Int(title=_t(u'Timeout (seconds)'))
-    hostname = schema.Text(title=_t(u'MySQL Host'), group=_t(u'MySQL'))
-    username = schema.Text(title=_t(u'MySQL Username'), group=_t(u'MySQL'))
-    port = schema.Text(title=_t(u'MySQL Port'), group=_t(u'MySQL'))
+    hostname = schema.TextLine(title=_t(u'MySQL Host'), group=_t(u'MySQL'))
+    username = schema.TextLine(title=_t(u'MySQL Username'), group=_t(u'MySQL'))
+    port = schema.TextLine(title=_t(u'MySQL Port'), group=_t(u'MySQL'))
     password = schema.Password(title=_t(u'MySQL Password'), group=_t(u'MySQL'))
     versionFivePlus = schema.Bool(title=_t(u'MySQL Version 5+'), group=_t(u'MySQL'))
     
