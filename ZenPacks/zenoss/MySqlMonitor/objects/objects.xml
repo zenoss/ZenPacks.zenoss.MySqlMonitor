@@ -37,8 +37,8 @@ True
 <property type="string" id="hostname" mode="w" >
 ${here/manageIp}
 </property>
-<property type="int" id="port" mode="w" >
-3306
+<property type="string" id="port" mode="w" >
+${here/zMySqlPort}
 </property>
 <property type="string" id="username" mode="w" >
 ${here/zMySqlUsername}
@@ -1347,9 +1347,6 @@ mysql
 </property>
 <property type="text" id="description" mode="w" >
 MySQL
-</property>
-<property type="int" id="port" mode="w" >
-3306
 </property>
 </object>
 </objects>
