@@ -41,14 +41,14 @@ class MySqlMonitorDataSource(ZenPackPersistence,
 
     versionFivePlus = True
     hostname = '${dev/manageIp}'
-    port = 3306
+    port = '${here/zMySqlPort}'
     username = '${here/zMySqlUsername}'
     password = '${here/zMySqlPassword}'
 
     _properties = BasicDataSource.BasicDataSource._properties + (
         {'id':'versionFivePlus', 'type':'boolean', 'mode':'w'},
         {'id':'hostname', 'type':'string', 'mode':'w'},
-        {'id':'port', 'type':'int', 'mode':'w'},
+        {'id':'port', 'type':'string', 'mode':'w'},
         {'id':'username', 'type':'string', 'mode':'w'},
         {'id':'password', 'type':'string', 'mode':'w'},
         {'id':'timeout', 'type':'int', 'mode':'w'},
