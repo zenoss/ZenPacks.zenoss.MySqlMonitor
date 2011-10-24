@@ -15,11 +15,9 @@
 import sys
 from optparse import OptionParser
 
-try:
-    import MySQLdb
-except:
-    print "Error importing MySQLdb module. This is a pre-requisite."
-    sys.exit(1)
+import pymysql
+pymysql.install_as_MySQLdb()
+import MySQLdb
 
 class ZenossMySqlStatsPlugin:
     def __init__(self, host, port, user, passwd, gstatus):
