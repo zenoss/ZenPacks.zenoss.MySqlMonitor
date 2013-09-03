@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<objects>
+<!-- ('', 'zport', 'dmd', 'Devices', 'Azure') -->
+<object id='/zport/dmd/Devices/Server/MySQL' module='Products.ZenModel.DeviceClass' class='DeviceClass'>
+<property visible="True" type="string" id="zPythonClass" >
+ZenPacks.zenoss.MySQL.MySQLServer
+</property>
+<property visible="True" type="lines" id="zCollectorPlugins" >
+['MySQLCollector']
+</property>
+<property visible="True" type="lines" id="zDeviceTemplates" >
+['MySQLServer']
+</property>
+</object>
+</objects>
