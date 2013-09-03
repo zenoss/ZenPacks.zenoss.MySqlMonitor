@@ -7,9 +7,6 @@
 #
 ##############################################################################
 
-import sys
-print sys.path
-
 from Products.ZenModel.ZenPack import ZenPackBase
 
 

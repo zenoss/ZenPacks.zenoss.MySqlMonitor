@@ -18,7 +18,7 @@ from Products.DataCollector.plugins.DataMaps import ObjectMap, RelationshipMap
 from Products.ZenUtils.Utils import prepId
 
 from ZenPacks.zenoss.MySQL import MODULE_NAME
-
+from ZenPacks.zenoss.MySQL.MySQLServer import CredentialsNotFound, get_credentials
 
 class MySQLCollector(PythonPlugin):
     deviceProperties = PythonPlugin.deviceProperties + (
@@ -42,7 +42,6 @@ class MySQLCollector(PythonPlugin):
         log.debug("HOST: %s", device.host)
         log.debug("PORT: %s", device.port)
         log.debug("USER: %s", device.user)
-        log.debug("PASSWORD: %s", device.password)
 
 
         maps = collections.OrderedDict([

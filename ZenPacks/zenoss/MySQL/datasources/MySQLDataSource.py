@@ -50,10 +50,10 @@ class IMySQLMonitoringDataSourceInfo(IRRDDataSourceInfo):
 
 
 class MySQLMonitoringDataSourceInfo(RRDDataSourceInfo):
-    ''' API Info adapter factory for MySQLMonitoringDataSource.  '''
+    ''' API Info adapter factory for MySQLDataSource.  '''
 
     implements(IMySQLMonitoringDataSourceInfo)
-    adapts(MySQLMonitoringDataSource)
+    adapts(MySQLDataSource)
 
     testable = False
 

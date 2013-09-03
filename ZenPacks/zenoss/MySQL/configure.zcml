@@ -19,14 +19,6 @@
         factory=".MySQLDatabase.MySQLDatabaseInfo"
         />
 
-    <!--
-    <adapter
-        provides=".datasources.AzureMonitoringDataSource.IAzureMonitoringDataSourceInfo"
-        for=".datasources.AzureMonitoringDataSource.AzureMonitoringDataSource"
-        factory=".datasources.AzureMonitoringDataSource.AzureMonitoringDataSourceInfo"
-        />
-    -->
-
 
     <!-- API: Routers -->
     <browser:directRouter
@@ -39,10 +31,10 @@
 
     <!-- API: Facades -->
     <adapter
-        name="mysql"
-        provides=".api.IMySQLFacade"
+        name="mysqlserver"
+        provides=".api.IMySQLServerFacade"
         for="*"
-        factory=".api.MySQLFacade"
+        factory=".api.MySQLServerFacade"
     />
 
     <!-- Browser Resources -->
@@ -61,5 +53,4 @@
         class="Products.ZenUI3.browser.javascript.JavaScriptSrcBundleViewlet"
         permission="zope2.Public"
         />
-
 </configure>

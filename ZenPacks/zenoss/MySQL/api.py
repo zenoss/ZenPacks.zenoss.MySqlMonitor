@@ -21,10 +21,10 @@ from Products.Zuul.facades import ZuulFacade
 from Products.Zuul.utils import ZuulMessageFactory as _t
 
 
-class IMySQLFacade(IFacade):
+class IMySQLServerFacade(IFacade):
 
-    def add_server(self, device_name, subscription_id, cert_file, collector):
-        ''' Schedule the addition of an MySQL account.  '''
+    def add_server(self, name, host, port, user, password, collector):
+        ''' Schedule the addition of an MySQL server. '''
 
     def set_device_class_info(self, uid):
         '''
@@ -32,24 +32,26 @@ class IMySQLFacade(IFacade):
         devices from Linux and Windows instance platform respectively.
         '''
 
-class MySQLFacade(ZuulFacade):
-    implements(IMySQLFacade)
+class MySQLServerFacade(ZuulFacade):
+    implements(IMySQLServerFacade)
 
-    def add_device(self, device_name, more_data, collector):
+    def add_server(self, name, host, port, user, password, collector):
         deviceRoot = self._dmd.getDmdRoot("Devices")
-        device = deviceRoot.findDeviceByIdExact(device_name)
+        device = deviceRoot.findDeviceByIdExact(name)
         if device:
-            return False, _t("A device named %s already exists." % device_name)
+            return False, _t("A device named %s already exists." % name)
 
         @transact
         def create_device():
-            dc = self._dmd.Devices.getOrganizer('/Devices/Server/MySQL')
+            dc = self._dmd.Devices.getOrganizer('/Devices')
 
-            device = dc.createInstance(device_name)
+            device = dc.createInstance(name)
             device.setPerformanceMonitor(collector)
 
-            device.subscription_id = subscription_id
-            device.cert_file = cert_file
+            device.host = host
+            device.port = port
+            device.user = user
+            device.password = password
 
             device.index_object()
             notify(IndexingEvent(device))
@@ -59,7 +61,7 @@ class MySQLFacade(ZuulFacade):
         create_device()
 
         # Schedule a modeling job for the new device.
-        device = deviceRoot.findDeviceByIdExact(device_name)
+        device = deviceRoot.findDeviceByIdExact(name)
         device.collectDevice(setlog=False, background=True)
 
         return True
@@ -72,15 +74,16 @@ class MySQLFacade(ZuulFacade):
 
 class MySQLRouter(DirectRouter):
     def _getFacade(self):
-        return Zuul.getFacade('mysql', self.context)
+        return Zuul.getFacade('mysqlserver', self.context)
 
-    def add_device(self, device_name, subscription_id, cert_file, collector):
-        success = self._getFacade().add_device(
-            device_name, subscription_id, cert_file, collector)
+    def add_server(self, name, host, port, user, password, collector):
+        success = self._getFacade().add_stub_device(
+            name, host, port, user, password, collector
+        )
         if success:
             return DirectResponse.succeed()
         else:
-            return DirectResponse.fail("Failed to add MySQL Server")
+            return DirectResponse.fail("Failed to add MySQL server")
 
     def set_device_class_info(self, uid):
         self._getFacade().set_device_class_info(uid)
