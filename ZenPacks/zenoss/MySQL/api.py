@@ -23,7 +23,8 @@ from Products.Zuul.utils import ZuulMessageFactory as _t
 
 class IMySQLFacade(IFacade):
 
-    def add_server(self, device_name, subscription_id, cert_file, collector):
+    def add_device(self, device_name, host, port, user, password, \
+        connection_type, version, collector):
         ''' Schedule the addition of an MySQL account.  '''
 
     def set_device_class_info(self, uid):
@@ -35,7 +36,9 @@ class IMySQLFacade(IFacade):
 class MySQLFacade(ZuulFacade):
     implements(IMySQLFacade)
 
-    def add_device(self, device_name, more_data, collector):
+    def add_device(self, device_name, host, port, user, password, \
+        connection_type, version, collector):
+
         deviceRoot = self._dmd.getDmdRoot("Devices")
         device = deviceRoot.findDeviceByIdExact(device_name)
         if device:
@@ -48,8 +51,12 @@ class MySQLFacade(ZuulFacade):
             device = dc.createInstance(device_name)
             device.setPerformanceMonitor(collector)
 
-            device.subscription_id = subscription_id
-            device.cert_file = cert_file
+            device.host = host
+            device.port = port
+            device.user = user
+            device.password = password
+            device.connection_type = connection_type
+            device.version = version
 
             device.index_object()
             notify(IndexingEvent(device))
@@ -74,9 +81,12 @@ class MySQLRouter(DirectRouter):
     def _getFacade(self):
         return Zuul.getFacade('mysql', self.context)
 
-    def add_device(self, device_name, subscription_id, cert_file, collector):
-        success = self._getFacade().add_device(
-            device_name, subscription_id, cert_file, collector)
+    def add_device(self, device_name, host, port, user, password, \
+        connection_type, version, collector):
+        
+        success = self._getFacade().add_device(device_name, host, port, user, \
+            password, connection_type, version, collector)
+
         if success:
             return DirectResponse.succeed()
         else:

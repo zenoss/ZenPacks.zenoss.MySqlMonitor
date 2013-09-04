@@ -31,7 +31,15 @@ var add_mysqlserver = new Zenoss.Action({
                 border: false,
                 items: [{
                     xtype: 'textfield',
+                    name: 'device_name',
+                    fieldLabel: _t('Server Name'),
+                    id: 'add_myslqserver-devicename',
+                    width: 260,
+                    allowBlank: false
+                }, {
+                    xtype: 'textfield',
                     name: 'host',
+                    value: 'localhost',
                     fieldLabel: _t('Host'),
                     id: 'add_myslqserver-host',
                     width: 260,
@@ -39,6 +47,7 @@ var add_mysqlserver = new Zenoss.Action({
                 }, {
                     xtype: 'textfield',
                     name: 'port',
+                    value: '3306',
                     fieldLabel: _t('Port'),
                     id: 'add_myslqserver-port',
                     width: 260,
@@ -46,6 +55,7 @@ var add_mysqlserver = new Zenoss.Action({
                 }, {
                     xtype: 'textfield',
                     name: 'user',
+                    value: 'root',
                     fieldLabel: _t('User'),
                     id: 'add_myslqserver-user',
                     width: 260,
@@ -58,6 +68,58 @@ var add_mysqlserver = new Zenoss.Action({
                     id: 'add_mysqlserver-password',
                     width: 260,
                     allowBlank: true
+                }, {
+                    xtype: 'combo',
+                    width: 260,
+                    name: 'connection_type',
+                    fieldLabel: _t('Connection type'),
+                    id: 'add_mysqlserver-connection-type',
+                    mode: 'local',
+                    store: new Ext.data.ArrayStore({
+                        id: 0,
+                        fields: [
+                            'name'
+                        ],
+                        data: [['MySQL'], ['Script via SSH']]  // data is local
+                    }),
+                    valueField: 'name',
+                    displayField: 'name',
+                    forceSelection: true,
+                    editable: false,
+                    allowBlank: false,
+                    triggerAction: 'all',
+                    selectOnFocus: false,
+                    listeners: {
+                        'afterrender': function(component) {
+                            component.setValue('MySQL');
+                        }
+                    }
+                }, {
+                    xtype: 'combo',
+                    width: 260,
+                    name: 'version',
+                    fieldLabel: _t('MySQL version'),
+                    id: 'add_mysqlserver-version',
+                    mode: 'local',
+                    store: new Ext.data.ArrayStore({
+                        id: 0,
+                        fields: [
+                            'name'
+                        ],
+                        data: [['5.1'], ['5.5'], ['5.6'], ['5.7']]  // data is local
+                    }),
+                    valueField: 'name',
+                    displayField: 'name',
+                    forceSelection: true,
+                    editable: false,
+                    allowBlank: false,
+                    triggerAction: 'all',
+                    selectOnFocus: false,
+                    listeners: {
+                        'afterrender': function(component) {
+                            component.setValue('5.5');
+                        }
+                    }
                 }, {
                     xtype: 'combo',
                     width: 260,
