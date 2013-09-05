@@ -12,7 +12,9 @@
 var ZC = Ext.ns('Zenoss.component');
 
 ZC.registerName('MySQLServer', _t('MySQL Server'), _t('MySQL Server'));
-ZC.registerName('MySQLDatabase', _t('MySQL Database'), _t('MySQL Database'));
+ZC.registerName('MySQLDatabase', _t('Database'), _t('Databases'));
+ZC.registerName('MySQLStoredProcedure', _t('Stored procedure'), _t('Stored procedures'));
+ZC.registerName('MySQLTable', _t('Table'), _t('Tables'));
 
 var add_mysqlserver = new Zenoss.Action({
     text: _t('Add MySQL Server') + '...',

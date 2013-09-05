@@ -15,7 +15,8 @@ from Products.ZenModel.ZenPack import ZenPackBase
 productNames = (
     'MySQLServer',
     'MySQLDatabase',
-    #'MySQLTable',
+    'MySQLTable',
+    'MySQLStoredProcedure'
     )
 
 # Useful to avoid making literal string references to module and class names

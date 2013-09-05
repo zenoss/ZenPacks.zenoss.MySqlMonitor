@@ -19,6 +19,18 @@
         factory=".MySQLDatabase.MySQLDatabaseInfo"
         />
 
+    <adapter
+        provides=".MySQLTable.IMySQLTableInfo"
+        for=".MySQLTable.MySQLTable"
+        factory=".MySQLTable.MySQLTableInfo"
+        />
+
+    <adapter
+        provides=".MySQLStoredProcedure.IMySQLStoredProcedureInfo"
+        for=".MySQLStoredProcedure.MySQLStoredProcedure"
+        factory=".MySQLStoredProcedure.MySQLStoredProcedureInfo"
+        />
+
     <!--
     <adapter
         provides=".datasources.AzureMonitoringDataSource.IAzureMonitoringDataSourceInfo"

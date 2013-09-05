@@ -30,6 +30,8 @@ class MySQLDatabase(MySQLComponent):
 
     _relations = MySQLComponent._relations + (
         ('server', ToOne(ToManyCont, MODULE_NAME['MySQLServer'], 'databases')),
+        ('tables', ToManyCont(ToOne, MODULE_NAME['MySQLTable'], 'database')),
+        ('stored_procedures', ToManyCont(ToOne, MODULE_NAME['MySQLStoredProcedure'], 'database')),
     )
 
 
@@ -52,7 +54,7 @@ class MySQLDatabaseInfo(ComponentInfo):
     @property
     @info
     def server(self):
-        return self._object.server()
+        return self._object.device()
 
 
 class MySQLDatabasePathReporter(DefaultPathReporter):
