@@ -32,6 +32,7 @@ class MySQLDatabase(MySQLComponent):
         ('server', ToOne(ToManyCont, MODULE_NAME['MySQLServer'], 'databases')),
         ('tables', ToManyCont(ToOne, MODULE_NAME['MySQLTable'], 'database')),
         ('stored_procedures', ToManyCont(ToOne, MODULE_NAME['MySQLStoredProcedure'], 'database')),
+        ('stored_functions', ToManyCont(ToOne, MODULE_NAME['MySQLStoredFunction'], 'database')),
     )
 
 

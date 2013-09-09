@@ -31,6 +31,18 @@
         factory=".MySQLStoredProcedure.MySQLStoredProcedureInfo"
         />
 
+    <adapter
+        provides=".MySQLStoredFunction.IMySQLStoredFunctionInfo"
+        for=".MySQLStoredFunction.MySQLStoredFunction"
+        factory=".MySQLStoredFunction.MySQLStoredFunctionInfo"
+        />
+
+    <adapter
+        provides=".MySQLProcess.IMySQLProcessInfo"
+        for=".MySQLProcess.MySQLProcess"
+        factory=".MySQLProcess.MySQLProcessInfo"
+        />
+
     <!--
     <adapter
         provides=".datasources.AzureMonitoringDataSource.IAzureMonitoringDataSourceInfo"

@@ -28,7 +28,7 @@ from .utils import updateToMany, updateToOne
 class MySQLTable(MySQLComponent):
     meta_type = portal_type = 'MySQLTable'
 
-    table_status = "--"
+    table_status = None
 
     _properties = MySQLComponent._properties + (
         {'id': 'table_status', 'type': 'string'},
