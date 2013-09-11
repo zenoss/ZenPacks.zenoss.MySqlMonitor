@@ -31,7 +31,6 @@ class MySQLServer(Device):
     port = None
     user = None
     password = None
-    connection_type = None
     version = None
 
     _properties = Device._properties + (
@@ -39,7 +38,6 @@ class MySQLServer(Device):
         {'id': 'port', 'type': 'string'},
         {'id': 'user', 'type': 'string'},
         {'id': 'password', 'type': 'string'},
-        {'id': 'connection_type', 'type': 'string'},
         {'id': 'version', 'type': 'string'},
     )
 
@@ -82,7 +80,6 @@ class IMySQLServerInfo(IDeviceInfo):
     port = schema.TextLine(title=_t(u'Port'))
     user = schema.TextLine(title=_t(u'User'))
     password = schema.TextLine(title=_t(u'Password'))
-    connection_type = schema.TextLine(title=_t(u'Connection type'))
     version = schema.TextLine(title=_t(u'MySQL Version'))
 
 
@@ -96,5 +93,4 @@ class MySQLServerInfo(DeviceInfo):
     port = ProxyProperty('port')
     user = ProxyProperty('user')
     password = ProxyProperty('password')
-    connection_type = ProxyProperty('connection_type')
     version = ProxyProperty('version')

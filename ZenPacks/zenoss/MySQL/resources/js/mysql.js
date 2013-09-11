@@ -51,7 +51,7 @@ var add_mysqlserver = new Zenoss.Action({
                 }, {
                     xtype: 'textfield',
                     name: 'port',
-                    value: '3306',
+                    value: '22',
                     fieldLabel: _t('Port'),
                     id: 'add_myslqserver-port',
                     width: 260,
@@ -72,32 +72,6 @@ var add_mysqlserver = new Zenoss.Action({
                     id: 'add_mysqlserver-password',
                     width: 260,
                     allowBlank: true
-                }, {
-                    xtype: 'combo',
-                    width: 260,
-                    name: 'connection_type',
-                    fieldLabel: _t('Connection type'),
-                    id: 'add_mysqlserver-connection-type',
-                    mode: 'local',
-                    store: new Ext.data.ArrayStore({
-                        id: 0,
-                        fields: [
-                            'name'
-                        ],
-                        data: [['MySQL'], ['Script via SSH']]  // data is local
-                    }),
-                    valueField: 'name',
-                    displayField: 'name',
-                    forceSelection: true,
-                    editable: false,
-                    allowBlank: false,
-                    triggerAction: 'all',
-                    selectOnFocus: false,
-                    listeners: {
-                        'afterrender': function(component) {
-                            component.setValue('MySQL');
-                        }
-                    }
                 }, {
                     xtype: 'combo',
                     width: 260,

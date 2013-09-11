@@ -39,6 +39,7 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'monitor'},
                 {name: 'monitored'},
                 {name: 'locking'},
+                {name: 'size_mb'},
             ],
             columns: [{
                 id: 'severity',
@@ -50,7 +51,11 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 id: 'name',
                 dataIndex: 'name',
                 header: _t('Name'),
-            },{
+            },{            
+                id: 'size_mb',
+                dataIndex: 'size_mb',
+                header: _t('Size'),
+            },{ 
                 id: 'status',
                 dataIndex: 'status',
                 header: _t('Status'),
@@ -94,6 +99,11 @@ ZC.MySQLTablePanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'monitored'},
                 {name: 'locking'},
                 {name: 'database'},
+                {name: 'engine'},
+                {name: 'table_type'},
+                {name: 'table_collation'},
+                {name: 'table_rows'},
+                {name: 'size_mb'},
                 {name: 'table_status'},
             ],
             columns: [{
@@ -112,7 +122,27 @@ ZC.MySQLTablePanel = Ext.extend(ZC.ComponentGridPanel, {
                 dataIndex: 'database',
                 header: _t('Database'),
                 renderer: Zenoss.render.linkFromGrid,
+            },{                 
+                id: 'engine',
+                dataIndex: 'engine',
+                header: _t('Engine'),
             },{                
+                id: 'table_type',
+                dataIndex: 'table_type',
+                header: _t('Type'),
+            },{                
+                id: 'table_collation',
+                dataIndex: 'table_collation',
+                header: _t('Collation'),
+            },{                 
+                id: 'table_rows',
+                dataIndex: 'table_rows',
+                header: _t('Rows'),
+            },{             
+                id: 'size_mb',
+                dataIndex: 'size_mb',
+                header: _t('Size'),
+            },{            
                 id: 'table_status',
                 dataIndex: 'table_status',
                 header: _t('Table status'),
@@ -552,12 +582,6 @@ Ext.onReady(function(){
             });
 
         // idpanel.addField({
-        //     name: 'connection_type',
-        //     fieldLabel: _t('Connection type'),
-        //     xtype: 'textfield'
-        //     });
-
-        // idpanel.addField({
         //     name: 'version',
         //     fieldLabel: _t('MySQL version'),
         //     xtype: 'textfield'
@@ -576,14 +600,6 @@ Ext.onReady(function(){
         descriptionpanel.removeField('hwModel');
         descriptionpanel.removeField('osManufacturer');
         descriptionpanel.removeField('osModel');
-
-        descriptionpanel.addField({
-            id: 'connection_type-view',
-            xtype: 'displayfield',
-            name: 'connection_type',
-            fieldLabel: _t('Connection type'),
-            permission: 'Manage Device'
-        });
 
         descriptionpanel.addField({
             id: 'version-view',

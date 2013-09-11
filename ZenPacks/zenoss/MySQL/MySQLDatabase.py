@@ -28,6 +28,12 @@ from .utils import updateToMany, updateToOne
 class MySQLDatabase(MySQLComponent):
     meta_type = portal_type = 'MySQLDatabase'
 
+    size_mb = None
+
+    _properties = MySQLComponent._properties + (
+        {'id': 'size_mb', 'type': 'string'},
+    )
+
     _relations = MySQLComponent._relations + (
         ('server', ToOne(ToManyCont, MODULE_NAME['MySQLServer'], 'databases')),
         ('tables', ToManyCont(ToOne, MODULE_NAME['MySQLTable'], 'database')),
@@ -42,6 +48,7 @@ class IMySQLDatabaseInfo(IComponentInfo):
     '''
 
     server = schema.Entity(title=_t(u'Server'))
+    size_mb = schema.TextLine(title=_t(u'Size'))
 
 
 class MySQLDatabaseInfo(ComponentInfo):
@@ -51,6 +58,8 @@ class MySQLDatabaseInfo(ComponentInfo):
 
     implements(IMySQLDatabaseInfo)
     adapts(MySQLDatabase)
+
+    size_mb = ProxyProperty('size_mb')
 
     @property
     @info
