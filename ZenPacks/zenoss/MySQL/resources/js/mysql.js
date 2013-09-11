@@ -75,32 +75,6 @@ var add_mysqlserver = new Zenoss.Action({
                 }, {
                     xtype: 'combo',
                     width: 260,
-                    name: 'connection_type',
-                    fieldLabel: _t('Connection type'),
-                    id: 'add_mysqlserver-connection-type',
-                    mode: 'local',
-                    store: new Ext.data.ArrayStore({
-                        id: 0,
-                        fields: [
-                            'name'
-                        ],
-                        data: [['MySQL'], ['Script via SSH']]  // data is local
-                    }),
-                    valueField: 'name',
-                    displayField: 'name',
-                    forceSelection: true,
-                    editable: false,
-                    allowBlank: false,
-                    triggerAction: 'all',
-                    selectOnFocus: false,
-                    listeners: {
-                        'afterrender': function(component) {
-                            component.setValue('Script via SSH');
-                        }
-                    }
-                }, {
-                    xtype: 'combo',
-                    width: 260,
                     name: 'version',
                     fieldLabel: _t('MySQL version'),
                     id: 'add_mysqlserver-version',
