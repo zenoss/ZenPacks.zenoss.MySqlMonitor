@@ -89,7 +89,7 @@
     <browser:viewlet
         name="js-panels"
         paths="/++resource++ZenPacks_zenoss_MySQL/js/panels.js"
-        for="*"
+        for=".MySQLServer.MySQLServer"
         weight="20"
         manager="Products.ZenUI3.browser.interfaces.IJavaScriptSrcManager"
         class="Products.ZenUI3.browser.javascript.JavaScriptSrcBundleViewlet"

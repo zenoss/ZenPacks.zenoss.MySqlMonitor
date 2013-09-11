@@ -14,7 +14,9 @@ var ZC = Ext.ns('Zenoss.component');
 ZC.registerName('MySQLServer', _t('MySQL Server'), _t('MySQL Server'));
 ZC.registerName('MySQLDatabase', _t('Database'), _t('Databases'));
 ZC.registerName('MySQLStoredProcedure', _t('Stored procedure'), _t('Stored procedures'));
+ZC.registerName('MySQLStoredFunction', _t('Stored function'), _t('Stored functions'));
 ZC.registerName('MySQLTable', _t('Table'), _t('Tables'));
+ZC.registerName('MySQLProcess', _t('Process'), _t('Processes'));
 
 var add_mysqlserver = new Zenoss.Action({
     text: _t('Add MySQL Server') + '...',
@@ -22,7 +24,7 @@ var add_mysqlserver = new Zenoss.Action({
     permission: 'Manage DMD',
     handler: function(btn, e){
         var win = new Zenoss.dialog.CloseDialog({
-            width: 400,
+            width: 300,
             title: _t('Add MySQL server'),
             items: [{
                 xtype: 'form',
