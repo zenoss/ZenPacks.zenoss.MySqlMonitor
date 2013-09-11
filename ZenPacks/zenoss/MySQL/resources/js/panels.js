@@ -54,6 +54,7 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 id: 'status',
                 dataIndex: 'status',
                 header: _t('Status'),
+                renderer: Zenoss.render.pingStatus,
                 width: 50
             },{
                 id: 'monitored',
@@ -119,6 +120,7 @@ ZC.MySQLTablePanel = Ext.extend(ZC.ComponentGridPanel, {
                 id: 'status',
                 dataIndex: 'status',
                 header: _t('Status'),
+                renderer: Zenoss.render.pingStatus,
                 width: 50
             },{
                 id: 'monitored',
@@ -179,6 +181,7 @@ ZC.MySQLStoredProcedurePanel = Ext.extend(ZC.ComponentGridPanel, {
                 id: 'status',
                 dataIndex: 'status',
                 header: _t('Status'),
+                renderer: Zenoss.render.pingStatus,
                 width: 50
             },{
                 id: 'monitored',
@@ -199,6 +202,162 @@ ZC.MySQLStoredProcedurePanel = Ext.extend(ZC.ComponentGridPanel, {
 });
 
 Ext.reg('MySQLStoredProcedurePanel', ZC.MySQLStoredProcedurePanel);
+
+/* MySQLStoredFunction */
+ZC.MySQLStoredFunctionPanel = Ext.extend(ZC.ComponentGridPanel, {
+    subComponentGridPanel: false,
+
+    constructor: function(config) {
+        config = Ext.applyIf(config||{}, {
+            autoExpandColumn: 'name',
+            componentType: 'MySQLStoredFunction',
+            fields: [
+                {name: 'uid'},
+                {name: 'name'},
+                {name: 'status'},
+                {name: 'severity'},
+                {name: 'usesMonitorAttribute'},
+                {name: 'monitor'},
+                {name: 'monitored'},
+                {name: 'locking'},
+                {name: 'database'},
+            ],
+            columns: [{
+                id: 'severity',
+                dataIndex: 'severity',
+                header: _t('Events'),
+                renderer: Zenoss.render.severity,
+                width: 50
+            },{
+                id: 'name',
+                dataIndex: 'name',
+                header: _t('Name'),
+                renderer: Zenoss.render.linkFromSubgrid,
+            },{
+                id: 'database',
+                dataIndex: 'database',
+                header: _t('Database'),
+                renderer: Zenoss.render.linkFromGrid,
+            },{ 
+                id: 'status',
+                dataIndex: 'status',
+                header: _t('Status'),
+                renderer: Zenoss.render.pingStatus,
+                width: 50
+            },{
+                id: 'monitored',
+                dataIndex: 'monitored',
+                header: _t('Monitored'),
+                renderer: Zenoss.render.checkbox,
+                width: 60
+            },{
+                id: 'locking',
+                dataIndex: 'locking',
+                header: _t('Locking'),
+                renderer: Zenoss.render.locking_icons,
+                width: 60
+            }]
+        });
+        ZC.MySQLStoredFunctionPanel.superclass.constructor.call(this, config);
+    }
+});
+
+Ext.reg('MySQLStoredFunctionPanel', ZC.MySQLStoredFunctionPanel);
+
+/* MySQLProcess */
+ZC.MySQLProcessPanel = Ext.extend(ZC.ComponentGridPanel, {
+    subComponentGridPanel: false,
+
+    constructor: function(config) {
+        config = Ext.applyIf(config||{}, {
+            autoExpandColumn: 'name',
+            componentType: 'MySQLProcess',
+            fields: [
+                {name: 'uid'},
+                {name: 'name'},
+                {name: 'status'},
+                {name: 'severity'},
+                {name: 'usesMonitorAttribute'},
+                {name: 'monitor'},
+                {name: 'monitored'},
+                {name: 'locking'},
+                {name: 'process_id'},
+                {name: 'user'},
+                {name: 'host'},
+                {name: 'db'},
+                {name: 'command'},
+                {name: 'time'},
+                {name: 'state'},
+                {name: 'process_info'},
+            ],
+            columns: [{
+                id: 'severity',
+                dataIndex: 'severity',
+                header: _t('Events'),
+                renderer: Zenoss.render.severity,
+                width: 50
+            },{
+                id: 'name',
+                dataIndex: 'name',
+                header: _t('Name'),
+                renderer: Zenoss.render.linkFromSubgrid,
+            },{                
+                id: 'process_id',
+                dataIndex: 'process_id',
+                header: _t('ID'),
+            },{                               
+                id: 'user',
+                dataIndex: 'user',
+                header: _t('User'),
+            },{               
+                id: 'host',
+                dataIndex: 'host',
+                header: _t('Host'),
+            },{               
+                id: 'db',
+                dataIndex: 'db',
+                header: _t('Database'),
+            },{               
+                id: 'command',
+                dataIndex: 'command',
+                header: _t('Command'),
+            },{               
+                id: 'time',
+                dataIndex: 'time',
+                header: _t('Time'),
+            },{               
+                id: 'state',
+                dataIndex: 'state',
+                header: _t('State'),
+            },{               
+                id: 'process_info',
+                dataIndex: 'process_info',
+                header: _t('Info'),
+            },{
+                id: 'status',
+                dataIndex: 'status',
+                header: _t('Status'),
+                renderer: Zenoss.render.pingStatus,
+                width: 50
+            },{
+                id: 'monitored',
+                dataIndex: 'monitored',
+                header: _t('Monitored'),
+                renderer: Zenoss.render.checkbox,
+                width: 60
+            },{
+                id: 'locking',
+                dataIndex: 'locking',
+                header: _t('Locking'),
+                renderer: Zenoss.render.locking_icons,
+                width: 60
+            }]
+        });
+        ZC.MySQLProcessPanel.superclass.constructor.call(this, config);
+    }
+});
+
+Ext.reg('MySQLProcessPanel', ZC.MySQLProcessPanel);
 
 /* Subcomponent Panels */
 /* MySQLTable */
@@ -232,6 +391,23 @@ Zenoss.nav.appendTo('Component', [{
     },
     setContext: function(uid) {
         ZC.MySQLStoredProcedurePanel.superclass.setContext.apply(this, [uid]);
+    }
+}]);
+
+/* MySQLStoredFunction */
+Zenoss.nav.appendTo('Component', [{
+    id: 'database_stored_functions',
+    text: _t('Stored functions'),
+    xtype: 'MySQLStoredFunctionPanel',
+    subComponentGridPanel: true,
+    filterNav: function(navpanel) {
+         switch (navpanel.refOwner.componentType) {
+            case 'MySQLDatabase': return true;
+            default: return false;
+         }
+    },
+    setContext: function(uid) {
+        ZC.MySQLStoredFunctionPanel.superclass.setContext.apply(this, [uid]);
     }
 }]);
 

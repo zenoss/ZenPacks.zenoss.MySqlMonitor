@@ -47,6 +47,9 @@ class MySQLServer(Device):
         ('databases', ToManyCont(
             ToOne, MODULE_NAME['MySQLDatabase'], 'server'
         )),
+        ('processes', ToManyCont(
+            ToOne, MODULE_NAME['MySQLProcess'], 'server'
+        )),
     )
 
     def getIconPath(self):

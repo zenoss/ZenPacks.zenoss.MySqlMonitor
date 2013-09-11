@@ -16,7 +16,9 @@ productNames = (
     'MySQLServer',
     'MySQLDatabase',
     'MySQLTable',
-    'MySQLStoredProcedure'
+    'MySQLStoredProcedure',
+    'MySQLStoredFunction',
+    'MySQLProcess'
     )
 
 # Useful to avoid making literal string references to module and class names

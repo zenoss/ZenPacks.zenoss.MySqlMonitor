@@ -25,39 +25,30 @@ from .MySQLComponent import MySQLComponent
 from .utils import updateToMany, updateToOne
 
 
-class MySQLTable(MySQLComponent):
-    meta_type = portal_type = 'MySQLTable'
-
-    table_status = None
-
-    _properties = MySQLComponent._properties + (
-        {'id': 'table_status', 'type': 'string'},
-    )
+class MySQLStoredFunction(MySQLComponent):
+    meta_type = portal_type = 'MySQLStoredFunction'
 
     _relations = MySQLComponent._relations + (
-        ('database', ToOne(ToManyCont, MODULE_NAME['MySQLDatabase'], 'tables')),
+        ('database', ToOne(ToManyCont, MODULE_NAME['MySQLDatabase'], 'stored_functions')),
     )
 
 
-class IMySQLTableInfo(IComponentInfo):
+class IMySQLStoredFunctionInfo(IComponentInfo):
     '''
-    API Info interface for MySQLTable.
+    API Info interface for MySQLStoredFunction.
     '''
 
     server = schema.Entity(title=_t(u'Server'))
     database = schema.Entity(title=_t(u'Database'))
-    table_status = schema.TextLine(title=_t(u'Table status'))
 
 
-class MySQLTableInfo(ComponentInfo):
+class MySQLStoredFunctionInfo(ComponentInfo):
     '''
-    API Info adapter factory for MySQLTable.
+    API Info adapter factory for MySQLStoredFunction.
     '''
 
-    implements(IMySQLTableInfo)
-    adapts(MySQLTable)
-
-    table_status = ProxyProperty('table_status')
+    implements(IMySQLStoredFunctionInfo)
+    adapts(MySQLStoredFunction)
 
     @property
     @info
@@ -70,8 +61,8 @@ class MySQLTableInfo(ComponentInfo):
         return self._object.database()
 
 
-class MySQLTablePathReporter(DefaultPathReporter):
-    ''' Path reporter for MySQLTable.  '''
+class MySQLStoredFunctionPathReporter(DefaultPathReporter):
+    ''' Path reporter for MySQLStoredFunction.  '''
 
     def getPaths(self):
-        return super(MySQLTablePathReporter, self).getPaths()
+        return super(MySQLStoredFunctionPathReporter, self).getPaths()
