@@ -51,7 +51,7 @@ var add_mysqlserver = new Zenoss.Action({
                 }, {
                     xtype: 'textfield',
                     name: 'port',
-                    value: '3306',
+                    value: '22',
                     fieldLabel: _t('Port'),
                     id: 'add_myslqserver-port',
                     width: 260,
@@ -95,7 +95,7 @@ var add_mysqlserver = new Zenoss.Action({
                     selectOnFocus: false,
                     listeners: {
                         'afterrender': function(component) {
-                            component.setValue('MySQL');
+                            component.setValue('Script via SSH');
                         }
                     }
                 }, {
