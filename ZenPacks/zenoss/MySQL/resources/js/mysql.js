@@ -43,8 +43,8 @@ var add_mysqlserver = new Zenoss.Action({
                 }, {
                     xtype: 'textfield',
                     name: 'host',
-                    value: 'localhost',
-                    fieldLabel: _t('Host'),
+                    value: '127.0.0.1',
+                    fieldLabel: _t('Host IP address'),
                     id: 'add_myslqserver-host',
                     width: 260,
                     allowBlank: false

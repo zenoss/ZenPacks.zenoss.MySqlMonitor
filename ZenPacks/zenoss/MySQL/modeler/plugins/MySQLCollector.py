@@ -9,10 +9,11 @@
 
 ''' Models discovery tree for MySQL. '''
 
+import re
 import collections
 from itertools import chain
 
-from Products.DataCollector.plugins.CollectorPlugin import PythonPlugin
+from Products.DataCollector.plugins.CollectorPlugin import CommandPlugin
 from Products.DataCollector.plugins.DataMaps import ObjectMap, RelationshipMap
 
 from Products.ZenUtils.Utils import prepId
@@ -20,15 +21,20 @@ from Products.ZenUtils.Utils import prepId
 from ZenPacks.zenoss.MySQL import MODULE_NAME
 
 
-class MySQLCollector(PythonPlugin):
-    deviceProperties = PythonPlugin.deviceProperties + (
-        'host',
-        'port',
-        'user',
-        'password',
-    )
+class MySQLCollector(CommandPlugin):
+    command = """mysql -e 'SELECT table_schema, table_name, engine, table_type, table_collation, table_rows, round(((data_length + index_length) / 1024 / 1024), 2) size_mb FROM information_schema.TABLES'"""
 
-    def collect(self, device, log):
+    # deviceProperties = CommandPlugin.deviceProperties + (
+    #     'host',
+    #     'port',
+    #     'user',
+    #     'password',
+    # )
+
+    # def getCommand(self):
+    #     return """sshpass -p 'mySSHPasswordHere' ssh username@server.nixcraft.net.in "uptime" """
+
+    def condition(self, device, log):
         return True
 
     def process(self, device, results, log):
@@ -37,38 +43,20 @@ class MySQLCollector(PythonPlugin):
             self.name(), device.id
         )
 
-        device_om = ObjectMap()
-
-        log.debug("HOST: %s", device.host)
-        log.debug("PORT: %s", device.port)
-        log.debug("USER: %s", device.user)
-        log.debug("PASSWORD: %s", device.password)
-
-
         maps = collections.OrderedDict([
             ('databases', []),
+            ('processes', []),
+            # ('server', []) # Our Device properties
         ])
 
+        print "=============="
+        print device.id
+        print results
+        print "=============="
+
         # # ---------------------------------------------------------------------
-        # # List of databases
-        # databases = []
-        # for item in [42]:
-        #     hs_id = prepId(str(item))
-
-        #     hosted_service_oms.append(ObjectMap(data={
-        #         'id': hs_id,
-        #         'title': 'database' + str(item),
-        #     }))
-
-        # maps['databases'].append(RelationshipMap(
-        #     relname='databases',
-        #     modname=MODULE_NAME['MySQLDatabase'],
-        #     objmaps=databases
-        # ))
-
-        # ---------------------------------------------------------------------
-        # Device properties
-        maps['server'].append(ObjectMap(data={
-        }))
+        # # Device properties
+        # maps['server'].append(ObjectMap(data={
+        # }))
 
         return list(chain.from_iterable(maps.itervalues()))

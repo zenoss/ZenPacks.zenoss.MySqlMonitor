@@ -51,10 +51,19 @@ class MySQLFacade(ZuulFacade):
             device = dc.createInstance(device_name)
             device.setPerformanceMonitor(collector)
 
-            device.host = host
-            device.port = port
-            device.user = user
-            device.password = password
+            device.index_object()
+
+            device.setManageIp(host)
+
+            device.updateDevice(
+                zProperties = {
+                    "zCommandProtocol": "ssh",
+                    "zCommandPort": port,
+                    "zCommandUsername": user,
+                    "zCommandPassword": password
+                }
+            )
+
             device.version = version
 
             device.index_object()

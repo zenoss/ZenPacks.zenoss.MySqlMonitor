@@ -27,17 +27,9 @@ from ZenPacks.zenoss.MySQL import MODULE_NAME
 class MySQLServer(Device):
     meta_type = portal_type = 'MySQLServer'
 
-    host = None
-    port = None
-    user = None
-    password = None
     version = None
 
     _properties = Device._properties + (
-        {'id': 'host', 'type': 'string'},
-        {'id': 'port', 'type': 'string'},
-        {'id': 'user', 'type': 'string'},
-        {'id': 'password', 'type': 'string'},
         {'id': 'version', 'type': 'string'},
     )
 
@@ -76,10 +68,6 @@ class IMySQLServerInfo(IDeviceInfo):
     API Info interface for MySQLServer.
     '''
 
-    host = schema.TextLine(title=_t(u'Host'))
-    port = schema.TextLine(title=_t(u'Port'))
-    user = schema.TextLine(title=_t(u'User'))
-    password = schema.TextLine(title=_t(u'Password'))
     version = schema.TextLine(title=_t(u'MySQL Version'))
 
 
@@ -89,8 +77,8 @@ class MySQLServerInfo(DeviceInfo):
     implements(IMySQLServerInfo)
     adapts(MySQLServer)
 
-    host = ProxyProperty('host')
-    port = ProxyProperty('port')
-    user = ProxyProperty('user')
-    password = ProxyProperty('password')
+    manageIp = ProxyProperty('manageIp')
+    zCommandPort = ProxyProperty('zCommandPort')
+    zCommandUsername = ProxyProperty('zCommandUsername')
+    zCommandPassword = ProxyProperty('zCommandPassword')
     version = ProxyProperty('version')

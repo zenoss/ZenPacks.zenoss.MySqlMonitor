@@ -557,25 +557,25 @@ Ext.onReady(function(){
         idpanel.removeField('tagNumber');
 
         idpanel.addField({
-            name: 'host',
-            fieldLabel: _t('Host'),
+            name: 'manageIp',
+            fieldLabel: _t('IP'),
             xtype: 'textfield'
             });
 
         idpanel.addField({
-            name: 'port',
+            name: 'zCommandPort',
             fieldLabel: _t('Port'),
             xtype: 'textfield'
             });
 
         idpanel.addField({
-            name: 'user',
+            name: 'zCommandUsername',
             fieldLabel: _t('User'),
             xtype: 'textfield'
             });
 
         idpanel.addField({
-            name: 'password',
+            name: 'zCommandPassword',
             fieldLabel: _t('Password'),
             xtype: 'textfield',
             inputType: 'password'
