@@ -24,7 +24,7 @@ from Products.Zuul.utils import ZuulMessageFactory as _t
 class IMySQLFacade(IFacade):
 
     def add_device(self, device_name, host, port, user, password, \
-        connection_type, version, collector):
+        version, collector):
         ''' Schedule the addition of an MySQL account.  '''
 
     def set_device_class_info(self, uid):
@@ -37,7 +37,7 @@ class MySQLFacade(ZuulFacade):
     implements(IMySQLFacade)
 
     def add_device(self, device_name, host, port, user, password, \
-        connection_type, version, collector):
+        version, collector):
 
         deviceRoot = self._dmd.getDmdRoot("Devices")
         device = deviceRoot.findDeviceByIdExact(device_name)
@@ -55,7 +55,6 @@ class MySQLFacade(ZuulFacade):
             device.port = port
             device.user = user
             device.password = password
-            device.connection_type = connection_type
             device.version = version
 
             device.index_object()
@@ -82,10 +81,10 @@ class MySQLRouter(DirectRouter):
         return Zuul.getFacade('mysql', self.context)
 
     def add_device(self, device_name, host, port, user, password, \
-        connection_type, version, collector):
+        version, collector):
         
         success = self._getFacade().add_device(device_name, host, port, user, \
-            password, connection_type, version, collector)
+            password, version, collector)
 
         if success:
             return DirectResponse.succeed()

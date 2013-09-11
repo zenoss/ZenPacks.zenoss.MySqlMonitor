@@ -28,10 +28,20 @@ from .utils import updateToMany, updateToOne
 class MySQLTable(MySQLComponent):
     meta_type = portal_type = 'MySQLTable'
 
+    engine = None
+    table_type = None
+    table_collation = None
+    table_rows = None
     table_status = None
+    size_mb = None
 
     _properties = MySQLComponent._properties + (
+        {'id': 'engine', 'type': 'string'},
+        {'id': 'table_type', 'type': 'string'},
+        {'id': 'table_collation', 'type': 'string'},
+        {'id': 'table_rows', 'type': 'string'},
         {'id': 'table_status', 'type': 'string'},
+        {'id': 'size_mb', 'type': 'string'},
     )
 
     _relations = MySQLComponent._relations + (
@@ -46,7 +56,12 @@ class IMySQLTableInfo(IComponentInfo):
 
     server = schema.Entity(title=_t(u'Server'))
     database = schema.Entity(title=_t(u'Database'))
+    engine = schema.TextLine(title=_t(u'Engine'))
+    table_type = schema.TextLine(title=_t(u'Type'))
+    table_collation = schema.TextLine(title=_t(u'Collation'))
+    table_rows = schema.TextLine(title=_t(u'Rows'))
     table_status = schema.TextLine(title=_t(u'Table status'))
+    size_mb = schema.TextLine(title=_t(u'Size'))
 
 
 class MySQLTableInfo(ComponentInfo):
@@ -57,7 +72,12 @@ class MySQLTableInfo(ComponentInfo):
     implements(IMySQLTableInfo)
     adapts(MySQLTable)
 
+    engine = ProxyProperty('engine')
+    table_type = ProxyProperty('table_type')
+    table_collation = ProxyProperty('table_collation')
+    table_rows = ProxyProperty('table_rows')
     table_status = ProxyProperty('table_status')
+    size_mb = ProxyProperty('size_mb')
 
     @property
     @info
