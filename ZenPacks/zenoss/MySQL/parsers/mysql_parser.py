@@ -1,10 +1,7 @@
-import re
 from Products.ZenRRD.CommandParser import CommandParser
 
 
-class MySQL(CommandParser): # TODO: check if this should be equal to filename
-    pattern = re.compile(r'^\|\s*(\S+)\s*\|\s*(\S*)\s*\|$')
-
+class MySQL(CommandParser):
     def processResults(self, cmd, result):
         dp_map = dict((dp.id, dp) for dp in cmd.points)
 
@@ -14,6 +11,6 @@ class MySQL(CommandParser): # TODO: check if this should be equal to filename
                 result.values.append((dp_map[key], value))
 
         for line in cmd.result.output.splitlines():
-            match = self.pattern.match(line)
-            if match:
-                ret(*match.groups())
+            ret(*line.split('\t'))
+
+mysql_parser = MySQL # because zenoss is not happy with pep8
