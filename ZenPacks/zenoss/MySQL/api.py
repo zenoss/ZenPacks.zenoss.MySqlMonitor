@@ -39,15 +39,15 @@ class MySQLServerFacade(ZuulFacade):
     def add_device(self, device_name, host, port, user, password, \
         version, collector):
         deviceRoot = self._dmd.getDmdRoot("Devices")
-        device = deviceRoot.findDeviceByIdExact(name)
+        device = deviceRoot.findDeviceByIdExact(device_name)
         if device:
-            return False, _t("A device named %s already exists." % name)
+            return False, _t("A device named %s already exists." % device_name)
 
         @transact
         def create_device():
             dc = self._dmd.Devices.getOrganizer('/Devices')
 
-            device = dc.createInstance(name)
+            device = dc.createInstance(device_name)
             device.setPerformanceMonitor(collector)
 
             device.index_object()
@@ -73,7 +73,7 @@ class MySQLServerFacade(ZuulFacade):
         create_device()
 
         # Schedule a modeling job for the new device.
-        device = deviceRoot.findDeviceByIdExact(name)
+        device = deviceRoot.findDeviceByIdExact(device_name)
         device.collectDevice(setlog=False, background=True)
 
         return True
