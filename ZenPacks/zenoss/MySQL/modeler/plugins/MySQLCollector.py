@@ -19,7 +19,7 @@ from Products.DataCollector.plugins.DataMaps import ObjectMap, RelationshipMap
 from Products.ZenUtils.Utils import prepId
 
 from ZenPacks.zenoss.MySQL import MODULE_NAME
-from ZenPacks.zenoss.MySQL.MySQLServer import CredentialsNotFound, get_credentials
+
 
 class MySQLCollector(CommandPlugin):
     command = """mysql -e 'SELECT table_schema, table_name, engine, table_type, table_collation, table_rows, round(((data_length + index_length) / 1024 / 1024), 2) size_mb FROM information_schema.TABLES'"""
@@ -42,6 +42,7 @@ class MySQLCollector(CommandPlugin):
             'Modeler %s processing data for device %s',
             self.name(), device.id
         )
+
         maps = collections.OrderedDict([
             ('databases', []),
             ('processes', []),

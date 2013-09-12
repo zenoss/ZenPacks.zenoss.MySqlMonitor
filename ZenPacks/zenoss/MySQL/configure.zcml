@@ -51,6 +51,7 @@
         />
     -->
 
+
     <!-- API: Routers -->
     <browser:directRouter
         name="mysql_router"
@@ -62,10 +63,10 @@
 
     <!-- API: Facades -->
     <adapter
-        name="mysqlserver"
-        provides=".api.IMySQLServerFacade"
+        name="mysql"
+        provides=".api.IMySQLFacade"
         for="*"
-        factory=".api.MySQLServerFacade"
+        factory=".api.MySQLFacade"
     />
 
     <!-- Impact -->
@@ -126,6 +127,7 @@
         class="Products.ZenUI3.browser.javascript.JavaScriptSrcBundleViewlet"
         permission="zope2.Public"
         />
+
     <browser:viewlet
         name="js-panels"
         paths="/++resource++ZenPacks_zenoss_MySQL/js/panels.js"

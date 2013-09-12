@@ -21,7 +21,7 @@ from Products.Zuul.facades import ZuulFacade
 from Products.Zuul.utils import ZuulMessageFactory as _t
 
 
-class IMySQLServerFacade(IFacade):
+class IMySQLFacade(IFacade):
 
     def add_device(self, device_name, host, port, user, password, \
         version, collector):
@@ -33,11 +33,12 @@ class IMySQLServerFacade(IFacade):
         devices from Linux and Windows instance platform respectively.
         '''
 
-class MySQLServerFacade(ZuulFacade):
-    implements(IMySQLServerFacade)
+class MySQLFacade(ZuulFacade):
+    implements(IMySQLFacade)
 
     def add_device(self, device_name, host, port, user, password, \
         version, collector):
+
         deviceRoot = self._dmd.getDmdRoot("Devices")
         device = deviceRoot.findDeviceByIdExact(device_name)
         if device:
@@ -45,7 +46,7 @@ class MySQLServerFacade(ZuulFacade):
 
         @transact
         def create_device():
-            dc = self._dmd.Devices.getOrganizer('/Devices')
+            dc = self._dmd.Devices.getOrganizer('/Devices/Server/MySQL')
 
             device = dc.createInstance(device_name)
             device.setPerformanceMonitor(collector)
@@ -86,7 +87,7 @@ class MySQLServerFacade(ZuulFacade):
 
 class MySQLRouter(DirectRouter):
     def _getFacade(self):
-        return Zuul.getFacade('mysqlserver', self.context)
+        return Zuul.getFacade('mysql', self.context)
 
     def add_device(self, device_name, host, port, user, password, \
         version, collector):
@@ -97,7 +98,7 @@ class MySQLRouter(DirectRouter):
         if success:
             return DirectResponse.succeed()
         else:
-            return DirectResponse.fail("Failed to add MySQL server")
+            return DirectResponse.fail("Failed to add MySQL Server")
 
     def set_device_class_info(self, uid):
         self._getFacade().set_device_class_info(uid)
