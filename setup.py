@@ -20,7 +20,7 @@ LICENSE = "GPL"
 
 NAMESPACE_PACKAGES = [
     u'ZenPacks',
-    u'ZenPacks.zenoss'
+    u'ZenPacks.zenoss',
 ]
 
 PACKAGES = [

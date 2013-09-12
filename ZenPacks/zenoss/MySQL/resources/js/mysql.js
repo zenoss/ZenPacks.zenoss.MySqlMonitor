@@ -134,7 +134,7 @@ var add_mysqlserver = new Zenoss.Action({
                         var form = b.ownerCt.ownerCt.getForm();
                         var opts = form.getFieldValues();
                         
-                        Zenoss.remote.MySQLRouter.add_device(
+                        Zenoss.remote.MySQLRouter.add_mysqlserver(
                             opts,
                             function(response) {
                                 if(response.success){

@@ -21,7 +21,7 @@ from Products.Zuul.facades import ZuulFacade
 from Products.Zuul.utils import ZuulMessageFactory as _t
 
 
-class IMySQLFacade(IFacade):
+class IMySQLServerFacade(IFacade):
 
     def add_device(self, device_name, host, port, user, password, \
         version, collector):
@@ -33,22 +33,21 @@ class IMySQLFacade(IFacade):
         devices from Linux and Windows instance platform respectively.
         '''
 
-class MySQLFacade(ZuulFacade):
-    implements(IMySQLFacade)
+class MySQLServerFacade(ZuulFacade):
+    implements(IMySQLServerFacade)
 
     def add_device(self, device_name, host, port, user, password, \
         version, collector):
-
         deviceRoot = self._dmd.getDmdRoot("Devices")
-        device = deviceRoot.findDeviceByIdExact(device_name)
+        device = deviceRoot.findDeviceByIdExact(name)
         if device:
-            return False, _t("A device named %s already exists." % device_name)
+            return False, _t("A device named %s already exists." % name)
 
         @transact
         def create_device():
-            dc = self._dmd.Devices.getOrganizer('/Devices/Server/MySQL')
+            dc = self._dmd.Devices.getOrganizer('/Devices')
 
-            device = dc.createInstance(device_name)
+            device = dc.createInstance(name)
             device.setPerformanceMonitor(collector)
 
             device.index_object()
@@ -74,7 +73,7 @@ class MySQLFacade(ZuulFacade):
         create_device()
 
         # Schedule a modeling job for the new device.
-        device = deviceRoot.findDeviceByIdExact(device_name)
+        device = deviceRoot.findDeviceByIdExact(name)
         device.collectDevice(setlog=False, background=True)
 
         return True
@@ -87,7 +86,7 @@ class MySQLFacade(ZuulFacade):
 
 class MySQLRouter(DirectRouter):
     def _getFacade(self):
-        return Zuul.getFacade('mysql', self.context)
+        return Zuul.getFacade('mysqlserver', self.context)
 
     def add_device(self, device_name, host, port, user, password, \
         version, collector):
@@ -98,7 +97,7 @@ class MySQLRouter(DirectRouter):
         if success:
             return DirectResponse.succeed()
         else:
-            return DirectResponse.fail("Failed to add MySQL Server")
+            return DirectResponse.fail("Failed to add MySQL server")
 
     def set_device_class_info(self, uid):
         self._getFacade().set_device_class_info(uid)
