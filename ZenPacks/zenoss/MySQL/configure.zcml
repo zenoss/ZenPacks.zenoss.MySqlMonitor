@@ -69,6 +69,48 @@
         factory=".api.MySQLFacade"
     />
 
+    <!-- Impact -->
+    <configure zcml:condition="installed ZenPacks.zenoss.Impact">
+        <include package="ZenPacks.zenoss.Impact" file="meta.zcml"/>
+
+        <subscriber
+            provides="ZenPacks.zenoss.Impact.impactd.interfaces.IRelationshipDataProvider"
+            for=".MySQLServer.MySQLServer"
+            factory=".impact.MySQLServerRelationsProvider"
+            />
+    
+        <subscriber
+            provides="ZenPacks.zenoss.Impact.impactd.interfaces.IRelationshipDataProvider"
+            for=".MySQLDatabase.MySQLDatabase"
+            factory=".impact.MySQLDatabaseRelationsProvider"
+            />
+
+        <subscriber
+            provides="ZenPacks.zenoss.Impact.impactd.interfaces.IRelationshipDataProvider"
+            for=".MySQLProcess.MySQLProcess"
+            factory=".impact.MySQLProcessRelationsProvider"
+            />
+
+        <subscriber
+            provides="ZenPacks.zenoss.Impact.impactd.interfaces.IRelationshipDataProvider"
+            for=".MySQLTable.MySQLTable"
+            factory=".impact.MySQLTableRelationsProvider"
+            />
+
+        <subscriber
+            provides="ZenPacks.zenoss.Impact.impactd.interfaces.IRelationshipDataProvider"
+            for=".MySQLStoredProcedure.MySQLStoredProcedure"
+            factory=".impact.MySQLStoredProcedureRelationsProvider"
+            />
+
+        <subscriber
+            provides="ZenPacks.zenoss.Impact.impactd.interfaces.IRelationshipDataProvider"
+            for=".MySQLStoredFunction.MySQLStoredFunction"
+            factory=".impact.MySQLStoredFunctionRelationsProvider"
+            />
+
+    </configure>
+
     <!-- Browser Resources -->
     <browser:resourceDirectory
         name="ZenPacks_zenoss_MySQL"
