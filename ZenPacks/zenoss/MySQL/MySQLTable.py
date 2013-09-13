@@ -20,7 +20,7 @@ from Products.Zuul.infos.component import ComponentInfo
 from Products.Zuul.interfaces.component import IComponentInfo
 from Products.Zuul.utils import ZuulMessageFactory as _t
 
-from . import CLASS_NAME, MODULE_NAME
+from . import CLASS_NAME, MODULE_NAME, SizeUnitsProxyProperty
 from .MySQLComponent import MySQLComponent
 from .utils import updateToMany, updateToOne
 
@@ -77,7 +77,7 @@ class MySQLTableInfo(ComponentInfo):
     table_collation = ProxyProperty('table_collation')
     table_rows = ProxyProperty('table_rows')
     table_status = ProxyProperty('table_status')
-    size_mb = ProxyProperty('size_mb')
+    size_mb = SizeUnitsProxyProperty('size_mb')
 
     @property
     @info
