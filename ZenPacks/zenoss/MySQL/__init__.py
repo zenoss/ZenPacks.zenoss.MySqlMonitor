@@ -36,3 +36,29 @@ class ZenPack(ZenPackBase):
     ZenPack loader.
     '''
     pass
+
+def SizeUnitsProxyProperty(propertyName, unitstr="B"):
+    """This uses a closure to make a getter and
+    setter for the size property and assigns it
+    a calculated value with unit type.
+    """
+    def setter(self, value):
+        return setattr(self._object, propertyName, value)
+
+    def getter(self):
+        val = getattr(self._object, propertyName)
+        try:
+            val = int(val)
+            if val == 0:
+                return val
+            divby = 1024.0
+            units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
+            for i in range(units.index(unitstr), len(units)):
+                if val<divby:
+                    break
+                val = val/divby
+            return str(round(val, 2)) + ' ' + units[i]
+        except:
+            return val
+
+    return property(getter, setter)
