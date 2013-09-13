@@ -11,6 +11,7 @@ def add_device():
     name = 'mysql_' + rid(3)
     device = dc.createInstance(name)
     device.setPerformanceMonitor('localhost')
+    device.manageIp = '127.0.0.1'
     device.index_object()
     commit()
     return name

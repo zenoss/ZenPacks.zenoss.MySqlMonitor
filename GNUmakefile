@@ -29,3 +29,9 @@ clean:
 
 test:
 	runtests ZenPacks.zenoss.MySQL
+
+reinstall:
+	./reinstall.sh
+
+pretty_xml:
+	python $(ZP_DIR)/xml_format.py $(ZP_DIR)/objects/objects.xml

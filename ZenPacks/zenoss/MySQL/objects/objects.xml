@@ -11,6 +11,11 @@
     <property id="zDeviceTemplates" type="lines" visible="True">
       ['mysql']
     </property>
+    <property id="zCommandPassword" type="password" visible="True">
+    </property>
+    <property id="zCommandUsername" type="string" visible="True">
+      root
+    </property>
   </object>
   <!-- ('', 'zport', 'dmd', 'Devices', 'rrdTemplates', 'mysql') -->
   <object class="RRDTemplate" id="/zport/dmd/Devices/rrdTemplates/mysql" module="Products.ZenModel.RRDTemplate">
