@@ -23,10 +23,14 @@ from ZenPacks.zenoss.MySQL import MODULE_NAME
 
 NAME_SPLITTER = '(.,.)'
 
-table_query = """
+tb_query = """
     SELECT table_schema, table_name, engine, table_type, table_collation, 
         table_rows, (data_length + index_length) size_mb
     FROM information_schema.TABLES;
+"""
+
+tb_status_query = """
+    mysqlcheck -A;
 """
 
 db_query = """
@@ -38,21 +42,29 @@ db_query = """
     ON schema_name = sizes.table_schema;
 """
 
-sp_sf_query = """
+routine_query = """
     SELECT ROUTINE_SCHEMA, ROUTINE_NAME, ROUTINE_TYPE, 
         ROUTINE_BODY, ROUTINE_DEFINITION, EXTERNAL_LANGUAGE, 
         SECURITY_TYPE, CREATED, LAST_ALTERED
     FROM INFORMATION_SCHEMA.ROUTINES;
 """
 
-process_query = """SHOW PROCESSLIST;"""
+process_query = """
+    SHOW PROCESSLIST;
+"""
 
 splitter_query = """
     SELECT "splitter";
 """
 
 def db_parse(result):
-    # databases parsing
+    """Parse the result of db_query.
+
+    @param result: result of db_query
+    @type result: string
+    @return: dict with db name as a key and 
+    db properties as a value
+    """
     db_result = {}
     db_matcher = re.compile(r'^(?P<title>\S*)\t(?P<size_mb>\S*)$')
 
@@ -67,8 +79,16 @@ def db_parse(result):
 
     return db_result
 
-def tb_parse(result):
+def tb_parse(result, status_result):
+    """Parse the result of tb_query.
+
+    @param result: result of tb_query
+    @type result: string
+    @return: tuple of two dicts with db name as a key and 
+    list of routine properties as a value
+    """
     tb_result = {}
+    # tb_query parsing
     tb_matcher = re.compile(r'^(?P<db>.*)\t(?P<title>.*)'
         '\t(?P<engine>.*)\t(?P<table_type>.*)\t(?P<table_collation>.*)'
         '\t(?P<table_rows>\S*)\t(?P<size_mb>.*)')
@@ -78,24 +98,40 @@ def tb_parse(result):
         tb_id = prepId(tb_match.group('db')) + \
             NAME_SPLITTER + prepId(tb_match.group('title'))
 
-        tb = {
+        tb = dict([(tb_match.group('title'), {
             'id': tb_id,
             'title': tb_match.group('title'),
             'engine': tb_match.group('engine'),
             'table_type': tb_match.group('table_type'),
             'table_collation': tb_match.group('table_collation'),
             'table_rows': tb_match.group('table_rows'),
-            'size_mb': tb_match.group('size_mb'),    
-        }
+            'size_mb': tb_match.group('size_mb'),
+            'table_status': '', 
+        })])
 
         if tb_match.group('db') in tb_result.keys():
-            tb_result[tb_match.group('db')].append(tb)
+            tb_result[tb_match.group('db')].update(tb)
         else:
-            tb_result[tb_match.group('db')] = [tb]
+            tb_result[tb_match.group('db')] = tb
+
+    # tb_status_query parsing
+    status_matcher = re.compile(r'^(?P<db>\S*)\.(?P<tb>\S*)\s+(?P<status>.*)$')
+    # adding status property
+    for line in status_result:
+        status_match = status_matcher.search(line.strip())
+        table = tb_result[status_match.group('db')].get(status_match.group('tb'))
+        table['table_status'] = status_match.group('status')
 
     return tb_result
 
 def routine_parse(result):
+    """Parse the result of routine_query.
+
+    @param result: result of routine_query
+    @type result: string
+    @return: dict with db name as a key and 
+    list of table properties as a value
+    """
     functions_result = {}
     procedures_result = {}
     r_matcher = re.compile(r'^(?P<db>\S*)\t(?P<title>\S*)\t'
@@ -116,7 +152,7 @@ def routine_parse(result):
             'external_language':r_match.group('external_language'),
             'security_type':r_match.group('security_type'),
             'created':r_match.group('created'),
-            'last_altered':r_match.group('last_altered'),   
+            'last_altered':r_match.group('last_altered'),
         }
 
         r_type = procedures_result \
@@ -131,6 +167,13 @@ def routine_parse(result):
     return functions_result, procedures_result
 
 def process_parse(result):
+    """Parse the result of process_query.
+
+    @param result: result of process_query
+    @type result: string
+    @return: dict with process ID as a key and 
+    process properties as a value
+    """
     process_results = {}
     proc_matcher = re.compile(r'^(?P<proc_id>\S*)\t(?P<user>\S*)\t'
         '(?P<host>.*)\t(?P<db>.*)\t(?P<command>.*)\t(?P<time>.*)\t'
@@ -156,9 +199,9 @@ def process_parse(result):
 
 
 class MySQLCollector(CommandPlugin):
-    command = """mysql -e '%s %s %s %s %s %s %s'""" % (db_query, 
-        splitter_query, table_query, splitter_query,
-        sp_sf_query, splitter_query, process_query)
+    command = """mysql -e '%s %s %s %s %s %s %s %s'; %s""" % (db_query, 
+        splitter_query, tb_query, splitter_query, routine_query, 
+        splitter_query, process_query, splitter_query, tb_status_query)
 
     def condition(self, device, log):
         return True
@@ -170,13 +213,13 @@ class MySQLCollector(CommandPlugin):
         )
 
         # results parsing
-        query_list = ['db', 'table', 'routine', 'process']
+        query_list = ['db', 'table', 'routine', 'process', 'tb_status']
         result = dict((query_list[num], result.split('\n')[1:-1])
             for num, result in enumerate(results.split('splitter\nsplitter\n'))
         )
 
         db_result = db_parse(result['db'])
-        tb_result = tb_parse(result['table'])
+        tb_result = tb_parse(result['table'], result['tb_status'])
         sf_result, sp_result = routine_parse(result['routine'])
         process_result = process_parse(result['process'])
 
@@ -197,7 +240,7 @@ class MySQLCollector(CommandPlugin):
             tb_oms = []
             if db in tb_result.keys():
                 for table in tb_result[db]:
-                    tb_oms.append(ObjectMap(table))
+                    tb_oms.append(ObjectMap(tb_result[db][table]))
 
             # stored procedure properties
             sp_oms = []
@@ -249,5 +292,5 @@ class MySQLCollector(CommandPlugin):
         maps['server'].append(ObjectMap(data={
             "model_time": datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
         }))
-
+        
         return list(chain.from_iterable(maps.itervalues()))

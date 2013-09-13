@@ -12,6 +12,11 @@
 var ZC = Ext.ns('Zenoss.component');
 var ZD = Ext.ns('Zenoss.devices');
 
+/* pingStatus renderer override */
+var upDownTemplate = new Ext.Template(
+    '<span class="status-{0}{2}">{1}</span>');
+upDownTemplate.compile();
+
 Ext.apply(Zenoss.render, {
     linkFromSubgrid: function(value, metaData, record) {
         if (this.subComponentGridPanel) {
@@ -19,7 +24,13 @@ Ext.apply(Zenoss.render, {
         } else {
             return value;
         }
-    }
+    },
+    table_pingStatus: function(value) {
+        if (value) {
+            result = (value == "OK")? 'Up' : 'Down';
+            return upDownTemplate.apply([result.toLowerCase(), value]);
+        }
+    },
 });
 
 /* MySQLDatabase */
@@ -150,12 +161,8 @@ ZC.MySQLTablePanel = Ext.extend(ZC.ComponentGridPanel, {
             },{            
                 id: 'table_status',
                 dataIndex: 'table_status',
-                header: _t('Table status'),
-            },{
-                id: 'status',
-                dataIndex: 'status',
                 header: _t('Status'),
-                renderer: Zenoss.render.pingStatus,
+                renderer: Zenoss.render.table_pingStatus,
                 width: 50
             },{
                 id: 'monitored',
