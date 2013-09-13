@@ -11,6 +11,7 @@
 
 import re
 import collections
+from datetime import datetime
 from itertools import chain
 
 from Products.DataCollector.plugins.CollectorPlugin import CommandPlugin
@@ -50,6 +51,110 @@ splitter_query = """
     SELECT "splitter";
 """
 
+def db_parse(result):
+    # databases parsing
+    db_result = {}
+    db_matcher = re.compile(r'^(?P<title>\S*)\t(?P<size_mb>\S*)$')
+
+    for line in result:
+        db_match = db_matcher.search(line.strip())
+
+        db_result[db_match.group('title')] = {
+            'id': prepId(db_match.group('title')),
+            'title': db_match.group('title'),
+            'size_mb': db_match.group('size_mb'),
+        }
+
+    return db_result
+
+def tb_parse(result):
+    tb_result = {}
+    tb_matcher = re.compile(r'^(?P<db>.*)\t(?P<title>.*)'
+        '\t(?P<engine>.*)\t(?P<table_type>.*)\t(?P<table_collation>.*)'
+        '\t(?P<table_rows>\S*)\t(?P<size_mb>.*)')
+
+    for line in result:
+        tb_match = tb_matcher.search(line.strip())
+        tb_id = prepId(tb_match.group('db')) + \
+            NAME_SPLITTER + prepId(tb_match.group('title'))
+
+        tb = {
+            'id': tb_id,
+            'title': tb_match.group('title'),
+            'engine': tb_match.group('engine'),
+            'table_type': tb_match.group('table_type'),
+            'table_collation': tb_match.group('table_collation'),
+            'table_rows': tb_match.group('table_rows'),
+            'size_mb': tb_match.group('size_mb'),    
+        }
+
+        if tb_match.group('db') in tb_result.keys():
+            tb_result[tb_match.group('db')].append(tb)
+        else:
+            tb_result[tb_match.group('db')] = [tb]
+
+    return tb_result
+
+def routine_parse(result):
+    functions_result = {}
+    procedures_result = {}
+    r_matcher = re.compile(r'^(?P<db>\S*)\t(?P<title>\S*)\t'
+        '(?P<r_type>\S*)\t(?P<body>\S*)\t(?P<definition>.*)\t'
+        '(?P<external_language>.*)\t(?P<security_type>.*)\t'
+        '(?P<created>.*)\t(?P<last_altered>.*)$')
+
+    for line in result:
+        r_match = r_matcher.search(line.strip())
+        r_id = prepId(r_match.group('db')) + \
+            NAME_SPLITTER + prepId(r_match.group('title'))
+
+        routine = {
+            'id': r_id,
+            'title': r_match.group('title'),
+            'body':r_match.group('body'),
+            'definition':r_match.group('definition'),
+            'external_language':r_match.group('external_language'),
+            'security_type':r_match.group('security_type'),
+            'created':r_match.group('created'),
+            'last_altered':r_match.group('last_altered'),   
+        }
+
+        r_type = procedures_result \
+            if r_match.group('r_type') == "PROCEDURE" \
+            else functions_result
+
+        if r_match.group('db') in r_type.keys():
+            r_type[r_match.group('db')].append(routine)
+        else:
+            r_type[r_match.group('db')] = [routine]
+
+    return functions_result, procedures_result
+
+def process_parse(result):
+    process_results = {}
+    proc_matcher = re.compile(r'^(?P<proc_id>\S*)\t(?P<user>\S*)\t'
+        '(?P<host>.*)\t(?P<db>.*)\t(?P<command>.*)\t(?P<time>.*)\t'
+        '(?P<state>.*)\t(?P<info>.*)$')
+
+    for line in result:
+        proc_match = proc_matcher.search(line.strip())
+        proc_id = prepId(proc_match.group('proc_id'))
+
+        process_results[proc_match.group('proc_id')] = {
+            'id': proc_id,
+            'title': proc_match.group('proc_id'),
+            'user':proc_match.group('user'),
+            'host':proc_match.group('host'),
+            'db':proc_match.group('db'),
+            'command':proc_match.group('command'),
+            'time':proc_match.group('time'),
+            'state':proc_match.group('state'),
+            'process_info':proc_match.group('info'),
+        }
+
+    return process_results
+
+
 class MySQLCollector(CommandPlugin):
     command = """mysql -e '%s %s %s %s %s %s %s'""" % (db_query, 
         splitter_query, table_query, splitter_query,
@@ -70,6 +175,11 @@ class MySQLCollector(CommandPlugin):
             for num, result in enumerate(results.split('splitter\nsplitter\n'))
         )
 
+        db_result = db_parse(result['db'])
+        tb_result = tb_parse(result['table'])
+        sf_result, sp_result = routine_parse(result['routine'])
+        process_result = process_parse(result['process'])
+
         maps = collections.OrderedDict([
             ('databases', []),
             ('tables', []),
@@ -78,73 +188,43 @@ class MySQLCollector(CommandPlugin):
             ('processes', []),
             ('server', []) # Our Device properties
         ])
-
+        # database properties
         db_oms = []
-        db_matcher = re.compile(r'^(?P<db_name>\S*)\t(?P<size_mb>\S*)$')
-        for line in result['db']:
-            db_match = db_matcher.search(line.strip())
-            db_id = prepId(db_match.group('db_name'))
-            if db_match:
-                db_oms.append(ObjectMap({
-                    'id': db_id,
-                    'title': db_match.group('db_name'),
-                    'size_mb': db_match.group('size_mb'),
-                }))
+        for db in db_result:
+            db_oms.append(ObjectMap(db_result[db]))
 
+            # table properties
             tb_oms = []
-            tb_matcher = re.compile(r'^(?P<table_schema>\S*)\t(?P<table_name>\S*)'
-                '\t(?P<engine>\S*)\t(?P<table_type>.*)\t(?P<table_collation>\S*)'
-                '\t(?P<table_rows>\S*)\t(?P<size_mb>\S*)')
-            for line in result['table']:
-                tb_match = tb_matcher.search(line.strip())
-                tb_id = db_id + NAME_SPLITTER + prepId(tb_match.group('table_name'))
-                if tb_match and tb_match.group('table_schema') == db_match.group('db_name'):
-                    tb_oms.append(ObjectMap({
-                        'id': tb_id,
-                        'title': tb_match.group('table_name'),
-                        'engine': tb_match.group('engine'),
-                        'table_type': tb_match.group('table_type'),
-                        'table_collation': tb_match.group('table_collation'),
-                        'table_rows': tb_match.group('table_rows'),
-                        'size_mb': tb_match.group('size_mb'),
-                    }))
+            if db in tb_result.keys():
+                for table in tb_result[db]:
+                    tb_oms.append(ObjectMap(table))
 
+            # stored procedure properties
             sp_oms = []
+            if db in sp_result.keys():
+                for procedure in sp_result[db]:
+                    sp_oms.append(ObjectMap(procedure))
+
+            # stored function properties
             sf_oms = []
-            routines_matcher = re.compile(r'^(?P<r_schema>\S*)\t(?P<r_name>\S*)\t'
-                '(?P<r_type>\S*)\t(?P<r_body>\S*)\t(?P<r_definition>.*)\t'
-                '(?P<external_lang>.*)\t(?P<security_type>.*)\t'
-                '(?P<created>.*)\t(?P<altered>.*)$')
-            for line in result['routine']:
-                r_match = routines_matcher.search(line.strip())
-                routine_id = db_id + NAME_SPLITTER + prepId(r_match.group('r_name'))
-                if r_match and r_match.group('r_schema') == db_match.group('db_name'):
-                    list_type = sp_oms if r_match.group('r_type') == "PROCEDURE" else sf_oms
-                    list_type.append(ObjectMap({
-                        'id': routine_id,
-                        'title': r_match.group('r_name'),
-                        'body':r_match.group('r_body'),
-                        'definition':r_match.group('r_definition'),
-                        'external_language':r_match.group('external_lang'),
-                        'security_type':r_match.group('security_type'),
-                        'created':r_match.group('created'),
-                        'last_altered':r_match.group('altered'),
-                    }))
+            if db in sf_result.keys():
+                for function in sf_result[db]:
+                    sf_oms.append(ObjectMap(function))
 
             maps['stored_procedures'].append(RelationshipMap(
-                compname='databases/%s' % db_id,
+                compname='databases/%s' % prepId(db),
                 relname='stored_procedures',
                 modname=MODULE_NAME['MySQLStoredProcedure'],
                 objmaps=sp_oms))
 
             maps['stored_functions'].append(RelationshipMap(
-                compname='databases/%s' % db_id,
+                compname='databases/%s' % prepId(db),
                 relname='stored_functions',
                 modname=MODULE_NAME['MySQLStoredFunction'],
                 objmaps=sf_oms))
 
             maps['tables'].append(RelationshipMap(
-                compname='databases/%s' % db_id,
+                compname='databases/%s' % prepId(db),
                 relname='tables',
                 modname=MODULE_NAME['MySQLTable'],
                 objmaps=tb_oms))
@@ -154,35 +234,20 @@ class MySQLCollector(CommandPlugin):
             modname=MODULE_NAME['MySQLDatabase'],
             objmaps=db_oms))
 
+        # process properties
         process_oms = []
-        proc_matcher = re.compile(r'^(?P<proc_id>\S*)\t(?P<user>\S*)\t'
-            '(?P<host>.*)\t(?P<db>.*)\t(?P<command>.*)\t(?P<time>.*)\t'
-            '(?P<state>.*)\t(?P<info>.*)$')
-        for line in result['process']:
-            proc_match = proc_matcher.search(line.strip())
-            proc_id = prepId(proc_match.group('proc_id'))
-            if proc_match:
-                process_oms.append(ObjectMap({
-                    'id': proc_id,
-                    'title': 'process#' + proc_match.group('proc_id'),
-                    'process_id':proc_match.group('proc_id'),
-                    'user':proc_match.group('user'),
-                    'host':proc_match.group('host'),
-                    'db':proc_match.group('db'),
-                    'command':proc_match.group('command'),
-                    'time':proc_match.group('time'),
-                    'state':proc_match.group('state'),
-                    'process_info':proc_match.group('info'),
-                }))
+        for process in process_result:
+            process_oms.append(ObjectMap(process_result[process]))
 
         maps['processes'].append(RelationshipMap(
             relname='processes',
             modname=MODULE_NAME['MySQLProcess'],
             objmaps=process_oms))
 
-        # # ---------------------------------------------------------------------
-        # # Device properties
-        # maps['server'].append(ObjectMap(data={}))
-        # print list(chain.from_iterable(maps.itervalues()))
+        # ---------------------------------------------------------------------
+        # Device properties
+        maps['server'].append(ObjectMap(data={
+            "model_time": datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
+        }))
 
         return list(chain.from_iterable(maps.itervalues()))

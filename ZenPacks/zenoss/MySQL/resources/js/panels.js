@@ -356,7 +356,6 @@ ZC.MySQLProcessPanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'monitor'},
                 {name: 'monitored'},
                 {name: 'locking'},
-                {name: 'process_id'},
                 {name: 'user'},
                 {name: 'host'},
                 {name: 'db'},
@@ -374,12 +373,8 @@ ZC.MySQLProcessPanel = Ext.extend(ZC.ComponentGridPanel, {
             },{
                 id: 'name',
                 dataIndex: 'name',
-                header: _t('Name'),
+                header: _t('Process ID'),
                 renderer: Zenoss.render.linkFromSubgrid,
-            },{                
-                id: 'process_id',
-                dataIndex: 'process_id',
-                header: _t('ID'),
             },{                               
                 id: 'user',
                 dataIndex: 'user',
@@ -651,6 +646,22 @@ Ext.onReady(function(){
             xtype: 'displayfield',
             name: 'version',
             fieldLabel: _t('MySQL version'),
+            permission: 'Manage Device'
+        });
+
+        descriptionpanel.addField({
+            id: 'first_seen-view',
+            xtype: 'displayfield',
+            name: 'first_seen',
+            fieldLabel: _t('First Seen'),
+            permission: 'Manage Device'
+        });
+
+        descriptionpanel.addField({
+            id: 'model_time-view',
+            xtype: 'displayfield',
+            name: 'model_time',
+            fieldLabel: _t('Model Time'),
             permission: 'Manage Device'
         });
     });

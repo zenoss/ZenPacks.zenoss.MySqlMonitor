@@ -28,7 +28,6 @@ from .utils import updateToMany, updateToOne
 class MySQLProcess(MySQLComponent):
     meta_type = portal_type = 'MySQLProcess'
 
-    process_id = None
     user = None
     host = None
     db = None
@@ -38,7 +37,6 @@ class MySQLProcess(MySQLComponent):
     process_info = None
 
     _properties = MySQLComponent._properties + (
-        {'id': 'process_id', 'type': 'string'},
         {'id': 'user', 'type': 'string'},
         {'id': 'host', 'type': 'string'},
         {'id': 'db', 'type': 'string'},
@@ -59,7 +57,6 @@ class IMySQLProcessInfo(IComponentInfo):
     '''
 
     server = schema.Entity(title=_t(u'Server'))
-    process_id = schema.TextLine(title=_t(u'ID'))
     user = schema.TextLine(title=_t(u'User'))
     host = schema.TextLine(title=_t(u'Host'))
     db = schema.TextLine(title=_t(u'Database'))
@@ -77,7 +74,6 @@ class MySQLProcessInfo(ComponentInfo):
     implements(IMySQLProcessInfo)
     adapts(MySQLProcess)
 
-    process_id = ProxyProperty('process_id')
     user = ProxyProperty('user')
     host = ProxyProperty('host')
     db = ProxyProperty('db')
