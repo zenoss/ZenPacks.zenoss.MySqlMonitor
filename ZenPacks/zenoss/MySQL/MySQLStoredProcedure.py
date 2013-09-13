@@ -28,6 +28,22 @@ from .utils import updateToMany, updateToOne
 class MySQLStoredProcedure(MySQLComponent):
     meta_type = portal_type = 'MySQLStoredProcedure'
 
+    body = None
+    definition = None
+    external_language = None
+    security_type = None
+    created = None
+    last_altered = None
+
+    _properties = MySQLComponent._properties + (
+        {'id': 'body', 'type': 'string'},
+        {'id': 'definition', 'type': 'string'},
+        {'id': 'external_language', 'type': 'string'},
+        {'id': 'security_type', 'type': 'string'},
+        {'id': 'created', 'type': 'string'},
+        {'id': 'last_altered', 'type': 'string'},
+    )
+
     _relations = MySQLComponent._relations + (
         ('database', ToOne(ToManyCont, MODULE_NAME['MySQLDatabase'], 'stored_procedures')),
     )
@@ -40,6 +56,12 @@ class IMySQLStoredProcedureInfo(IComponentInfo):
 
     server = schema.Entity(title=_t(u'Server'))
     database = schema.Entity(title=_t(u'Database'))
+    body = schema.TextLine(title=_t(u'Body'))
+    definition = schema.TextLine(title=_t(u'Definition'))
+    external_language = schema.TextLine(title=_t(u'External language'))
+    security_type = schema.TextLine(title=_t(u'Security type'))
+    created = schema.TextLine(title=_t(u'Created on'))
+    last_altered = schema.TextLine(title=_t(u'Altered on'))
 
 
 class MySQLStoredProcedureInfo(ComponentInfo):
@@ -49,6 +71,13 @@ class MySQLStoredProcedureInfo(ComponentInfo):
 
     implements(IMySQLStoredProcedureInfo)
     adapts(MySQLStoredProcedure)
+
+    body = ProxyProperty('body')
+    definition = ProxyProperty('definition')
+    external_language = ProxyProperty('external_language')
+    security_type = ProxyProperty('security_type')
+    created = ProxyProperty('created')
+    last_altered = ProxyProperty('last_altered')
 
     @property
     @info

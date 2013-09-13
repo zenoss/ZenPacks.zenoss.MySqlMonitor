@@ -40,6 +40,7 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'monitored'},
                 {name: 'locking'},
                 {name: 'size_mb'},
+                {name: 'table_count'},
             ],
             columns: [{
                 id: 'severity',
@@ -51,7 +52,11 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 id: 'name',
                 dataIndex: 'name',
                 header: _t('Name'),
-            },{            
+            },{                
+                id: 'table_count',
+                dataIndex: 'table_count',
+                header: _t('Tables'),
+            },{        
                 id: 'size_mb',
                 dataIndex: 'size_mb',
                 header: _t('Size'),
@@ -190,6 +195,10 @@ ZC.MySQLStoredProcedurePanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'monitored'},
                 {name: 'locking'},
                 {name: 'database'},
+                {name: 'body'},
+                {name: 'security_type'},
+                {name: 'created'},
+                {name: 'last_altered'},
             ],
             columns: [{
                 id: 'severity',
@@ -207,7 +216,23 @@ ZC.MySQLStoredProcedurePanel = Ext.extend(ZC.ComponentGridPanel, {
                 dataIndex: 'database',
                 header: _t('Database'),
                 renderer: Zenoss.render.linkFromGrid,
-            },{ 
+            },{           
+                id: 'body',
+                dataIndex: 'body',
+                header: _t('Body'),
+            },{          
+                id: 'security_type',
+                dataIndex: 'security_type',
+                header: _t('Security type'),
+            },{          
+                id: 'created',
+                dataIndex: 'created',
+                header: _t('Created on'),
+            },{          
+                id: 'last_altered',
+                dataIndex: 'last_altered',
+                header: _t('Altered on'),
+            },{
                 id: 'status',
                 dataIndex: 'status',
                 header: _t('Status'),
@@ -251,6 +276,10 @@ ZC.MySQLStoredFunctionPanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'monitored'},
                 {name: 'locking'},
                 {name: 'database'},
+                {name: 'body'},
+                {name: 'security_type'},
+                {name: 'created'},
+                {name: 'last_altered'},
             ],
             columns: [{
                 id: 'severity',
@@ -268,7 +297,23 @@ ZC.MySQLStoredFunctionPanel = Ext.extend(ZC.ComponentGridPanel, {
                 dataIndex: 'database',
                 header: _t('Database'),
                 renderer: Zenoss.render.linkFromGrid,
-            },{ 
+            },{           
+                id: 'body',
+                dataIndex: 'body',
+                header: _t('Body'),
+            },{          
+                id: 'security_type',
+                dataIndex: 'security_type',
+                header: _t('Security type'),
+            },{          
+                id: 'created',
+                dataIndex: 'created',
+                header: _t('Created on'),
+            },{          
+                id: 'last_altered',
+                dataIndex: 'last_altered',
+                header: _t('Altered on'),
+            },{
                 id: 'status',
                 dataIndex: 'status',
                 header: _t('Status'),
