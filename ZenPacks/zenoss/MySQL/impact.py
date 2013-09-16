@@ -130,3 +130,32 @@ class BaseTriggers(object):
 
     def __init__(self, adapted):
         self._object = adapted
+
+
+# ----------------------------------------------------------------------------
+# Impact relationships
+
+class MySQLServerRelationsProvider(BaseRelationsProvider):
+    impacted_by_relationships = ['databases', 'processes']
+
+
+class MySQLDatabaseRelationsProvider(BaseRelationsProvider):
+    impact_relationships = ['server']
+    impacted_by_relationships = ['tables', 'stored_procedures',
+        'stored_functions']
+
+
+class MySQLProcessRelationsProvider(BaseRelationsProvider):
+    impact_relationships = ['server']
+
+
+class MySQLTableRelationsProvider(BaseRelationsProvider):
+    impact_relationships = ['database']
+
+
+class MySQLStoredProcedureRelationsProvider(BaseRelationsProvider):
+    impact_relationships = ['database']
+
+
+class MySQLStoredFunctionRelationsProvider(BaseRelationsProvider):
+    impact_relationships = ['database']
