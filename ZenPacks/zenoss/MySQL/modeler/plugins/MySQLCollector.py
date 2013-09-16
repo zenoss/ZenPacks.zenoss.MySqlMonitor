@@ -9,31 +9,28 @@
 
 ''' Models discovery tree for MySQL. '''
 
-import re
 import collections
+import re
 from datetime import datetime
 from itertools import chain
 
 from Products.DataCollector.plugins.CollectorPlugin import CommandPlugin
 from Products.DataCollector.plugins.DataMaps import ObjectMap, RelationshipMap
-
 from Products.ZenUtils.Utils import prepId
+from ZenPacks.zenoss.MySQL import MODULE_NAME, NAME_SPLITTER
 
-from ZenPacks.zenoss.MySQL import MODULE_NAME
 
-NAME_SPLITTER = '(.,.)'
-
-tb_query = """
+TB_QUERY = """
     SELECT table_schema, table_name, engine, table_type, table_collation, 
         table_rows, (data_length + index_length) size_mb
     FROM information_schema.TABLES;
 """
 
-tb_status_query = """
+TB_STATUS_QUERY = """
     mysqlcheck -A;
 """
 
-db_query = """
+DB_QUERY = """
     SELECT schema_name, size_mb
     FROM information_schema.schemata LEFT JOIN 
         (SELECT table_schema, (data_length + index_length) size_mb
@@ -42,29 +39,31 @@ db_query = """
     ON schema_name = sizes.table_schema;
 """
 
-routine_query = """
+ROUTINE_QUERY = """
     SELECT ROUTINE_SCHEMA, ROUTINE_NAME, ROUTINE_TYPE, 
         ROUTINE_BODY, ROUTINE_DEFINITION, EXTERNAL_LANGUAGE, 
         SECURITY_TYPE, CREATED, LAST_ALTERED
     FROM INFORMATION_SCHEMA.ROUTINES;
 """
 
-process_query = """
+PROCESS_QUERY = """
     SHOW PROCESSLIST;
 """
 
-splitter_query = """
+SPLITTER_QUERY = """
     SELECT "splitter";
 """
 
-def db_parse(result):
-    """Parse the result of db_query.
 
-    @param result: result of db_query
+def db_parse(result):
+    """Parse the result of DB_QUERY.
+
+    @param result: result of DB_QUERY
     @type result: string
     @return: dict with db name as a key and 
     db properties as a value
     """
+
     db_result = {}
     db_matcher = re.compile(r'^(?P<title>\S*)\t(?P<size_mb>\S*)$')
 
@@ -75,20 +74,21 @@ def db_parse(result):
             'id': prepId(db_match.group('title')),
             'title': db_match.group('title'),
             'size_mb': db_match.group('size_mb'),
-        }
+        } 
 
     return db_result
 
-def tb_parse(result, status_result):
-    """Parse the result of tb_query.
 
-    @param result: result of tb_query
+def tb_parse(result, status_result):
+    """Parse the result of TB_QUERY.
+
+    @param result: result of TB_QUERY
     @type result: string
-    @return: tuple of two dicts with db name as a key and 
-    list of routine properties as a value
+    @return: dict with db name as a key and 
+    dict of table properties as a value
     """
-    tb_result = {}
-    # tb_query parsing
+
+    tb_result = {} 
     tb_matcher = re.compile(r'^(?P<db>.*)\t(?P<title>.*)'
         '\t(?P<engine>.*)\t(?P<table_type>.*)\t(?P<table_collation>.*)'
         '\t(?P<table_rows>\S*)\t(?P<size_mb>.*)')
@@ -114,24 +114,26 @@ def tb_parse(result, status_result):
         else:
             tb_result[tb_match.group('db')] = tb
 
-    # tb_status_query parsing
+    # TB_STATUS_QUERY parsing
     status_matcher = re.compile(r'^(?P<db>\S*)\.(?P<tb>\S*)\s+(?P<status>.*)$')
-    # adding status property
+    # Status property adding
     for line in status_result:
-        status_match = status_matcher.search(line.strip())
-        table = tb_result[status_match.group('db')].get(status_match.group('tb'))
-        table['table_status'] = status_match.group('status')
+        s_match = status_matcher.search(line.strip())
+        table = tb_result[s_match.group('db')].get(s_match.group('tb'))
+        table['table_status'] = s_match.group('status')
 
     return tb_result
 
-def routine_parse(result):
-    """Parse the result of routine_query.
 
-    @param result: result of routine_query
+def routine_parse(result):
+    """Parse the result of ROUTINE_QUERY.
+
+    @param result: result of ROUTINE_QUERY
     @type result: string
-    @return: dict with db name as a key and 
-    list of table properties as a value
+    @return: tuple of two dicts with db name as a key and 
+    list of routine properties as a value
     """
+
     functions_result = {}
     procedures_result = {}
     r_matcher = re.compile(r'^(?P<db>\S*)\t(?P<title>\S*)\t'
@@ -166,14 +168,16 @@ def routine_parse(result):
 
     return functions_result, procedures_result
 
-def process_parse(result):
-    """Parse the result of process_query.
 
-    @param result: result of process_query
+def process_parse(result):
+    """Parse the result of PROCESS_QUERY.
+
+    @param result: result of PROCESS_QUERY
     @type result: string
     @return: dict with process ID as a key and 
     process properties as a value
     """
+
     process_results = {}
     proc_matcher = re.compile(r'^(?P<proc_id>\S*)\t(?P<user>\S*)\t'
         '(?P<host>.*)\t(?P<db>.*)\t(?P<command>.*)\t(?P<time>.*)\t'
@@ -199,9 +203,17 @@ def process_parse(result):
 
 
 class MySQLCollector(CommandPlugin):
-    command = """mysql -e '%s %s %s %s %s %s %s %s'; %s""" % (db_query, 
-        splitter_query, tb_query, splitter_query, routine_query, 
-        splitter_query, process_query, splitter_query, tb_status_query)
+    
+    command = """mysql -e '%(db)s  %(splitter)s %(tb)s %(splitter)s \
+        %(routine)s %(splitter)s %(process)s %(splitter)s'; \
+        %(tb_status)s""" % {
+            'db' : DB_QUERY,
+            'splitter': SPLITTER_QUERY,
+            'tb': TB_QUERY,
+            'routine': ROUTINE_QUERY,
+            'tb_status': TB_STATUS_QUERY,
+            'process': PROCESS_QUERY
+        }
 
     def condition(self, device, log):
         return True
@@ -212,8 +224,8 @@ class MySQLCollector(CommandPlugin):
             self.name(), device.id
         )
 
-        # results parsing
-        query_list = ['db', 'table', 'routine', 'process', 'tb_status']
+        # Results parsing
+        query_list = ('db', 'table', 'routine', 'process', 'tb_status')
         result = dict((query_list[num], result.split('\n')[1:-1])
             for num, result in enumerate(results.split('splitter\nsplitter\n'))
         )
@@ -229,26 +241,26 @@ class MySQLCollector(CommandPlugin):
             ('stored_procedures', []),
             ('stored_functions', []),
             ('processes', []),
-            ('server', []) # Our Device properties
+            ('server', [])
         ])
-        # database properties
+        # Database properties
         db_oms = []
         for db in db_result:
             db_oms.append(ObjectMap(db_result[db]))
 
-            # table properties
+            # Table properties
             tb_oms = []
             if db in tb_result.keys():
                 for table in tb_result[db]:
                     tb_oms.append(ObjectMap(tb_result[db][table]))
 
-            # stored procedure properties
+            # Stored procedure properties
             sp_oms = []
             if db in sp_result.keys():
                 for procedure in sp_result[db]:
                     sp_oms.append(ObjectMap(procedure))
 
-            # stored function properties
+            # Stored function properties
             sf_oms = []
             if db in sf_result.keys():
                 for function in sf_result[db]:
@@ -277,7 +289,7 @@ class MySQLCollector(CommandPlugin):
             modname=MODULE_NAME['MySQLDatabase'],
             objmaps=db_oms))
 
-        # process properties
+        # Process properties
         process_oms = []
         for process in process_result:
             process_oms.append(ObjectMap(process_result[process]))
@@ -287,7 +299,6 @@ class MySQLCollector(CommandPlugin):
             modname=MODULE_NAME['MySQLProcess'],
             objmaps=process_oms))
 
-        # ---------------------------------------------------------------------
         # Device properties
         maps['server'].append(ObjectMap(data={
             "model_time": datetime.now().strftime("%Y/%m/%d %H:%M:%S"),

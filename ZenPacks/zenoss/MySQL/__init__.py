@@ -31,6 +31,8 @@ for product_name in productNames:
     CLASS_NAME[product_name] = '.'.join([ZP_NAME, product_name, product_name])
 
 
+NAME_SPLITTER = '(.,.)'
+
 class ZenPack(ZenPackBase):
     '''
     ZenPack loader.
