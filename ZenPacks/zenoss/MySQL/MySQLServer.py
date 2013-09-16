@@ -28,9 +28,11 @@ class MySQLServer(Device):
     meta_type = portal_type = 'MySQLServer'
 
     version = None
+    model_time = None
 
     _properties = Device._properties + (
         {'id': 'version', 'type': 'string'},
+        {'id': 'model_time', 'type': 'string'},
     )
 
     _relations = Device._relations + (
@@ -69,6 +71,7 @@ class IMySQLServerInfo(IDeviceInfo):
     '''
 
     version = schema.TextLine(title=_t(u'MySQL Version'))
+    model_time = schema.TextLine(title=_t(u'Model time'))
 
 
 class MySQLServerInfo(DeviceInfo):
@@ -82,3 +85,9 @@ class MySQLServerInfo(DeviceInfo):
     zCommandUsername = ProxyProperty('zCommandUsername')
     zCommandPassword = ProxyProperty('zCommandPassword')
     version = ProxyProperty('version')
+    model_time = ProxyProperty('model_time')
+
+    @property
+    @info
+    def first_seen(self):
+        return self._object.getCreatedTimeString()

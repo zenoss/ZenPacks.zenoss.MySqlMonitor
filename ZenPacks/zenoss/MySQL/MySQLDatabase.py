@@ -20,7 +20,7 @@ from Products.Zuul.infos.component import ComponentInfo
 from Products.Zuul.interfaces.component import IComponentInfo
 from Products.Zuul.utils import ZuulMessageFactory as _t
 
-from . import CLASS_NAME, MODULE_NAME
+from . import CLASS_NAME, MODULE_NAME, SizeUnitsProxyProperty
 from .MySQLComponent import MySQLComponent
 from .utils import updateToMany, updateToOne
 
@@ -49,6 +49,7 @@ class IMySQLDatabaseInfo(IComponentInfo):
 
     server = schema.Entity(title=_t(u'Server'))
     size_mb = schema.TextLine(title=_t(u'Size'))
+    table_count = schema.Int(title=_t(u'Number of Tables'))
 
 
 class MySQLDatabaseInfo(ComponentInfo):
@@ -59,12 +60,16 @@ class MySQLDatabaseInfo(ComponentInfo):
     implements(IMySQLDatabaseInfo)
     adapts(MySQLDatabase)
 
-    size_mb = ProxyProperty('size_mb')
+    size_mb = SizeUnitsProxyProperty('size_mb')
 
     @property
     @info
     def server(self):
         return self._object.device()
+
+    @property
+    def table_count(self):
+        return self._object.tables.countObjects()
 
 
 class MySQLDatabasePathReporter(DefaultPathReporter):

@@ -12,6 +12,11 @@
 var ZC = Ext.ns('Zenoss.component');
 var ZD = Ext.ns('Zenoss.devices');
 
+/* pingStatus renderer override */
+var upDownTemplate = new Ext.Template(
+    '<span class="status-{0}{2}">{1}</span>');
+upDownTemplate.compile();
+
 Ext.apply(Zenoss.render, {
     linkFromSubgrid: function(value, metaData, record) {
         if (this.subComponentGridPanel) {
@@ -19,7 +24,13 @@ Ext.apply(Zenoss.render, {
         } else {
             return value;
         }
-    }
+    },
+    table_pingStatus: function(value) {
+        if (value) {
+            result = (value == "OK")? 'Up' : 'Down';
+            return upDownTemplate.apply([result.toLowerCase(), value]);
+        }
+    },
 });
 
 /* MySQLDatabase */
@@ -40,6 +51,7 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'monitored'},
                 {name: 'locking'},
                 {name: 'size_mb'},
+                {name: 'table_count'},
             ],
             columns: [{
                 id: 'severity',
@@ -51,7 +63,11 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 id: 'name',
                 dataIndex: 'name',
                 header: _t('Name'),
-            },{            
+            },{                
+                id: 'table_count',
+                dataIndex: 'table_count',
+                header: _t('Tables'),
+            },{        
                 id: 'size_mb',
                 dataIndex: 'size_mb',
                 header: _t('Size'),
@@ -145,12 +161,8 @@ ZC.MySQLTablePanel = Ext.extend(ZC.ComponentGridPanel, {
             },{            
                 id: 'table_status',
                 dataIndex: 'table_status',
-                header: _t('Table status'),
-            },{
-                id: 'status',
-                dataIndex: 'status',
                 header: _t('Status'),
-                renderer: Zenoss.render.pingStatus,
+                renderer: Zenoss.render.table_pingStatus,
                 width: 50
             },{
                 id: 'monitored',
@@ -190,6 +202,10 @@ ZC.MySQLStoredProcedurePanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'monitored'},
                 {name: 'locking'},
                 {name: 'database'},
+                {name: 'body'},
+                {name: 'security_type'},
+                {name: 'created'},
+                {name: 'last_altered'},
             ],
             columns: [{
                 id: 'severity',
@@ -207,7 +223,23 @@ ZC.MySQLStoredProcedurePanel = Ext.extend(ZC.ComponentGridPanel, {
                 dataIndex: 'database',
                 header: _t('Database'),
                 renderer: Zenoss.render.linkFromGrid,
-            },{ 
+            },{           
+                id: 'body',
+                dataIndex: 'body',
+                header: _t('Body'),
+            },{          
+                id: 'security_type',
+                dataIndex: 'security_type',
+                header: _t('Security type'),
+            },{          
+                id: 'created',
+                dataIndex: 'created',
+                header: _t('Created on'),
+            },{          
+                id: 'last_altered',
+                dataIndex: 'last_altered',
+                header: _t('Altered on'),
+            },{
                 id: 'status',
                 dataIndex: 'status',
                 header: _t('Status'),
@@ -251,6 +283,10 @@ ZC.MySQLStoredFunctionPanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'monitored'},
                 {name: 'locking'},
                 {name: 'database'},
+                {name: 'body'},
+                {name: 'security_type'},
+                {name: 'created'},
+                {name: 'last_altered'},
             ],
             columns: [{
                 id: 'severity',
@@ -268,7 +304,23 @@ ZC.MySQLStoredFunctionPanel = Ext.extend(ZC.ComponentGridPanel, {
                 dataIndex: 'database',
                 header: _t('Database'),
                 renderer: Zenoss.render.linkFromGrid,
-            },{ 
+            },{           
+                id: 'body',
+                dataIndex: 'body',
+                header: _t('Body'),
+            },{          
+                id: 'security_type',
+                dataIndex: 'security_type',
+                header: _t('Security type'),
+            },{          
+                id: 'created',
+                dataIndex: 'created',
+                header: _t('Created on'),
+            },{          
+                id: 'last_altered',
+                dataIndex: 'last_altered',
+                header: _t('Altered on'),
+            },{
                 id: 'status',
                 dataIndex: 'status',
                 header: _t('Status'),
@@ -311,7 +363,6 @@ ZC.MySQLProcessPanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'monitor'},
                 {name: 'monitored'},
                 {name: 'locking'},
-                {name: 'process_id'},
                 {name: 'user'},
                 {name: 'host'},
                 {name: 'db'},
@@ -329,12 +380,8 @@ ZC.MySQLProcessPanel = Ext.extend(ZC.ComponentGridPanel, {
             },{
                 id: 'name',
                 dataIndex: 'name',
-                header: _t('Name'),
+                header: _t('Process ID'),
                 renderer: Zenoss.render.linkFromSubgrid,
-            },{                
-                id: 'process_id',
-                dataIndex: 'process_id',
-                header: _t('ID'),
             },{                               
                 id: 'user',
                 dataIndex: 'user',
@@ -606,6 +653,22 @@ Ext.onReady(function(){
             xtype: 'displayfield',
             name: 'version',
             fieldLabel: _t('MySQL version'),
+            permission: 'Manage Device'
+        });
+
+        descriptionpanel.addField({
+            id: 'first_seen-view',
+            xtype: 'displayfield',
+            name: 'first_seen',
+            fieldLabel: _t('First Seen'),
+            permission: 'Manage Device'
+        });
+
+        descriptionpanel.addField({
+            id: 'model_time-view',
+            xtype: 'displayfield',
+            name: 'model_time',
+            fieldLabel: _t('Model Time'),
             permission: 'Manage Device'
         });
     });
