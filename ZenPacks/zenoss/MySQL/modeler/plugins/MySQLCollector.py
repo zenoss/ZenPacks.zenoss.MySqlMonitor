@@ -20,7 +20,7 @@ from Products.ZenUtils.Utils import prepId
 
 from ZenPacks.zenoss.MySQL import MODULE_NAME
 
-NAME_SPLITTER = '(.,.)'
+NAME_SPLITTER = '.'
 
 table_query = """
     SELECT table_schema, table_name, engine, table_type, table_collation, 
