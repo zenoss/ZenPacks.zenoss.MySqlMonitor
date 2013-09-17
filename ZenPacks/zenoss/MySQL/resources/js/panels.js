@@ -31,6 +31,20 @@ Ext.apply(Zenoss.render, {
             return upDownTemplate.apply([result.toLowerCase(), value]);
         }
     },
+    db_linkFromGrid: function(value, metaData, record) {
+        console.log(value);
+        uid = record.data.uid;
+        uid = uid.slice(0, uid.indexOf("MySQL")+5);
+        uid = uid + '/databases/';
+        console.log(this)
+        return '<a class="z-entity" href="'+uid+'">'+value+'</a>';
+
+        // if (this.subComponentGridPanel) {
+        //     return Zenoss.render.link(record.data.uid, null, value);
+        // } else {
+        //     return value;
+        // }
+    },
 });
 
 /* MySQLDatabase */
@@ -50,8 +64,12 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'monitor'},
                 {name: 'monitored'},
                 {name: 'locking'},
-                {name: 'size_mb'},
+                {name: 'size'},
                 {name: 'table_count'},
+                {name: 'stored_procedure_count'},
+                {name: 'stored_function_count'},
+                {name: 'character_set'},
+                {name: 'collation'},
             ],
             columns: [{
                 id: 'severity',
@@ -67,9 +85,25 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 id: 'table_count',
                 dataIndex: 'table_count',
                 header: _t('Tables'),
-            },{        
-                id: 'size_mb',
-                dataIndex: 'size_mb',
+            },{                 
+                id: 'stored_procedure_count',
+                dataIndex: 'stored_procedure_count',
+                header: _t('Stored procedures'),
+            },{                
+                id: 'stored_function_count',
+                dataIndex: 'stored_function_count',
+                header: _t('Stored functions'),
+            },{ 
+                id: 'character_set',
+                dataIndex: 'character_set',
+                header: _t('Character set'),
+            },{ 
+                id: 'collation',
+                dataIndex: 'collation',
+                header: _t('Collation'),
+            },{      
+                id: 'size',
+                dataIndex: 'size',
                 header: _t('Size'),
             },{ 
                 id: 'status',
@@ -119,7 +153,7 @@ ZC.MySQLTablePanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'table_type'},
                 {name: 'table_collation'},
                 {name: 'table_rows'},
-                {name: 'size_mb'},
+                {name: 'size'},
                 {name: 'table_status'},
             ],
             columns: [{
@@ -155,8 +189,8 @@ ZC.MySQLTablePanel = Ext.extend(ZC.ComponentGridPanel, {
                 dataIndex: 'table_rows',
                 header: _t('Rows'),
             },{             
-                id: 'size_mb',
-                dataIndex: 'size_mb',
+                id: 'size',
+                dataIndex: 'size',
                 header: _t('Size'),
             },{            
                 id: 'table_status',
@@ -394,6 +428,7 @@ ZC.MySQLProcessPanel = Ext.extend(ZC.ComponentGridPanel, {
                 id: 'db',
                 dataIndex: 'db',
                 header: _t('Database'),
+                renderer: Zenoss.render.db_linkFromGrid,
             },{               
                 id: 'command',
                 dataIndex: 'command',

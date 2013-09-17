@@ -11,7 +11,7 @@
 
 import collections
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from itertools import chain
 
 from Products.DataCollector.plugins.CollectorPlugin import CommandPlugin
@@ -22,7 +22,7 @@ from ZenPacks.zenoss.MySQL import MODULE_NAME, NAME_SPLITTER
 
 TB_QUERY = """
     SELECT table_schema, table_name, engine, table_type, table_collation, 
-        table_rows, (data_length + index_length) size_mb
+        table_rows, (data_length + index_length) size
     FROM information_schema.TABLES;
 """
 
@@ -31,19 +31,19 @@ TB_STATUS_QUERY = """
 """
 
 DB_QUERY = """
-    SELECT schema_name, size_mb
+    SELECT schema_name, default_character_set_name, default_collation_name, size
     FROM information_schema.schemata LEFT JOIN 
-        (SELECT table_schema, (data_length + index_length) size_mb
+        (SELECT table_schema, (data_length + index_length) size
         FROM information_schema.TABLES 
         GROUP BY table_schema) as sizes
     ON schema_name = sizes.table_schema;
 """
 
 ROUTINE_QUERY = """
-    SELECT ROUTINE_SCHEMA, ROUTINE_NAME, ROUTINE_TYPE, 
-        ROUTINE_BODY, ROUTINE_DEFINITION, EXTERNAL_LANGUAGE, 
-        SECURITY_TYPE, CREATED, LAST_ALTERED
-    FROM INFORMATION_SCHEMA.ROUTINES;
+    SELECT routine_schema, routine_name, routine_type, 
+        routine_body, routine_definition, external_language, 
+        security_type, created, last_altered
+    FROM information_schema.ROUTINES;
 """
 
 PROCESS_QUERY = """
@@ -65,7 +65,8 @@ def db_parse(result):
     """
 
     db_result = {}
-    db_matcher = re.compile(r'^(?P<title>\S*)\t(?P<size_mb>\S*)$')
+    db_matcher = re.compile(r'^(?P<title>\S*)\t(?P<character_set>\S*)\t'
+        '(?P<collation>\S*)\t(?P<size>\S*)$')
 
     for line in result:
         db_match = db_matcher.search(line.strip())
@@ -73,7 +74,9 @@ def db_parse(result):
         db_result[db_match.group('title')] = {
             'id': prepId(db_match.group('title')),
             'title': db_match.group('title'),
-            'size_mb': db_match.group('size_mb'),
+            'size': db_match.group('size'),
+            'character_set': db_match.group('character_set'),
+            'collation': db_match.group('collation'),
         } 
 
     return db_result
@@ -91,7 +94,7 @@ def tb_parse(result, status_result):
     tb_result = {} 
     tb_matcher = re.compile(r'^(?P<db>.*)\t(?P<title>.*)'
         '\t(?P<engine>.*)\t(?P<table_type>.*)\t(?P<table_collation>.*)'
-        '\t(?P<table_rows>\S*)\t(?P<size_mb>.*)')
+        '\t(?P<table_rows>\S*)\t(?P<size>.*)')
 
     for line in result:
         tb_match = tb_matcher.search(line.strip())
@@ -105,7 +108,7 @@ def tb_parse(result, status_result):
             'table_type': tb_match.group('table_type'),
             'table_collation': tb_match.group('table_collation'),
             'table_rows': tb_match.group('table_rows'),
-            'size_mb': tb_match.group('size_mb'),
+            'size': tb_match.group('size'),
             'table_status': '', 
         })])
 
@@ -186,6 +189,7 @@ def process_parse(result):
     for line in result:
         proc_match = proc_matcher.search(line.strip())
         proc_id = prepId(proc_match.group('proc_id'))
+        time = timedelta(seconds=int(proc_match.group('time')))
 
         process_results[proc_match.group('proc_id')] = {
             'id': proc_id,
@@ -194,7 +198,7 @@ def process_parse(result):
             'host':proc_match.group('host'),
             'db':proc_match.group('db'),
             'command':proc_match.group('command'),
-            'time':proc_match.group('time'),
+            'time':str(time),
             'state':proc_match.group('state'),
             'process_info':proc_match.group('info'),
         }
