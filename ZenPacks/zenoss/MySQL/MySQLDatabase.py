@@ -28,10 +28,14 @@ from .utils import updateToMany, updateToOne
 class MySQLDatabase(MySQLComponent):
     meta_type = portal_type = 'MySQLDatabase'
 
-    size_mb = None
+    size = None
+    character_set = None
+    collation = None
 
     _properties = MySQLComponent._properties + (
-        {'id': 'size_mb', 'type': 'string'},
+        {'id': 'size', 'type': 'string'},
+        {'id': 'character_set', 'type': 'string'},
+        {'id': 'collation', 'type': 'string'},
     )
 
     _relations = MySQLComponent._relations + (
@@ -48,8 +52,12 @@ class IMySQLDatabaseInfo(IComponentInfo):
     '''
 
     server = schema.Entity(title=_t(u'Server'))
-    size_mb = schema.TextLine(title=_t(u'Size'))
-    table_count = schema.Int(title=_t(u'Number of Tables'))
+    size = schema.TextLine(title=_t(u'Size'))
+    character_set = schema.TextLine(title=_t(u'Default character set'))
+    collation = schema.TextLine(title=_t(u'Default collation'))
+    table_count = schema.Int(title=_t(u'Number of tables'))
+    stored_procedure_count = schema.Int(title=_t(u'Number of stored procedures'))
+    stored_function_count = schema.Int(title=_t(u'Number of stored functions'))
 
 
 class MySQLDatabaseInfo(ComponentInfo):
@@ -60,7 +68,9 @@ class MySQLDatabaseInfo(ComponentInfo):
     implements(IMySQLDatabaseInfo)
     adapts(MySQLDatabase)
 
-    size_mb = SizeUnitsProxyProperty('size_mb')
+    size = SizeUnitsProxyProperty('size')
+    character_set = ProxyProperty('character_set')
+    collation = ProxyProperty('collation')
 
     @property
     @info
@@ -70,6 +80,14 @@ class MySQLDatabaseInfo(ComponentInfo):
     @property
     def table_count(self):
         return self._object.tables.countObjects()
+
+    @property
+    def stored_procedure_count(self):
+        return self._object.stored_procedures.countObjects()
+
+    @property
+    def stored_function_count(self):
+        return self._object.stored_functions.countObjects()
 
 
 class MySQLDatabasePathReporter(DefaultPathReporter):

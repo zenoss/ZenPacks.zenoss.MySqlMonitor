@@ -33,7 +33,7 @@ class MySQLTable(MySQLComponent):
     table_collation = None
     table_rows = None
     table_status = None
-    size_mb = None
+    size = None
 
     _properties = MySQLComponent._properties + (
         {'id': 'engine', 'type': 'string'},
@@ -41,7 +41,7 @@ class MySQLTable(MySQLComponent):
         {'id': 'table_collation', 'type': 'string'},
         {'id': 'table_rows', 'type': 'string'},
         {'id': 'table_status', 'type': 'string'},
-        {'id': 'size_mb', 'type': 'string'},
+        {'id': 'size', 'type': 'string'},
     )
 
     _relations = MySQLComponent._relations + (
@@ -61,7 +61,7 @@ class IMySQLTableInfo(IComponentInfo):
     table_collation = schema.TextLine(title=_t(u'Collation'))
     table_rows = schema.TextLine(title=_t(u'Rows'))
     table_status = schema.TextLine(title=_t(u'Table status'))
-    size_mb = schema.TextLine(title=_t(u'Size'))
+    size = schema.TextLine(title=_t(u'Size'))
 
 
 class MySQLTableInfo(ComponentInfo):
@@ -77,7 +77,7 @@ class MySQLTableInfo(ComponentInfo):
     table_collation = ProxyProperty('table_collation')
     table_rows = ProxyProperty('table_rows')
     table_status = ProxyProperty('table_status')
-    size_mb = SizeUnitsProxyProperty('size_mb')
+    size = SizeUnitsProxyProperty('size')
 
     @property
     @info

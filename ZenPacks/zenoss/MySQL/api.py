@@ -23,7 +23,7 @@ from Products.Zuul.utils import ZuulMessageFactory as _t
 
 class IMySQLFacade(IFacade):
 
-    def add_device(self, device_name, host, port, user, password, \
+    def add_device(self, device_name, cmd, host, port, user, password, \
         version, collector):
         ''' Schedule the addition of an MySQL account.  '''
 
@@ -36,7 +36,7 @@ class IMySQLFacade(IFacade):
 class MySQLFacade(ZuulFacade):
     implements(IMySQLFacade)
 
-    def add_device(self, device_name, host, port, user, password, \
+    def add_device(self, device_name, cmd, host, port, user, password, \
         version, collector):
 
         deviceRoot = self._dmd.getDmdRoot("Devices")
@@ -60,11 +60,12 @@ class MySQLFacade(ZuulFacade):
                     "zCommandProtocol": "ssh",
                     "zCommandPort": port,
                     "zCommandUsername": user,
-                    "zCommandPassword": password
+                    "zCommandPassword": password,
                 }
             )
 
             device.version = version
+            device.cmd = cmd
 
             device.index_object()
             notify(IndexingEvent(device))
@@ -89,10 +90,10 @@ class MySQLRouter(DirectRouter):
     def _getFacade(self):
         return Zuul.getFacade('mysql', self.context)
 
-    def add_device(self, device_name, host, port, user, password, \
+    def add_device(self, device_name, cmd, host, port, user, password, \
         version, collector):
         
-        success = self._getFacade().add_device(device_name, host, port, user, \
+        success = self._getFacade().add_device(device_name, cmd, host, port, user, \
             password, version, collector)
 
         if success:

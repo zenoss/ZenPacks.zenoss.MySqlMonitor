@@ -30,7 +30,7 @@ Ext.apply(Zenoss.render, {
             result = (value == "OK")? 'Up' : 'Down';
             return upDownTemplate.apply([result.toLowerCase(), value]);
         }
-    },
+    }
 });
 
 /* MySQLDatabase */
@@ -50,8 +50,12 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'monitor'},
                 {name: 'monitored'},
                 {name: 'locking'},
-                {name: 'size_mb'},
+                {name: 'size'},
                 {name: 'table_count'},
+                {name: 'stored_procedure_count'},
+                {name: 'stored_function_count'},
+                {name: 'character_set'},
+                {name: 'collation'},
             ],
             columns: [{
                 id: 'severity',
@@ -67,9 +71,25 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 id: 'table_count',
                 dataIndex: 'table_count',
                 header: _t('Tables'),
-            },{        
-                id: 'size_mb',
-                dataIndex: 'size_mb',
+            },{                 
+                id: 'stored_procedure_count',
+                dataIndex: 'stored_procedure_count',
+                header: _t('Stored procedures'),
+            },{                
+                id: 'stored_function_count',
+                dataIndex: 'stored_function_count',
+                header: _t('Stored functions'),
+            },{ 
+                id: 'character_set',
+                dataIndex: 'character_set',
+                header: _t('Character set'),
+            },{ 
+                id: 'collation',
+                dataIndex: 'collation',
+                header: _t('Collation'),
+            },{      
+                id: 'size',
+                dataIndex: 'size',
                 header: _t('Size'),
             },{ 
                 id: 'status',
@@ -119,7 +139,7 @@ ZC.MySQLTablePanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'table_type'},
                 {name: 'table_collation'},
                 {name: 'table_rows'},
-                {name: 'size_mb'},
+                {name: 'size'},
                 {name: 'table_status'},
             ],
             columns: [{
@@ -155,8 +175,8 @@ ZC.MySQLTablePanel = Ext.extend(ZC.ComponentGridPanel, {
                 dataIndex: 'table_rows',
                 header: _t('Rows'),
             },{             
-                id: 'size_mb',
-                dataIndex: 'size_mb',
+                id: 'size',
+                dataIndex: 'size',
                 header: _t('Size'),
             },{            
                 id: 'table_status',
@@ -628,6 +648,13 @@ Ext.onReady(function(){
             inputType: 'password'
             });
 
+        idpanel.addField({
+            name: 'cmd',
+            fieldLabel: _t('SSH command tool'),
+            xtype: 'textfield',
+            inputType: 'textfield'
+            });
+
         // idpanel.addField({
         //     name: 'version',
         //     fieldLabel: _t('MySQL version'),
@@ -653,6 +680,54 @@ Ext.onReady(function(){
             xtype: 'displayfield',
             name: 'version',
             fieldLabel: _t('MySQL version'),
+            permission: 'Manage Device'
+        });
+
+        descriptionpanel.addField({
+            id: 'size-view',
+            xtype: 'displayfield',
+            name: 'size',
+            fieldLabel: _t('Size'),
+            permission: 'Manage Device'
+        });
+
+        descriptionpanel.addField({
+            id: 'data_size-view',
+            xtype: 'displayfield',
+            name: 'data_size',
+            fieldLabel: _t('Data Size'),
+            permission: 'Manage Device'
+        });
+
+        descriptionpanel.addField({
+            id: 'index_size-view',
+            xtype: 'displayfield',
+            name: 'index_size',
+            fieldLabel: _t('Index size'),
+            permission: 'Manage Device'
+        });
+
+        descriptionpanel.addField({
+            id: 'percent_full_table_scans-view',
+            xtype: 'displayfield',
+            name: 'percent_full_table_scans',
+            fieldLabel: _t('Percentage of full table scans'),
+            permission: 'Manage Device'
+        });
+
+        descriptionpanel.addField({
+            id: 'master_status-view',
+            xtype: 'displayfield',
+            name: 'master_status',
+            fieldLabel: _t('Master status'),
+            permission: 'Manage Device'
+        });
+
+        descriptionpanel.addField({
+            id: 'slave_status-view',
+            xtype: 'displayfield',
+            name: 'slave_status',
+            fieldLabel: _t('Slave status'),
             permission: 'Manage Device'
         });
 
