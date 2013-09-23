@@ -74,9 +74,9 @@ class MySQLDatabaseInfo(ComponentInfo):
     implements(IMySQLDatabaseInfo)
     adapts(MySQLDatabase)
 
-    size = SizeUnitsProxyProperty('size', 'MB')
-    data_size = SizeUnitsProxyProperty('data_size', 'MB')
-    index_size = SizeUnitsProxyProperty('index_size', 'MB')
+    size = SizeUnitsProxyProperty('size')
+    data_size = SizeUnitsProxyProperty('data_size')
+    index_size = SizeUnitsProxyProperty('index_size')
     default_character_set = ProxyProperty('default_character_set')
     default_collation = ProxyProperty('default_collation')
 
