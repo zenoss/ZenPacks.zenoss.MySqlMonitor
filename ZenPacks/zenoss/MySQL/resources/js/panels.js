@@ -30,21 +30,7 @@ Ext.apply(Zenoss.render, {
             result = (value == "OK")? 'Up' : 'Down';
             return upDownTemplate.apply([result.toLowerCase(), value]);
         }
-    },
-    db_linkFromGrid: function(value, metaData, record) {
-        console.log(value);
-        uid = record.data.uid;
-        uid = uid.slice(0, uid.indexOf("MySQL")+5);
-        uid = uid + '/databases/';
-        console.log(this)
-        return '<a class="z-entity" href="'+uid+'">'+value+'</a>';
-
-        // if (this.subComponentGridPanel) {
-        //     return Zenoss.render.link(record.data.uid, null, value);
-        // } else {
-        //     return value;
-        // }
-    },
+    }
 });
 
 /* MySQLDatabase */
@@ -428,7 +414,6 @@ ZC.MySQLProcessPanel = Ext.extend(ZC.ComponentGridPanel, {
                 id: 'db',
                 dataIndex: 'db',
                 header: _t('Database'),
-                renderer: Zenoss.render.db_linkFromGrid,
             },{               
                 id: 'command',
                 dataIndex: 'command',
@@ -663,6 +648,13 @@ Ext.onReady(function(){
             inputType: 'password'
             });
 
+        idpanel.addField({
+            name: 'cmd',
+            fieldLabel: _t('SSH command tool'),
+            xtype: 'textfield',
+            inputType: 'textfield'
+            });
+
         // idpanel.addField({
         //     name: 'version',
         //     fieldLabel: _t('MySQL version'),
@@ -688,6 +680,54 @@ Ext.onReady(function(){
             xtype: 'displayfield',
             name: 'version',
             fieldLabel: _t('MySQL version'),
+            permission: 'Manage Device'
+        });
+
+        descriptionpanel.addField({
+            id: 'size-view',
+            xtype: 'displayfield',
+            name: 'size',
+            fieldLabel: _t('Size'),
+            permission: 'Manage Device'
+        });
+
+        descriptionpanel.addField({
+            id: 'data_size-view',
+            xtype: 'displayfield',
+            name: 'data_size',
+            fieldLabel: _t('Data Size'),
+            permission: 'Manage Device'
+        });
+
+        descriptionpanel.addField({
+            id: 'index_size-view',
+            xtype: 'displayfield',
+            name: 'index_size',
+            fieldLabel: _t('Index size'),
+            permission: 'Manage Device'
+        });
+
+        descriptionpanel.addField({
+            id: 'percent_full_table_scans-view',
+            xtype: 'displayfield',
+            name: 'percent_full_table_scans',
+            fieldLabel: _t('Percentage of full table scans'),
+            permission: 'Manage Device'
+        });
+
+        descriptionpanel.addField({
+            id: 'master_status-view',
+            xtype: 'displayfield',
+            name: 'master_status',
+            fieldLabel: _t('Master status'),
+            permission: 'Manage Device'
+        });
+
+        descriptionpanel.addField({
+            id: 'slave_status-view',
+            xtype: 'displayfield',
+            name: 'slave_status',
+            fieldLabel: _t('Slave status'),
             permission: 'Manage Device'
         });
 

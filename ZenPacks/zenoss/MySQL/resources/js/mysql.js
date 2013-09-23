@@ -41,10 +41,36 @@ var add_mysqlserver = new Zenoss.Action({
                     width: 260,
                     allowBlank: false
                 }, {
+                    xtype: 'combo',
+                    width: 260,
+                    name: 'cmd',
+                    fieldLabel: _t('SSH command tool'),
+                    id: 'add_mysqlserver-cmd',
+                    mode: 'local',
+                    store: new Ext.data.ArrayStore({
+                        id: 0,
+                        fields: [
+                            'name'
+                        ],
+                        data: [['mysql'], ['zends'], ['mariadb']]  // data is local
+                    }), 
+                    valueField: 'name',
+                    displayField: 'name',
+                    forceSelection: true,
+                    editable: false,
+                    allowBlank: false,
+                    triggerAction: 'all',
+                    selectOnFocus: false,
+                    listeners: {
+                        'afterrender': function(component) {
+                            component.setValue('mysql');
+                        }
+                    }
+                }, {
                     xtype: 'textfield',
                     name: 'host',
                     value: '127.0.0.1',
-                    fieldLabel: _t('Host IP address'),
+                    fieldLabel: _t('SSH IP address'),
                     id: 'add_myslqserver-host',
                     width: 260,
                     allowBlank: false
@@ -52,7 +78,7 @@ var add_mysqlserver = new Zenoss.Action({
                     xtype: 'textfield',
                     name: 'port',
                     value: '22',
-                    fieldLabel: _t('Port'),
+                    fieldLabel: _t('SSH port'),
                     id: 'add_myslqserver-port',
                     width: 260,
                     allowBlank: true,
@@ -60,7 +86,7 @@ var add_mysqlserver = new Zenoss.Action({
                     xtype: 'textfield',
                     name: 'user',
                     value: 'root',
-                    fieldLabel: _t('User'),
+                    fieldLabel: _t(' SSH user'),
                     id: 'add_myslqserver-user',
                     width: 260,
                     allowBlank: false,
@@ -68,7 +94,7 @@ var add_mysqlserver = new Zenoss.Action({
                     xtype: 'textfield',
                     name: 'password',
                     inputType: 'password',
-                    fieldLabel: _t('Password'),
+                    fieldLabel: _t('SSH password'),
                     id: 'add_mysqlserver-password',
                     width: 260,
                     allowBlank: true
@@ -84,7 +110,7 @@ var add_mysqlserver = new Zenoss.Action({
                         fields: [
                             'name'
                         ],
-                        data: [['5.1'], ['5.5'], ['5.6'], ['5.7']]  // data is local
+                        data: [['5.0'], ['5.1'], ['5.5']]  // data is local
                     }),
                     valueField: 'name',
                     displayField: 'name',
