@@ -53,7 +53,7 @@ class MySQLFacade(ZuulFacade):
 
             device.index_object()
 
-            device.setManageIp(host)
+            #device.setManageIp(host)
 
             device.updateDevice(
                 zProperties = {
@@ -64,6 +64,7 @@ class MySQLFacade(ZuulFacade):
                 }
             )
 
+            device.ip = host
             device.version = version
             device.cmd = cmd
 

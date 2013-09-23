@@ -44,7 +44,7 @@ var add_mysqlserver = new Zenoss.Action({
                     xtype: 'combo',
                     width: 260,
                     name: 'cmd',
-                    fieldLabel: _t('SSH command tool'),
+                    fieldLabel: _t('Server Type'),
                     id: 'add_mysqlserver-cmd',
                     mode: 'local',
                     store: new Ext.data.ArrayStore({
@@ -64,6 +64,32 @@ var add_mysqlserver = new Zenoss.Action({
                     listeners: {
                         'afterrender': function(component) {
                             component.setValue('mysql');
+                        }
+                    }
+                }, {
+                    xtype: 'combo',
+                    width: 260,
+                    name: 'version',
+                    fieldLabel: _t('MySQL version'),
+                    id: 'add_mysqlserver-version',
+                    mode: 'local',
+                    store: new Ext.data.ArrayStore({
+                        id: 0,
+                        fields: [
+                            'name'
+                        ],
+                        data: [['5.0'], ['5.1'], ['5.5']]  // data is local
+                    }),
+                    valueField: 'name',
+                    displayField: 'name',
+                    forceSelection: true,
+                    editable: false,
+                    allowBlank: false,
+                    triggerAction: 'all',
+                    selectOnFocus: false,
+                    listeners: {
+                        'afterrender': function(component) {
+                            component.setValue('5.5');
                         }
                     }
                 }, {
@@ -98,32 +124,6 @@ var add_mysqlserver = new Zenoss.Action({
                     id: 'add_mysqlserver-password',
                     width: 260,
                     allowBlank: true
-                }, {
-                    xtype: 'combo',
-                    width: 260,
-                    name: 'version',
-                    fieldLabel: _t('MySQL version'),
-                    id: 'add_mysqlserver-version',
-                    mode: 'local',
-                    store: new Ext.data.ArrayStore({
-                        id: 0,
-                        fields: [
-                            'name'
-                        ],
-                        data: [['5.0'], ['5.1'], ['5.5']]  // data is local
-                    }),
-                    valueField: 'name',
-                    displayField: 'name',
-                    forceSelection: true,
-                    editable: false,
-                    allowBlank: false,
-                    triggerAction: 'all',
-                    selectOnFocus: false,
-                    listeners: {
-                        'afterrender': function(component) {
-                            component.setValue('5.5');
-                        }
-                    }
                 }, {
                     xtype: 'combo',
                     width: 260,

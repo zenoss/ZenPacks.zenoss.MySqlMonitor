@@ -644,7 +644,7 @@ Ext.onReady(function(){
         idpanel.removeField('tagNumber');
 
         idpanel.addField({
-            name: 'manageIp',
+            name: 'ip',
             fieldLabel: _t('IP'),
             xtype: 'textfield'
             });
@@ -668,12 +668,12 @@ Ext.onReady(function(){
             inputType: 'password'
             });
 
-        idpanel.addField({
-            name: 'cmd',
-            fieldLabel: _t('SSH command tool'),
-            xtype: 'textfield',
-            inputType: 'textfield'
-            });
+        // idpanel.addField({
+        //     name: 'cmd',
+        //     fieldLabel: _t('SSH command tool'),
+        //     xtype: 'textfield',
+        //     inputType: 'textfield'
+        //     });
 
         // idpanel.addField({
         //     name: 'version',
@@ -694,6 +694,14 @@ Ext.onReady(function(){
         descriptionpanel.removeField('hwModel');
         descriptionpanel.removeField('osManufacturer');
         descriptionpanel.removeField('osModel');
+
+        descriptionpanel.addField({
+            id: 'cmd-view',
+            xtype: 'displayfield',
+            name: 'cmd',
+            fieldLabel: _t('Server Type'),
+            permission: 'Manage Device'
+        });
 
         descriptionpanel.addField({
             id: 'version-view',
