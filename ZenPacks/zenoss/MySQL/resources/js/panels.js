@@ -51,11 +51,13 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'monitored'},
                 {name: 'locking'},
                 {name: 'size'},
+                {name: 'data_size'},
+                {name: 'index_size'},
                 {name: 'table_count'},
                 {name: 'stored_procedure_count'},
                 {name: 'stored_function_count'},
-                {name: 'character_set'},
-                {name: 'collation'},
+                {name: 'default_character_set'},
+                {name: 'default_collation'},
             ],
             columns: [{
                 id: 'severity',
@@ -80,17 +82,25 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 dataIndex: 'stored_function_count',
                 header: _t('Stored functions'),
             },{ 
-                id: 'character_set',
-                dataIndex: 'character_set',
-                header: _t('Character set'),
+                id: 'default_character_set',
+                dataIndex: 'default_character_set',
+                header: _t('Default character set'),
             },{ 
-                id: 'collation',
-                dataIndex: 'collation',
-                header: _t('Collation'),
+                id: 'default_collation',
+                dataIndex: 'default_collation',
+                header: _t('Default collation'),
             },{      
                 id: 'size',
                 dataIndex: 'size',
                 header: _t('Size'),
+            },{      
+                id: 'data_size',
+                dataIndex: 'data_size',
+                header: _t('Data size'),
+            },{      
+                id: 'index_size',
+                dataIndex: 'index_size',
+                header: _t('Index size'),
             },{ 
                 id: 'status',
                 dataIndex: 'status',
@@ -140,6 +150,8 @@ ZC.MySQLTablePanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'table_collation'},
                 {name: 'table_rows'},
                 {name: 'size'},
+                {name: 'data_size'},
+                {name: 'index_size'},
                 {name: 'table_status'},
             ],
             columns: [{
@@ -178,7 +190,15 @@ ZC.MySQLTablePanel = Ext.extend(ZC.ComponentGridPanel, {
                 id: 'size',
                 dataIndex: 'size',
                 header: _t('Size'),
-            },{            
+            },{     
+                id: 'data_size',
+                dataIndex: 'data_size',
+                header: _t('Data size'),
+            },{      
+                id: 'index_size',
+                dataIndex: 'index_size',
+                header: _t('Index size'),
+            },{ 
                 id: 'table_status',
                 dataIndex: 'table_status',
                 header: _t('Status'),
