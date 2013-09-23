@@ -30,7 +30,7 @@ for product_name in productNames:
     MODULE_NAME[product_name] = '.'.join([ZP_NAME, product_name])
     CLASS_NAME[product_name] = '.'.join([ZP_NAME, product_name, product_name])
 
-
+# Useful for components' ids.
 NAME_SPLITTER = '(.,.)'
 
 class ZenPack(ZenPackBase):
