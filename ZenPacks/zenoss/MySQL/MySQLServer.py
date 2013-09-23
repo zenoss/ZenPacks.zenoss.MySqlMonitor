@@ -27,6 +27,7 @@ from ZenPacks.zenoss.MySQL import MODULE_NAME, SizeUnitsProxyProperty
 class MySQLServer(Device):
     meta_type = portal_type = 'MySQLServer'
 
+    ip = None
     version = None
     model_time = None
     cmd = None
@@ -38,6 +39,7 @@ class MySQLServer(Device):
     master_status = None
 
     _properties = Device._properties + (
+        {'id': 'ip', 'type': 'string'},
         {'id': 'version', 'type': 'string'},
         {'id': 'model_time', 'type': 'string'},
         {'id': 'cmd', 'type': 'string'},
@@ -78,12 +80,18 @@ class MySQLServer(Device):
     def getErrorNotification(self):
         return
 
+    @property
+    def manageIp(self):
+        #return self.manageIp
+        return self.ip
+
 
 class IMySQLServerInfo(IDeviceInfo):
     '''
     API Info interface for MySQLServer.
     '''
 
+    ip = schema.TextLine(title=_t(u'MySQL Server IP address'))
     version = schema.TextLine(title=_t(u'MySQL Version'))
     model_time = schema.TextLine(title=_t(u'Model time'))
     cmd = schema.TextLine(title=_t(u'SSH command tool'))
@@ -101,6 +109,7 @@ class MySQLServerInfo(DeviceInfo):
     implements(IMySQLServerInfo)
     adapts(MySQLServer)
 
+    ip = ProxyProperty('ip')
     manageIp = ProxyProperty('manageIp')
     zCommandPort = ProxyProperty('zCommandPort')
     zCommandUsername = ProxyProperty('zCommandUsername')
