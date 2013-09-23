@@ -146,8 +146,6 @@ def tb_parse(result, status_result):
         if s_match:
             table = tb_result[s_match.group('db')].get(s_match.group('tb'))
             table['table_status'] = s_match.group('status')
-        else:
-            print line
 
     return tb_result
 
