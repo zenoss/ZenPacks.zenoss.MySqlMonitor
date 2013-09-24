@@ -1,4 +1,4 @@
-def get_monitoring_template(graphs):
+def get_monitoring_template(graphs, command):
     xml = []
     xml.append('''
   <object class="RRDTemplate" id="/zport/dmd/Devices/rrdTemplates/mysql" module="Products.ZenModel.RRDTemplate">

@@ -29,33 +29,31 @@ def get_values(output):
     if len(lines) < 2:
         return {} # no data
 
-    schema = dict((col.lower(), i)  # maps field name to position
-        for i, col in enumerate(lines[0].split('\t'))
-    )
+    schema = [field.lower() for field in lines[0].split('\t')]
     values = {}
     for line in lines[1:]:
         fields = dict(
-            (schema(i), v) 
+            (schema[i], v) 
             for i, v in enumerate(line.split('\t'))
         )
         values[fields['table_schema'] + '.' + fields['table_name']] = dict((k, v)
             for k, v in fields.iteritems()
             if k not in ('table_schema', 'table_name')
         )
-
-
+    return values
 
 class TablesSchema(CommandParser):
     def processResults(self, cmd, result):
+        data = get_values(cmd.result.output)
         for point in cmd.points:
-            if point.component not in data['values']:
+            if point.component not in data:
                 continue
-            if point.id not in data['values'][point.component]:
+            if point.id not in data[point.component]:
                 continue
 
             result.values.append((
                 point,
-                data['values'][point.component][point.id]
+                data[point.component][point.id]
             ))
         
 tables_schema = TablesSchema # because zenoss is not happy with pep8
