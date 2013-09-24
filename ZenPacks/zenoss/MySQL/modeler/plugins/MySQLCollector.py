@@ -11,7 +11,7 @@
 
 import collections
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from itertools import chain
 
 from Products.DataCollector.plugins.CollectorPlugin import CommandPlugin
@@ -24,7 +24,7 @@ NAME_SPLITTER = '.'
 
 TB_QUERY = """
     SELECT table_schema, table_name, engine, table_type, table_collation, 
-        table_rows, (data_length + index_length) size_mb
+        table_rows, (data_length + index_length) size, data_length, index_length
     FROM information_schema.TABLES;
 """
 
@@ -33,23 +33,46 @@ TB_STATUS_QUERY = """
 """
 
 DB_QUERY = """
-    SELECT schema_name, size_mb
+    SELECT schema_name, default_character_set_name, default_collation_name, 
+        size, data_length, index_length
     FROM information_schema.schemata LEFT JOIN 
-        (SELECT table_schema, (data_length + index_length) size_mb
+        (SELECT table_schema, sum(data_length + index_length) size, 
+            sum(data_length) data_length, sum(index_length) index_length
         FROM information_schema.TABLES 
         GROUP BY table_schema) as sizes
     ON schema_name = sizes.table_schema;
 """
 
 ROUTINE_QUERY = """
-    SELECT ROUTINE_SCHEMA, ROUTINE_NAME, ROUTINE_TYPE, 
-        ROUTINE_BODY, ROUTINE_DEFINITION, EXTERNAL_LANGUAGE, 
-        SECURITY_TYPE, CREATED, LAST_ALTERED
-    FROM INFORMATION_SCHEMA.ROUTINES;
+    SELECT routine_schema, routine_name, routine_type, 
+        routine_body, routine_definition, external_language, 
+        security_type, created, last_altered
+    FROM information_schema.ROUTINES;
 """
 
 PROCESS_QUERY = """
     SHOW PROCESSLIST;
+"""
+
+SERVER_QUERY = """
+    SELECT variable_name, variable_value  
+    FROM information_schema.SESSION_STATUS  
+    WHERE variable_name IN ("Handler_read_first", "Handler_read_key", 
+        "Slave_running");
+"""
+
+SERVER_SIZE_QUERY = """
+    SELECT sum(data_length + index_length) size, 
+        sum(data_length) data_length, sum(index_length) index_length 
+    FROM information_schema.TABLES;
+"""
+
+MASTER_QUERY = """
+    SHOW MASTER STATUS;
+"""
+
+SLAVE_QUERY = """
+    SHOW SLAVE STATUS\G;
 """
 
 SPLITTER_QUERY = """
@@ -67,7 +90,8 @@ def db_parse(result):
     """
 
     db_result = {}
-    db_matcher = re.compile(r'^(?P<title>\S*)\t(?P<size_mb>\S*)$')
+    db_matcher = re.compile(r'^(?P<title>\S*)\t(?P<character_set>\S*)\t'
+        '(?P<collation>\S*)\t(?P<size>\S*)\t(?P<data_size>\S*)\t(?P<index_size>\S*)$')
 
     for line in result:
         db_match = db_matcher.search(line.strip())
@@ -75,7 +99,11 @@ def db_parse(result):
         db_result[db_match.group('title')] = {
             'id': prepId(db_match.group('title')),
             'title': db_match.group('title'),
-            'size_mb': db_match.group('size_mb'),
+            'size': db_match.group('size'),
+            'data_size': db_match.group('data_size'),
+            'index_size': db_match.group('index_size'),
+            'default_character_set': db_match.group('character_set'),
+            'default_collation': db_match.group('collation'),
         } 
 
     return db_result
@@ -93,7 +121,7 @@ def tb_parse(result, status_result):
     tb_result = {} 
     tb_matcher = re.compile(r'^(?P<db>.*)\t(?P<title>.*)'
         '\t(?P<engine>.*)\t(?P<table_type>.*)\t(?P<table_collation>.*)'
-        '\t(?P<table_rows>\S*)\t(?P<size_mb>.*)')
+        '\t(?P<table_rows>\S*)\t(?P<size>.*)\t(?P<data_size>.*)\t(?P<index_size>.*)')
 
     for line in result:
         tb_match = tb_matcher.search(line.strip())
@@ -107,7 +135,9 @@ def tb_parse(result, status_result):
             'table_type': tb_match.group('table_type'),
             'table_collation': tb_match.group('table_collation'),
             'table_rows': tb_match.group('table_rows'),
-            'size_mb': tb_match.group('size_mb'),
+            'size': tb_match.group('size'),
+            'data_size': tb_match.group('data_size'),
+            'index_size': tb_match.group('index_size'),
             'table_status': '', 
         })])
 
@@ -117,12 +147,13 @@ def tb_parse(result, status_result):
             tb_result[tb_match.group('db')] = tb
 
     # TB_STATUS_QUERY parsing
-    status_matcher = re.compile(r'^(?P<db>\S*)\.(?P<tb>\S*)\s+(?P<status>.*)$')
+    status_matcher = re.compile(r'^(?P<db>\S*)\.(?P<tb>\S*)\s+(?P<status>.*)')
     # Status property adding
     for line in status_result:
         s_match = status_matcher.search(line.strip())
-        table = tb_result[s_match.group('db')].get(s_match.group('tb'))
-        table['table_status'] = s_match.group('status')
+        if s_match:
+            table = tb_result[s_match.group('db')].get(s_match.group('tb'))
+            table['table_status'] = s_match.group('status')
 
     return tb_result
 
@@ -181,13 +212,14 @@ def process_parse(result):
     """
 
     process_results = {}
-    proc_matcher = re.compile(r'^(?P<proc_id>\S*)\t(?P<user>\S*)\t'
+    proc_matcher = re.compile(r'^(?P<proc_id>.*)\t(?P<user>.*)\t'
         '(?P<host>.*)\t(?P<db>.*)\t(?P<command>.*)\t(?P<time>.*)\t'
         '(?P<state>.*)\t(?P<info>.*)$')
 
     for line in result:
         proc_match = proc_matcher.search(line.strip())
         proc_id = prepId(proc_match.group('proc_id'))
+        time = timedelta(seconds=int(proc_match.group('time')))
 
         process_results[proc_match.group('proc_id')] = {
             'id': proc_id,
@@ -196,25 +228,82 @@ def process_parse(result):
             'host':proc_match.group('host'),
             'db':proc_match.group('db'),
             'command':proc_match.group('command'),
-            'time':proc_match.group('time'),
+            'time':str(time),
             'state':proc_match.group('state'),
             'process_info':proc_match.group('info'),
         }
 
     return process_results
 
+def server_parse(size_result, server_result, master, slave):
+    """Parse the result of server queries.
+
+    @param size_result: result of SERVER_SIZE_QUERY
+    @type result: string
+    @param server_result: result of SERVER_QUERY
+    @type result: string
+    @param master: result of MASTER_QUERY
+    @type result: string
+    @param slave: result of SLAVE_QUERY
+    @type result: string
+    @return: dict with server properties and 
+    their values
+    """
+    # SERVER_SIZE_QUERY parsing
+    size, data_size, index_size = size_result[0].split('\t')
+
+    # SERVER_QUERY parsing
+    server_result = dict((line.split('\t')[0], line.split('\t')[1])
+        for line in server_result)
+
+    percent_full_table_scans = float(server_result['HANDLER_READ_FIRST'])/\
+        float(server_result['HANDLER_READ_KEY'])
+
+    # MASTER_QUERY parsing
+    master_status = "OFF"
+    if master:
+        master = master[0].split('\t')
+        master_status = "ON; File: %s; Position: %s" % (
+            master[0], master[1])
+
+    # SLAVE_QUERY parsing
+    slave_status = server_result['SLAVE_RUNNING']
+    if slave:
+        slave = dict((line.split(': ')[0].strip(), line.split(': ')[1])
+        for line in slave)
+        slave_status = "IO: %s; SQL: %s; Seconds behind: %s" % (
+            slave['Slave_IO_Running'], slave['Slave_SQL_Running'],
+            slave['Seconds_Behind_Master']) 
+
+    server_results = {
+        "model_time": datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
+        "size": size,
+        "data_size": data_size,
+        "index_size": index_size,
+        "percent_full_table_scans": str(round(percent_full_table_scans, 3)*100)+'%',
+        "master_status": master_status,
+        "slave_status": slave_status,
+    }
+
+    return server_results
+
 
 class MySQLCollector(CommandPlugin):
-    
+
     command = """mysql -e '%(db)s  %(splitter)s %(tb)s %(splitter)s \
-        %(routine)s %(splitter)s %(process)s %(splitter)s'; \
-        %(tb_status)s""" % {
+        %(routine)s %(splitter)s %(process)s %(splitter)s %(server_size)s \
+        %(splitter)s %(server)s %(splitter)s %(master)s %(splitter)s \
+        %(slave)s %(splitter)s'; %(tb_status)s""" % {
             'db' : DB_QUERY,
             'splitter': SPLITTER_QUERY,
             'tb': TB_QUERY,
             'routine': ROUTINE_QUERY,
             'tb_status': TB_STATUS_QUERY,
-            'process': PROCESS_QUERY
+            'process': PROCESS_QUERY,
+            'server_size': SERVER_SIZE_QUERY,
+            'server': SERVER_QUERY,
+            'master': MASTER_QUERY,
+            'slave': SLAVE_QUERY,
         }
 
     def condition(self, device, log):
@@ -227,7 +316,8 @@ class MySQLCollector(CommandPlugin):
         )
 
         # Results parsing
-        query_list = ('db', 'table', 'routine', 'process', 'tb_status')
+        query_list = ('db', 'table', 'routine', 'process', 'server_size', 
+            'server', 'master', 'slave', 'tb_status')
         result = dict((query_list[num], result.split('\n')[1:-1])
             for num, result in enumerate(results.split('splitter\nsplitter\n'))
         )
@@ -236,6 +326,8 @@ class MySQLCollector(CommandPlugin):
         tb_result = tb_parse(result['table'], result['tb_status'])
         sf_result, sp_result = routine_parse(result['routine'])
         process_result = process_parse(result['process'])
+        server_result = server_parse(result['server_size'], result['server'], 
+                                    result['master'], result['slave'])
 
         maps = collections.OrderedDict([
             ('databases', []),
@@ -302,8 +394,6 @@ class MySQLCollector(CommandPlugin):
             objmaps=process_oms))
 
         # Device properties
-        maps['server'].append(ObjectMap(data={
-            "model_time": datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
-        }))
-        
+        maps['server'].append(ObjectMap(server_result))
+
         return list(chain.from_iterable(maps.itervalues()))

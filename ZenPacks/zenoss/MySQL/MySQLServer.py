@@ -21,18 +21,34 @@ from Products.Zuul.infos.device import DeviceInfo
 from Products.Zuul.interfaces.device import IDeviceInfo
 from Products.Zuul.utils import ZuulMessageFactory as _t
 
-from ZenPacks.zenoss.MySQL import MODULE_NAME
+from ZenPacks.zenoss.MySQL import MODULE_NAME, SizeUnitsProxyProperty
 
 
 class MySQLServer(Device):
     meta_type = portal_type = 'MySQLServer'
 
+    ip = None
     version = None
     model_time = None
+    cmd = None
+    size = None
+    data_size = None
+    index_size = None
+    percent_full_table_scans = None
+    slave_status = None
+    master_status = None
 
     _properties = Device._properties + (
+        {'id': 'ip', 'type': 'string'},
         {'id': 'version', 'type': 'string'},
         {'id': 'model_time', 'type': 'string'},
+        {'id': 'cmd', 'type': 'string'},
+        {'id': 'size', 'type': 'string'},
+        {'id': 'data_size', 'type': 'string'},
+        {'id': 'index_size', 'type': 'string'},
+        {'id': 'percent_full_table_scans', 'type': 'string'},
+        {'id': 'slave_status', 'type': 'string'},
+        {'id': 'master_status', 'type': 'string'},
     )
 
     _relations = Device._relations + (
@@ -64,14 +80,27 @@ class MySQLServer(Device):
     def getErrorNotification(self):
         return
 
+    @property
+    def manageIp(self):
+        #return self.manageIp
+        return self.ip
+
 
 class IMySQLServerInfo(IDeviceInfo):
     '''
     API Info interface for MySQLServer.
     '''
 
+    ip = schema.TextLine(title=_t(u'MySQL Server IP address'))
     version = schema.TextLine(title=_t(u'MySQL Version'))
     model_time = schema.TextLine(title=_t(u'Model time'))
+    cmd = schema.TextLine(title=_t(u'SSH command tool'))
+    size = schema.TextLine(title=_t(u'Size'))
+    data_size = schema.TextLine(title=_t(u'Data Size'))
+    index_size = schema.TextLine(title=_t(u'Index Size'))
+    percent_full_table_scans = schema.TextLine(title=_t(u'Percentage of full table scans'))
+    slave_status = schema.TextLine(title=_t(u'Slave status'))
+    master_status = schema.TextLine(title=_t(u'Master status'))
 
 
 class MySQLServerInfo(DeviceInfo):
@@ -80,12 +109,21 @@ class MySQLServerInfo(DeviceInfo):
     implements(IMySQLServerInfo)
     adapts(MySQLServer)
 
+    ip = ProxyProperty('ip')
     manageIp = ProxyProperty('manageIp')
     zCommandPort = ProxyProperty('zCommandPort')
     zCommandUsername = ProxyProperty('zCommandUsername')
     zCommandPassword = ProxyProperty('zCommandPassword')
     version = ProxyProperty('version')
     model_time = ProxyProperty('model_time')
+    cmd = ProxyProperty('cmd')
+    size = SizeUnitsProxyProperty('size')
+    data_size = SizeUnitsProxyProperty('data_size')
+    index_size = SizeUnitsProxyProperty('index_size')
+    percent_full_table_scans = ProxyProperty('percent_full_table_scans')
+    slave_status = ProxyProperty('slave_status')
+    master_status = ProxyProperty('master_status')
+
 
     @property
     @info
