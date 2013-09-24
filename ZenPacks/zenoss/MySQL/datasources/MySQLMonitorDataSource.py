@@ -60,10 +60,10 @@ class MySQLMonitorDataSource(ZenPackPersistence, BasicDataSource):
         return os.path.join(context.zCommandPath, cmd)
 
     def addDataPoints(self):
-        # for dpname in ('totalAccesses', 'totalKBytes'):
-        #     dp = self.manage_addRRDDataPoint(dpname)
-        #     dp.rrdtype = 'DERIVE'
-        #     dp.rrdmin = 0
+        for dpname in ('table_rows', 'avg_row_length'):
+            dp = self.manage_addRRDDataPoint(dpname)
+            dp.rrdtype = 'DERIVE'
+            dp.rrdmin = 0
 
     def zmanage_editProperties(self, REQUEST=None):
         '''validation, etc'''
