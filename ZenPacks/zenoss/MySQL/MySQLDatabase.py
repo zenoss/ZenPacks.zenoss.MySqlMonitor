@@ -29,13 +29,17 @@ class MySQLDatabase(MySQLComponent):
     meta_type = portal_type = 'MySQLDatabase'
 
     size = None
-    character_set = None
-    collation = None
+    data_size = None
+    index_size = None
+    default_character_set = None
+    default_collation = None
 
     _properties = MySQLComponent._properties + (
         {'id': 'size', 'type': 'string'},
-        {'id': 'character_set', 'type': 'string'},
-        {'id': 'collation', 'type': 'string'},
+        {'id': 'data_size', 'type': 'string'},
+        {'id': 'index_size', 'type': 'string'},
+        {'id': 'default_character_set', 'type': 'string'},
+        {'id': 'default_collation', 'type': 'string'},
     )
 
     _relations = MySQLComponent._relations + (
@@ -53,8 +57,10 @@ class IMySQLDatabaseInfo(IComponentInfo):
 
     server = schema.Entity(title=_t(u'Server'))
     size = schema.TextLine(title=_t(u'Size'))
-    character_set = schema.TextLine(title=_t(u'Default character set'))
-    collation = schema.TextLine(title=_t(u'Default collation'))
+    data_size = schema.TextLine(title=_t(u'Data size'))
+    index_size = schema.TextLine(title=_t(u'Index size'))
+    default_character_set = schema.TextLine(title=_t(u'Default character set'))
+    default_collation = schema.TextLine(title=_t(u'Default collation'))
     table_count = schema.Int(title=_t(u'Number of tables'))
     stored_procedure_count = schema.Int(title=_t(u'Number of stored procedures'))
     stored_function_count = schema.Int(title=_t(u'Number of stored functions'))
@@ -69,8 +75,10 @@ class MySQLDatabaseInfo(ComponentInfo):
     adapts(MySQLDatabase)
 
     size = SizeUnitsProxyProperty('size')
-    character_set = ProxyProperty('character_set')
-    collation = ProxyProperty('collation')
+    data_size = SizeUnitsProxyProperty('data_size')
+    index_size = SizeUnitsProxyProperty('index_size')
+    default_character_set = ProxyProperty('default_character_set')
+    default_collation = ProxyProperty('default_collation')
 
     @property
     @info

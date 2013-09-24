@@ -22,7 +22,7 @@ from ZenPacks.zenoss.MySQL import MODULE_NAME, NAME_SPLITTER
 
 TB_QUERY = """
     SELECT table_schema, table_name, engine, table_type, table_collation, 
-        table_rows, (data_length + index_length) size
+        table_rows, (data_length + index_length) size, data_length, index_length
     FROM information_schema.TABLES;
 """
 
@@ -31,9 +31,11 @@ TB_STATUS_QUERY = """
 """
 
 DB_QUERY = """
-    SELECT schema_name, default_character_set_name, default_collation_name, size
+    SELECT schema_name, default_character_set_name, default_collation_name, 
+        size, data_length, index_length
     FROM information_schema.schemata LEFT JOIN 
-        (SELECT table_schema, (data_length + index_length) size
+        (SELECT table_schema, sum(data_length + index_length) size, 
+            sum(data_length) data_length, sum(index_length) index_length
         FROM information_schema.TABLES 
         GROUP BY table_schema) as sizes
     ON schema_name = sizes.table_schema;
@@ -87,7 +89,7 @@ def db_parse(result):
 
     db_result = {}
     db_matcher = re.compile(r'^(?P<title>\S*)\t(?P<character_set>\S*)\t'
-        '(?P<collation>\S*)\t(?P<size>\S*)$')
+        '(?P<collation>\S*)\t(?P<size>\S*)\t(?P<data_size>\S*)\t(?P<index_size>\S*)$')
 
     for line in result:
         db_match = db_matcher.search(line.strip())
@@ -96,8 +98,10 @@ def db_parse(result):
             'id': prepId(db_match.group('title')),
             'title': db_match.group('title'),
             'size': db_match.group('size'),
-            'character_set': db_match.group('character_set'),
-            'collation': db_match.group('collation'),
+            'data_size': db_match.group('data_size'),
+            'index_size': db_match.group('index_size'),
+            'default_character_set': db_match.group('character_set'),
+            'default_collation': db_match.group('collation'),
         } 
 
     return db_result
@@ -115,7 +119,7 @@ def tb_parse(result, status_result):
     tb_result = {} 
     tb_matcher = re.compile(r'^(?P<db>.*)\t(?P<title>.*)'
         '\t(?P<engine>.*)\t(?P<table_type>.*)\t(?P<table_collation>.*)'
-        '\t(?P<table_rows>\S*)\t(?P<size>.*)')
+        '\t(?P<table_rows>\S*)\t(?P<size>.*)\t(?P<data_size>.*)\t(?P<index_size>.*)')
 
     for line in result:
         tb_match = tb_matcher.search(line.strip())
@@ -130,6 +134,8 @@ def tb_parse(result, status_result):
             'table_collation': tb_match.group('table_collation'),
             'table_rows': tb_match.group('table_rows'),
             'size': tb_match.group('size'),
+            'data_size': tb_match.group('data_size'),
+            'index_size': tb_match.group('index_size'),
             'table_status': '', 
         })])
 
@@ -281,7 +287,7 @@ def server_parse(size_result, server_result, master, slave):
 
 
 class MySQLCollector(CommandPlugin):
-    
+
     command = """mysql -e '%(db)s  %(splitter)s %(tb)s %(splitter)s \
         %(routine)s %(splitter)s %(process)s %(splitter)s %(server_size)s \
         %(splitter)s %(server)s %(splitter)s %(master)s %(splitter)s \
