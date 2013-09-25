@@ -37,7 +37,9 @@ class ZenPack(ZenPackBase):
     '''
     ZenPack loader.
     '''
-    pass
+    packZProperties = [
+        ('zMySQLCommand', 'mysql', 'string'),
+    ]
 
 def SizeUnitsProxyProperty(propertyName, unitstr="B"):
     """This uses a closure to make a getter and

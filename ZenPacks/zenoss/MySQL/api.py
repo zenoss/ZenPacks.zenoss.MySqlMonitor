@@ -61,6 +61,7 @@ class MySQLFacade(ZuulFacade):
                     "zCommandPort": port,
                     "zCommandUsername": user,
                     "zCommandPassword": password,
+                    'zMySQLCommand': cmd,
                 }
             )
 

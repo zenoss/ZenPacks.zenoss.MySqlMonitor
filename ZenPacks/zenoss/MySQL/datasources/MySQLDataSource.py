@@ -18,17 +18,19 @@ from Products.Zuul.infos import ProxyProperty
 from Products.Zuul.infos.template import RRDDataSourceInfo
 from Products.Zuul.interfaces import IRRDDataSourceInfo
 from Products.Zuul.utils import ZuulMessageFactory as _t
+from Products.ZenModel.RRDDataSource import RRDDataSource
+from Products.ZenModel.ZenPackPersistence import ZenPackPersistence
 
-from ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource \
-            import PythonDataSource, PythonDataSourcePlugin
-
-class MySQLDataSource(PythonDataSource):
+class MySQLDataSource(ZenPackPersistence, RRDDataSource):
     ''' Datasource used to capture datapoints '''
     ZENPACKID = 'ZenPacks.zenoss.MySQL'
 
     # name for source type in drop-down selection
     sourcetypes = ('MySQLDataSource', )
     sourcetype = sourcetypes[0]
+
+    eventClass = '/Server/MySQL'
+    component = "${here/id}"
 
     cycletime = 300
 
@@ -43,62 +45,19 @@ class MySQLDataSource(PythonDataSource):
         return 'Data source for monitoring MySQL database'
 
 
-class IMySQLMonitoringDataSourceInfo(IRRDDataSourceInfo):
+class IMySQLDataSourceInfo(IRRDDataSourceInfo):
     ''' API Info interface for MySQLDataSource.  '''
 
     cycletime = schema.TextLine(title=_t('Cycle time'))
 
 
-class MySQLMonitoringDataSourceInfo(RRDDataSourceInfo):
+class MySQLDataSourceInfo(RRDDataSourceInfo):
     ''' API Info adapter factory for MySQLMonitoringDataSource.  '''
 
-    implements(IMySQLMonitoringDataSourceInfo)
-    adapts(MySQLMonitoringDataSource)
+    implements(IMySQLDataSourceInfo)
+    adapts(MySQLDataSource)
 
     testable = False
 
     cycletime = ProxyProperty('cycletime')
 
-
-class MySQLMonitoringDataSourcePlugin(PythonDataSourcePlugin):
-    proxy_attributes = ('host', 'port', 'device', 'password')
-
-    @defer.inlineCallbacks
-    def collect(self, config):
-        ''' 
-            This method must return a Twisted deferred. The deferred results will
-            be sent to the onResult then either onSuccess or onError callbacks below.
-        '''
-        if False:
-            yield  # without a yield function would not be a coroutine
-
-        print '=' * 80
-        for ds in config.datasources:
-            print datasource.device
-            print datasource.compoent
-        print '=' * 80
-
-        defer.returnValue(dict(
-            events=[],
-            values={
-                None: {},
-            }
-        ))
-
-    def onSuccess(self, result, config):
-        from pprint import pprint
-        print '<' * 50
-        pprint(result)
-        print '>' * 50
-        return result
-
-    def onError(self, result, config):
-        print '!' * 300
-        print result
-        return {
-            'events': [{
-                'summary': 'error: %s' % result,
-                'eventKey': 'MySQLMonitoring_error',
-                'severity': 4,
-            }]
-        }
