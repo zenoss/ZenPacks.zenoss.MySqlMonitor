@@ -20,6 +20,8 @@ from Products.ZenUtils.Utils import prepId
 from ZenPacks.zenoss.MySQL import MODULE_NAME, NAME_SPLITTER
 
 
+NAME_SPLITTER = '.'
+
 TB_QUERY = """
     SELECT table_schema, table_name, engine, table_type, table_collation, 
         table_rows, (data_length + index_length) size, data_length, index_length

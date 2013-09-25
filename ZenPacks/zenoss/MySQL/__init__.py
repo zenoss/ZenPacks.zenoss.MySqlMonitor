@@ -35,7 +35,7 @@ NAME_SPLITTER = '(.,.)'
 
 class ZenPack(ZenPackBase):
     '''
-    ZenPack loader.
+        ZenPack loader.
     '''
     packZProperties = [
         ('zMySQLCommand', 'mysql', 'string'),
