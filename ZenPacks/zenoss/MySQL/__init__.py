@@ -7,6 +7,7 @@
 #
 ##############################################################################
 
+import math
 from Products.ZenModel.ZenPack import ZenPackBase
 
 
@@ -41,7 +42,7 @@ class ZenPack(ZenPackBase):
         ('zMySQLCommand', 'mysql', 'string'),
     ]
 
-def SizeUnitsProxyProperty(propertyName, unitstr="B"):
+def SizeUnitsProxyProperty(propertyName):
     """This uses a closure to make a getter and
     setter for the size property and assigns it
     a calculated value with unit type.
@@ -55,13 +56,14 @@ def SizeUnitsProxyProperty(propertyName, unitstr="B"):
             val = int(val)
             if val == 0:
                 return val
-            divby = 1024.0
-            units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
-            for i in range(units.index(unitstr), len(units)):
-                if val<divby:
-                    break
-                val = val/divby
-            return str(round(val, 2)) + ' ' + units[i]
+            units = ("B", "KB", "MB", "GB", "TB", "PB")
+            i = int(math.floor(math.log(val, 1024)))
+            p = math.pow(1024, i)
+            s = round(val/p, 2)
+            if (s > 0):
+                return '%s %s' % (s, units[i])
+            else:
+                return '0 B'
         except:
             return val
 
