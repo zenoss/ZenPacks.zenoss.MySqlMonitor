@@ -2,11 +2,13 @@ from mock import MagicMock
 
 from Products.ZenRRD.CommandParser import ParsedResults
 from Products.ZenTestCase.BaseTestCase import BaseTestCase
+from Products.ZenRRD.tests.BaseParsersTestCase import Object
 from Products.ZenRRD.zencommand import Cmd, DataPointConfig
 from Products.ZenCollector.services.config import DeviceProxy
 
 from ZenPacks.zenoss.MySQL.parsers.mysql_parser import MySQL
 from ZenPacks.zenoss.MySQL.parsers.tables_schema import TablesSchema
+from ZenPacks.zenoss.MySQL.parsers.database import Database
 
 from .util import load_data
 
@@ -75,10 +77,32 @@ class TestTablesSchema(BaseTestCase):
         for dp, val in self.results.values:
             self.assertEquals(correct[dp.id], val)
 
+class TestDatabase(BaseTestCase):
+    def afterSetUp(self):
+        self.results = ParsedResults()
+        self.parser = Database()
+
+    def test_database_process_results(self):
+        cmd = get_fake_cmd('database.txt', ('size', 'index_size', 'data_size'))
+        for point in cmd.points:
+            point.component = 'test'
+
+        self.parser.processResults(cmd, self.results)
+        self.assertEquals(len(self.results.values), 3)
+
+        correct = dict(
+            size='1',
+            index_size='2',
+            data_size='3',
+        )
+        for dp, val in self.results.values:
+            self.assertEquals(correct[dp.id], val)
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(TestMySQL))
     suite.addTest(makeSuite(TestTablesSchema))
+    suite.addTest(makeSuite(TestDatabase))
     return suite
