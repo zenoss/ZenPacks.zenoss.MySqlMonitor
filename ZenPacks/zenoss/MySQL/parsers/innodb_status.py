@@ -20,5 +20,6 @@ class InnodbStatus(CommandParser):
                 'eventKey': 'innodb_deadlock',
                 'summary': 'No last deadlock data',
             })
+        return result
 
 innodb_status = InnodbStatus # because zenoss is not happy with pep8
