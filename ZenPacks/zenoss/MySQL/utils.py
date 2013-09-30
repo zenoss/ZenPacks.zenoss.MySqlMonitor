@@ -7,6 +7,8 @@
 #
 ##############################################################################
 
+import os
+
 from Products.AdvancedQuery import Eq, Or
 
 from Products.ZenUtils.Utils import prepId
@@ -15,16 +17,18 @@ from Products.Zuul.interfaces import ICatalogTool
 from zope.event import notify
 from Products.Zuul.catalog.events import IndexingEvent
 
+def here(dir, base=os.path.dirname(__file__)):
+    return os.path.join(base, dir)
+
 def add_local_lib_path():
     '''
     Helper to add the ZenPack's lib directory to sys.path.
     '''
-    import os
     import sys
     import site
 
-    site.addsitedir(os.path.join(os.path.dirname(__file__), 'lib'))
-    #sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
+    site.addsitedir(here('lib'))
+    #sys.path.append(here('lib'))
 
 add_local_lib_path()
 

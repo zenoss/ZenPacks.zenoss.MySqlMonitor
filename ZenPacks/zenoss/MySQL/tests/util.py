@@ -1,7 +1,7 @@
 ###########################################################################
 #
 # This program is part of Zenoss Core, an open source monitoring platform.
-# Copyright (C) 2013 Zenoss Inc.
+# Copyright (C) 2011, Zenoss Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 2 or (at your
@@ -11,27 +11,9 @@
 #
 ###########################################################################
 
-PYTHON=$(shell which python)
-HERE=$(PWD)
-ZP_DIR=$(HERE)/ZenPacks/zenoss/MySQL
-LIB_DIR=$(ZP_DIR)/lib
+import os.path
 
-default: egg
-
-egg:
-	python setup.py bdist_egg
-
-build:
-	python setup.py build
-
-clean:
-	rm -rf build dist *.egg-info
-
-test:
-	runtests ZenPacks.zenoss.MySQL
-
-reinstall:
-	./reinstall.sh
-
-pretty_xml:
-	python $(ZP_DIR)/xml_format.py $(ZP_DIR)/objects/objects.xml
+def load_data(filename):
+    path = os.path.join(os.path.dirname(__file__), 'data', filename)
+    with open(path, 'r') as f:
+        return f.read()
