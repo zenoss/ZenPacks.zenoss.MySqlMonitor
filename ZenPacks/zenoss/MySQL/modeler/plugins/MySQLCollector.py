@@ -290,6 +290,10 @@ def server_parse(size_result, server_result, master, slave):
 
 class MySQLCollector(CommandPlugin):
 
+    deviceProperties = CommandPlugin.deviceProperties + (
+        'zMySQLCommand',
+    )
+
     command = """mysql -e '%(db)s  %(splitter)s %(tb)s %(splitter)s \
         %(routine)s %(splitter)s %(process)s %(splitter)s %(server_size)s \
         %(splitter)s %(server)s %(splitter)s %(master)s %(splitter)s \

@@ -2,6 +2,7 @@ from mock import MagicMock
 
 from Products.ZenRRD.CommandParser import ParsedResults
 from Products.ZenTestCase.BaseTestCase import BaseTestCase
+from Products.ZenRRD.tests.BaseParsersTestCase import Object
 from Products.ZenRRD.zencommand import Cmd, DataPointConfig
 from Products.ZenCollector.services.config import DeviceProxy
 
@@ -75,6 +76,28 @@ class TestTablesSchema(BaseTestCase):
 
         correct = dict(
             table_rows='30',
+        )
+        for dp, val in self.results.values:
+            self.assertEquals(correct[dp.id], val)
+
+class TestDatabase(BaseTestCase):
+    def afterSetUp(self):
+        self.results = ParsedResults()
+        from ZenPacks.zenoss.MySQL.parsers.database import Database
+        self.parser = Database()
+
+    def test_database_process_results(self):
+        cmd = get_fake_cmd('database.txt', ('size', 'index_size', 'data_size'))
+        for point in cmd.points:
+            point.component = 'test'
+
+        self.parser.processResults(cmd, self.results)
+        self.assertEquals(len(self.results.values), 3)
+
+        correct = dict(
+            size='1',
+            index_size='2',
+            data_size='3',
         )
         for dp, val in self.results.values:
             self.assertEquals(correct[dp.id], val)
@@ -153,4 +176,5 @@ def test_suite():
     suite.addTest(makeSuite(TestMySQL))
     suite.addTest(makeSuite(TestTablesSchema))
     suite.addTest(makeSuite(TestInnodbStatusParser))
+    suite.addTest(makeSuite(TestDatabase))
     return suite
