@@ -1,4 +1,4 @@
-def get_monitoring_template(graphs, command):
+def get_monitoring_template(graphs):
     xml = []
     xml.append('''
   <object class="RRDTemplate" id="/zport/dmd/Devices/rrdTemplates/mysql" module="Products.ZenModel.RRDTemplate">
@@ -127,6 +127,9 @@ def get_id(datapoint):
     return datapoint.lower().replace(' ', '_')
 
 print get_monitoring_template((
+    ('Connections', (
+        'Threads connected',
+    )),
     ('Aborted', (
         'Aborted clients',
         'Aborted connects'
@@ -136,29 +139,30 @@ print get_monitoring_template((
         'Bytes received',
     )),
     ('Commands', (
-        'Com create db',
-        'Com drop db',
         'Com alter db',
-        'Com create table',
         'Com alter table',
-        'Com drop table',
-        'Com create user',
-        'Com drop user',
         'Com call procedure',
-        'Com commit',
         'Com check',
-        'Com delete',
+        'Com commit',
+        'Com create db',
+        'Com create table',
+        'Com create user',
         'Com delete multi',
+        'Com delete',
+        'Com drop db',
+        'Com drop table',
+        'Com drop user',
         'Com execute sql',
         'Com flush',
+        'Com insert select',
         'Com insert',
         'Com purge',
         'Com repair',
         'Com replace',
         'Com rollback',
         'Com select',
-        'Com update',
         'Com update multi',
+        'Com update',
     )),
     ('Handler', (
         'Handler commit',
@@ -178,11 +182,18 @@ print get_monitoring_template((
     ('Key cache', (
         'Key reads',
         'Key writes',
+        'Key read requests',
     )),
     ('Open objects', (
         'Open files',
         'Open streams',
         'Open tables',
     )),
+    ('Joins stats', (
+        'Select full join',
+        'Select full range join',
+        'Select range',
+        'Select range check',
+        'Select scan',
+    )),
 ))
-
