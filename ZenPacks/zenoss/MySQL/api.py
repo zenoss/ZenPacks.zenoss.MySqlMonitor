@@ -37,7 +37,7 @@ class MySQLFacade(ZuulFacade):
     implements(IMySQLFacade)
 
     def add_device(self, device_name, cmd, host, port, user, password, \
-        version, collector):
+        command_path, version, collector):
 
         deviceRoot = self._dmd.getDmdRoot("Devices")
         device = deviceRoot.findDeviceByIdExact(device_name)
@@ -61,6 +61,7 @@ class MySQLFacade(ZuulFacade):
                     "zCommandPort": port,
                     "zCommandUsername": user,
                     "zCommandPassword": password,
+                    'zCommandPath': command_path,
                     'zMySQLCommand': cmd,
                 }
             )
@@ -93,10 +94,10 @@ class MySQLRouter(DirectRouter):
         return Zuul.getFacade('mysql', self.context)
 
     def add_device(self, device_name, cmd, host, port, user, password, \
-        version, collector):
+        command_path, version, collector):
         
         success = self._getFacade().add_device(device_name, cmd, host, port, user, \
-            password, version, collector)
+            password, command_path, version, collector)
 
         if success:
             return DirectResponse.succeed()
