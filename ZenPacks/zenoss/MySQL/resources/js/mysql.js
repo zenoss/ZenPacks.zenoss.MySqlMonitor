@@ -95,7 +95,7 @@ var add_mysqlserver = new Zenoss.Action({
                 }, {
                     xtype: 'textfield',
                     name: 'command_path',
-                    value: '/etc/bin/',
+                    value: '/usr/bin/',
                     fieldLabel: _t('zCommandPath'),
                     id: 'add_myslqserver-command_path',
                     width: 260,
