@@ -94,6 +94,14 @@ var add_mysqlserver = new Zenoss.Action({
                     }
                 }, {
                     xtype: 'textfield',
+                    name: 'command_path',
+                    value: '/usr/bin/',
+                    fieldLabel: _t('zCommandPath'),
+                    id: 'add_myslqserver-command_path',
+                    width: 260,
+                    allowBlank: false
+                }, {
+                    xtype: 'textfield',
                     name: 'host',
                     value: '127.0.0.1',
                     fieldLabel: _t('SSH IP address'),

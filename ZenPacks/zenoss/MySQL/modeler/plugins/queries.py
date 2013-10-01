@@ -73,6 +73,7 @@ def tab_parse(query_result):
     @return: dict with row number as a key and dict of 
     mysql query parameters and their values as a value    
     """
+
     # Handling empty query results
     if not query_result[0]:
         return
@@ -80,6 +81,7 @@ def tab_parse(query_result):
     result = {}
     key = 0
     headers = [header.lower() for header in query_result[0].split('\t')]
+
     # Parsing the table result
     for line in query_result[1:]:
         if line:
