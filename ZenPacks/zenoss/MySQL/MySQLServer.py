@@ -49,6 +49,7 @@ class MySQLServer(Device):
         {'id': 'percent_full_table_scans', 'type': 'string'},
         {'id': 'slave_status', 'type': 'string'},
         {'id': 'master_status', 'type': 'string'},
+        {'id': 'zCommandPassword', 'type': 'password', 'visible': True},
     )
 
     _relations = Device._relations + (
