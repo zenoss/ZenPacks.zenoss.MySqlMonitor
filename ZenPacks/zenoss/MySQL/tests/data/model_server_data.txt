@@ -1,0 +1,17 @@
+size	data_length	index_length
+163346448	150927376	12419072
+splitter
+splitter
+variable_name	variable_value
+HANDLER_READ_FIRST	2
+HANDLER_READ_KEY	3
+SLAVE_RUNNING	ON
+splitter
+splitter
+File	Position	Binlog_Do_DB	Binlog_Ignore_DB
+mysqld-bin.000001	106	newdatabase,test	mysql
+splitter
+splitter
+Slave_SQL_Running: Yes
+             Slave_IO_Running: Yes
+             Seconds_Behind_Master: 10

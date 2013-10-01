@@ -1,0 +1,5 @@
+table_schema	table_name	engine	table_type	table_collation	table_rows	size	data_length	index_length
+test	table1	InnoDB	InnoDB	utf32_general_ci	10	10	8	2
+splitter
+splitter
+test.table1   OK
