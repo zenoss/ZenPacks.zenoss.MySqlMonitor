@@ -41,8 +41,8 @@ class MySQLProcessCollector(CommandPlugin):
        # Process properties
         process_oms = []
         for process in queries.tab_parse(results.splitlines()).values():
-            if process['time']:
-                time = timedelta(seconds=int(process['time']))
+            time = process['time'] if process['time'] == "NULL" \
+                else timedelta(seconds=int(process['time']))
             process_oms.append(ObjectMap({
                 'id': prepId(process['id']),
                 'title': process['id'],
