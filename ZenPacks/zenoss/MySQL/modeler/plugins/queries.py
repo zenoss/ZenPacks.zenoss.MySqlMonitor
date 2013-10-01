@@ -74,18 +74,22 @@ def tab_parse(query_result):
     mysql query parameters and their values as a value    
     """
 
+    # Handling empty query results
+    if not query_result[0]:
+        return
+
     result = {}
     key = 0
     headers = [header.lower() for header in query_result[0].split('\t')]
 
     # Parsing the table result
     for line in query_result[1:]:
-        line = line.split('\t')
-        properties = {}
-        for i, header in enumerate(headers):
-            properties[header] = line[i]
+        if line:
+            line = line.split('\t')
+            properties = dict((header, line[i]) 
+                for i, header in enumerate(headers))
 
-        result[key] = properties
-        key +=1 
+            result[key] = properties
+            key +=1
 
     return result

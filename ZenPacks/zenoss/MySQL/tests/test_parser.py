@@ -80,6 +80,7 @@ class TestTablesSchema(BaseTestCase):
         for dp, val in self.results.values:
             self.assertEquals(correct[dp.id], val)
 
+
 class TestDatabase(BaseTestCase):
     def afterSetUp(self):
         self.results = ParsedResults()

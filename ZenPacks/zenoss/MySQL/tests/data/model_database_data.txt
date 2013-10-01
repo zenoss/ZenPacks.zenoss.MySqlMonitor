@@ -1,0 +1,2 @@
+schema_name	default_character_set_name	default_collation_name	size	data_length	index_length
+information_schema	utf8	utf8_general_ci	9216	0	9216

@@ -38,7 +38,7 @@ class MySQLTableCollector(CommandPlugin):
 
         # Results parsing
         query_list = ('tb', 'tb_status')
-        result = dict((query_list[num], result.split('\n')[:-1])
+        result = dict((query_list[num], result.split('\n'))
             for num, result in enumerate(results.split('splitter\nsplitter\n'))
         )
         # Tables sorting according to db name as a key
@@ -100,7 +100,7 @@ class MySQLTableCollector(CommandPlugin):
         status_matcher = re.compile(r'^(?P<db>\S*)\.(?P<tb>\S*)\s+'
             '(?P<status>.*)$')
         # Status property adding
-        for line in status_result[1:]:
+        for line in status_result:
             s_match = status_matcher.search(line.strip())
             if s_match:
                 table = tb_result[s_match.group('db')][s_match.group('tb')]

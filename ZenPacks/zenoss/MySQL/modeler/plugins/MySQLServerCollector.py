@@ -39,35 +39,12 @@ class MySQLServerCollector(CommandPlugin):
 
         # Results parsing
         query_list = ('server_size', 'server', 'master', 'slave')
-        result = dict((query_list[num], result.split('\n')[1:-1])
+        result = dict((query_list[num], result.split('\n'))
             for num, result in enumerate(results.split('splitter\nsplitter\n'))
         )
 
         # SERVER_SIZE_QUERY parsing
-        size, data_size, index_size = result['server_size'][0].split('\t')
-
-        # SERVER_QUERY parsing
-        server_result = dict((line.split('\t')[0], line.split('\t')[1])
-            for line in result['server'])
-
-        percent_full_table_scans = float(server_result['HANDLER_READ_FIRST'])/\
-            float(server_result['HANDLER_READ_KEY'])
-
-        # MASTER_QUERY parsing
-        master_status = "OFF"
-        if result['master']:
-            master = result['master'][0].split('\t')
-            master_status = "ON; File: %s; Position: %s" % (
-                master[0], master[1])
-
-        # SLAVE_QUERY parsing
-        slave_status = server_result['SLAVE_RUNNING']
-        if result['slave']:
-            slave = dict((line.split(': ')[0].strip(), line.split(': ')[1])
-                for line in result['slave'])
-            slave_status = "IO: %s; SQL: %s; Seconds behind: %s" % (
-                slave['Slave_IO_Running'], slave['Slave_SQL_Running'],
-                slave['Seconds_Behind_Master'])
+        size, data_size, index_size = result['server_size'][1].split('\t')
 
         maps = collections.OrderedDict([
             ('server', []),
@@ -79,9 +56,60 @@ class MySQLServerCollector(CommandPlugin):
             "size": size,
             "data_size": data_size,
             "index_size": index_size,
-            "percent_full_table_scans": str(round(percent_full_table_scans, 3)*100)+'%',
-            "master_status": master_status,
-            "slave_status": slave_status,
+            "percent_full_table_scans": self._percent_full_table_scans(result['server']),
+            "master_status": self._master_status(result['master']),
+            "slave_status": self._slave_status(result['slave']),
         }))
 
         return list(chain.from_iterable(maps.itervalues()))
+
+    def _percent_full_table_scans(self, server_result):
+        """Calculates the percent of full table scans for server.
+
+        @param server_result: result of SERVER_QUERY
+        @type server_result: string
+        @return: str, rounded value with percent sign
+        """
+
+        server_result = dict((line.split('\t')[0], line.split('\t')[1])
+            for line in server_result if line)
+
+        if int(server_result['HANDLER_READ_KEY']) == 0:
+            return "N/A"
+
+        percent = float(server_result['HANDLER_READ_FIRST'])/\
+            float(server_result['HANDLER_READ_KEY'])
+
+        return str(round(percent, 3)*100)+'%'
+
+    def _master_status(self, master_result):
+        """Parse the result of MASTER_QUERY.
+
+        @param master_result: result of MASTER_QUERY
+        @type master_result: string
+        @return: str, master status
+        """
+
+        if queries.tab_parse(master_result):
+            master = master_result[1].split('\t')
+            return "ON; File: %s; Position: %s" % (
+                master[0], master[1])
+        else:
+            return "OFF"
+
+    def _slave_status(self, slave_result):
+        """Parse the result of SLAVE_QUERY.
+
+        @param master_result: result of SLAVE_QUERY
+        @type master_result: string
+        @return: str, slave status
+        """
+
+        if queries.tab_parse(slave_result):
+            slave = dict((line.split(': ')[0].strip(), line.split(': ')[1])
+                for line in slave_result if line)
+            return "IO running: %s; SQL running: %s; Seconds behind: %s" % (
+                slave['Slave_IO_Running'], slave['Slave_SQL_Running'],
+                slave['Seconds_Behind_Master'])
+        else:
+            return "OFF"
