@@ -6,7 +6,10 @@ deadlock_re = re.compile('\n-+\n(LATEST DETECTED DEADLOCK\n-+\n.*?\n)-+\n', re.M
 
 class InnodbStatus(CommandParser):
     def processResults(self, cmd, result):
-        stats = cmd.result.output.splitlines()[1].split('\t')[-1].replace('\\n', '\n')
+        output = cmd.result.output
+        if not output:
+            return result
+        stats = output.splitlines()[1].split('\t')[-1].replace('\\n', '\n')
         deadlock_match = deadlock_re.search(stats)
         if deadlock_match:
             result.events.append({
