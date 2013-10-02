@@ -16,12 +16,14 @@ class InnodbStatus(CommandParser):
                 'severity': 3,
                 'eventKey': 'innodb_deadlock',
                 'summary': deadlock_match.group(1),
+                'eventClass': '/Status',
             })
         else:
             result.events.append({
                 'severity': 0,
                 'eventKey': 'innodb_deadlock',
                 'summary': 'No last deadlock data',
+                'eventClass': '/Status',
             })
         return result
 
