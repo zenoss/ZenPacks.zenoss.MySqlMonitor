@@ -119,6 +119,7 @@ class TestInnodbStatusParser(BaseTestCase):
             'severity': 0,
             'summary': 'No last deadlock data',
             'eventKey': 'innodb_deadlock',
+            'eventClass': '/Status',
         }
         self.assertIn(evt, self.results.events)
 
@@ -130,6 +131,7 @@ class TestInnodbStatusParser(BaseTestCase):
         evt = {
             'severity': 3,
             'eventKey': 'innodb_deadlock',
+            'eventClass': '/Status',
             'summary': '''LATEST DETECTED DEADLOCK
 ------------------------
 130927 10:17:13
