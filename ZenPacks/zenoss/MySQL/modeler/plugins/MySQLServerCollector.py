@@ -9,16 +9,16 @@
 
 ''' Models discovery tree for MySQL. '''
 
-import collections
 import queries
 from datetime import datetime
-from itertools import chain
 
 from Products.DataCollector.plugins.CollectorPlugin import CommandPlugin
-from Products.DataCollector.plugins.DataMaps import ObjectMap
+from ZenPacks.zenoss.MySQL import MODULE_NAME
 
 class MySQLServerCollector(CommandPlugin):
 
+    relname = "server"
+    modname = MODULE_NAME['MySQLServer']
     command = """mysql -e '{server_size} {splitter} {server} \
         {splitter} {master} {splitter} {slave}'""".format(
             server_size = queries.SERVER_SIZE_QUERY,
@@ -46,22 +46,17 @@ class MySQLServerCollector(CommandPlugin):
         # SERVER_SIZE_QUERY parsing
         size, data_size, index_size = result['server_size'][1].split('\t')
 
-        maps = collections.OrderedDict([
-            ('server', []),
-        ])
-
         # Server properties
-        maps['server'].append(ObjectMap({
-            "model_time": datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
-            "size": size,
-            "data_size": data_size,
-            "index_size": index_size,
-            "percent_full_table_scans": self._percent_full_table_scans(result['server']),
-            "master_status": self._master_status(result['master']),
-            "slave_status": self._slave_status(result['slave']),
-        }))
+        om = self.objectMap()
+        om.model_time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        om.size = size
+        om.data_size = data_size
+        om.index_size = index_size
+        om.percent_full_table_scans = self._percent_full_table_scans(result['server'])
+        om.master_status = self._master_status(result['master'])
+        om.slave_status = self._slave_status(result['slave'])
 
-        return list(chain.from_iterable(maps.itervalues()))
+        return om
 
     def _percent_full_table_scans(self, server_result):
         """Calculates the percent of full table scans for server.
