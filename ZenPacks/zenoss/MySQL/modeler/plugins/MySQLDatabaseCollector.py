@@ -9,17 +9,15 @@
 
 ''' Models discovery tree for MySQL. '''
 
-import collections
 import queries
-from itertools import chain
 
 from Products.DataCollector.plugins.CollectorPlugin import CommandPlugin
-from Products.DataCollector.plugins.DataMaps import ObjectMap, RelationshipMap
-from Products.ZenUtils.Utils import prepId
 from ZenPacks.zenoss.MySQL import MODULE_NAME
 
 class MySQLDatabaseCollector(CommandPlugin):
 
+    relname = "databases"
+    modname = MODULE_NAME['MySQLDatabase']
     command = """mysql -e '{db}'""".format(
             db = queries.DB_QUERY
         )
@@ -32,27 +30,19 @@ class MySQLDatabaseCollector(CommandPlugin):
             'Modeler %s processing data for device %s',
             self.name(), device.id
         )
-
-        maps = collections.OrderedDict([
-            ('databases', []),
-        ])
+        rm = self.relMap()
 
        # Database properties
-        db_oms = []
         for db in queries.tab_parse(results.splitlines()).values():
-            db_oms.append(ObjectMap({
-                'id': prepId(db['schema_name']),
-                'title': db['schema_name'],
-                'size': db['size'],
-                'data_size': db['data_length'],
-                'index_size': db['index_length'],
-                'default_character_set': db['default_character_set_name'],
-                'default_collation': db['default_collation_name'],
-            }))
+            om = self.objectMap()
+            om.id = self.prepId(db['schema_name'])
+            om.title = db['schema_name']
+            om.size = db['size']
+            om.data_size = db['data_length']
+            om.index_size = db['index_length']
+            om.default_character_set = db['default_character_set_name']
+            om.default_collation = db['default_collation_name']
 
-        maps['databases'].append(RelationshipMap(
-            relname='databases',
-            modname=MODULE_NAME['MySQLDatabase'],
-            objmaps=db_oms))
+            rm.append(om)
 
-        return list(chain.from_iterable(maps.itervalues()))
+        return rm
