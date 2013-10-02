@@ -10,14 +10,12 @@ import logging
 
 from Products.DataCollector.plugins.DataMaps import ObjectMap
 from Products.ZenTestCase.BaseTestCase import BaseTestCase
-
 from Products.ZenCollector.services.config import DeviceProxy
 
 from ZenPacks.zenoss.MySQL.modeler.plugins.MySQLDatabaseCollector import MySQLDatabaseCollector
 from ZenPacks.zenoss.MySQL.modeler.plugins.MySQLProcessCollector import MySQLProcessCollector
-from ZenPacks.zenoss.MySQL.modeler.plugins.MySQLRoutineCollector import MySQLRoutineCollector
 from ZenPacks.zenoss.MySQL.modeler.plugins.MySQLServerCollector import MySQLServerCollector
-from ZenPacks.zenoss.MySQL.modeler.plugins.MySQLTableCollector import MySQLTableCollector
+from ZenPacks.zenoss.MySQL.modeler.plugins.MySQLTableRoutineCollector import MySQLTableRoutineCollector
 
 from .util import load_data
 
@@ -31,6 +29,8 @@ def patch_asUnitTest(self):
     del map["_attrs"]
     try:
         del map["modname"]
+        del map["compname"]
+        del map["classname"]
     except:
         pass
     return map
@@ -46,7 +46,7 @@ class TestMySQLCollector(BaseTestCase):
     def test_server_collector(self):
         collector = MySQLServerCollector()
         results = load_data('model_server_data.txt')
-        object_map = collector.process(self.device, results, self.logger)[0]
+        object_map = collector.process(self.device, results, self.logger)
         object_map.model_time = 'test'
 
         self.assertEquals({
@@ -60,8 +60,8 @@ class TestMySQLCollector(BaseTestCase):
 
 
     def test_table_collector(self):
-        collector = MySQLTableCollector()
-        results = load_data('model_table_data.txt')
+        collector = MySQLTableRoutineCollector()
+        results = load_data('model_table_routine_data.txt')
         object_map = collector.process(self.device, results, self.logger)[0].maps[0]
 
         self.assertEquals({
@@ -76,10 +76,25 @@ class TestMySQLCollector(BaseTestCase):
             'table_collation': 'utf32_general_ci',
             'id': 'test(.,.)table1'}, object_map.asUnitTest())
 
+    def test_routine_collector(self):
+        collector = MySQLTableRoutineCollector()
+        results = load_data('model_table_routine_data.txt')
+        rel_map = collector.process(self.device, results, self.logger)[0].maps[1:]
+
+        for el in rel_map:
+            self.assertEquals({'body': 'SQL',
+            'created': '2013-07-30 18:36:54',
+            'definition': 'body',
+            'external_language': 'NULL',
+            'id': 'zenoss_zep(.,.)BINARY',
+            'last_altered': '2013-07-30 18:36:54',
+            'security_type': 'DEFINER',
+            'title': 'BINARY'}, el.maps[0].asUnitTest())
+
     def test_database_collector(self):
         collector = MySQLDatabaseCollector()
         results = load_data('model_database_data.txt')
-        object_map = collector.process(self.device, results, self.logger)[0].maps[0]
+        object_map = collector.process(self.device, results, self.logger).maps[0]
 
         self.assertEquals({
             'data_size': '0',
@@ -93,7 +108,7 @@ class TestMySQLCollector(BaseTestCase):
     def test_process_collector(self):
         collector = MySQLProcessCollector()
         results = load_data('model_process_data.txt')
-        object_map = collector.process(self.device, results, self.logger)[0].maps[0]
+        object_map = collector.process(self.device, results, self.logger).maps[0]
 
         self.assertEquals({'title': '2',
             'db': 'zenoss_zep',
@@ -104,21 +119,6 @@ class TestMySQLCollector(BaseTestCase):
             'time': '0:00:00',
             'id': '2',
             'process_info': 'NULL'}, object_map.asUnitTest())
-
-    def test_routine_collector(self):
-        collector = MySQLRoutineCollector()
-        results = load_data('model_routine_data.txt')
-        rel_map = collector.process(self.device, results, self.logger)
-
-        for el in rel_map:
-            self.assertEquals({'body': 'SQL',
-            'created': '2013-07-30 18:36:54',
-            'definition': 'body',
-            'external_language': 'NULL',
-            'id': 'zenoss_zep(.,.)BINARY',
-            'last_altered': '2013-07-30 18:36:54',
-            'security_type': 'DEFINER',
-            'title': 'BINARY'}, el.maps[0].asUnitTest())
 
 
 def test_suite():

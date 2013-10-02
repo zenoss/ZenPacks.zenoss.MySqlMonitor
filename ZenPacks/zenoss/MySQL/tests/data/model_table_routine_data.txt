@@ -1,3 +1,10 @@
+table_schema	table_name	engine	table_type	table_collation	table_rows	size	data_length	index_length
+test	table1	InnoDB	InnoDB	utf32_general_ci	10	10	8	2
+splitter
+splitter
 routine_schema	routine_name	routine_type	routine_body	routine_definition	external_language	security_type	created	last_altered
 zenoss_zep	BINARY	FUNCTION	SQL	body	NULL	DEFINER	2013-07-30 18:36:54	2013-07-30 18:36:54
 zenoss_zep	BINARY	PROCEDURE	SQL	body	NULL	DEFINER	2013-07-30 18:36:54	2013-07-30 18:36:54
+splitter
+splitter
+test.table1   OK
