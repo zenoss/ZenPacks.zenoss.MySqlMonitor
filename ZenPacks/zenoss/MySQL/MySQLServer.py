@@ -50,6 +50,8 @@ class MySQLServer(Device):
         {'id': 'slave_status', 'type': 'string'},
         {'id': 'master_status', 'type': 'string'},
         {'id': 'zCommandPassword', 'type': 'password', 'visible': True},
+        {'id': 'zCommandPort', 'type': 'string', 'visible': True},
+        {'id': 'zCommandUsername', 'type': 'string', 'visible': True},
     )
 
     _relations = Device._relations + (
