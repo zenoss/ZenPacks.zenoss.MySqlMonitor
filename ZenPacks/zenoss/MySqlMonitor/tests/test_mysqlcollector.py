@@ -12,9 +12,9 @@ from Products.DataCollector.plugins.DataMaps import ObjectMap
 from Products.ZenTestCase.BaseTestCase import BaseTestCase
 from Products.ZenCollector.services.config import DeviceProxy
 
-from ZenPacks.zenoss.MySQL.modeler.plugins.MySQLDatabaseCollector import MySQLDatabaseCollector
-from ZenPacks.zenoss.MySQL.modeler.plugins.MySQLProcessCollector import MySQLProcessCollector
-from ZenPacks.zenoss.MySQL.modeler.plugins.MySQLServerCollector import MySQLServerCollector
+from ZenPacks.zenoss.MySqlMonitor.modeler.plugins.MySQLDatabaseCollector import MySQLDatabaseCollector
+from ZenPacks.zenoss.MySqlMonitor.modeler.plugins.MySQLProcessCollector import MySQLProcessCollector
+from ZenPacks.zenoss.MySqlMonitor.modeler.plugins.MySQLServerCollector import MySQLServerCollector
 
 from .util import load_data
 

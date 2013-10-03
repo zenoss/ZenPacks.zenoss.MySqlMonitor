@@ -3,7 +3,7 @@ import xml.dom.minidom as minidom
 
 from Products.ZenTestCase.BaseTestCase import BaseTestCase
 
-from ZenPacks.zenoss.MySQL.utils import here
+from ZenPacks.zenoss.MySqlMonitor.utils import here
 
 class TestObjectsXML(BaseTestCase):
     def test_parses(self):
