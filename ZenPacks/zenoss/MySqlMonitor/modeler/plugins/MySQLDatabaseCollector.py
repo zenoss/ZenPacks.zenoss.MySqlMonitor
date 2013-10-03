@@ -136,7 +136,7 @@ class MySQLDatabaseCollector(CommandPlugin):
                 'table_type': props['table_type'],
                 'table_collation': props['table_collation'],
                 'table_rows': props['table_rows'],
-                'size_mb': props['size'],
+                'size': props['size'],
                 'data_size': props['data_length'],
                 'index_size': props['index_length'],
                 'table_status': '',

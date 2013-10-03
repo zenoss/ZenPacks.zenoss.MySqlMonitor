@@ -84,7 +84,7 @@ class TestMySQLCollector(BaseTestCase):
             'title': 'table1',
             'table_type': 'InnoDB',
             'data_size': '8',
-            'size_mb': '10',
+            'size': '10',
             'index_size': '2',
             'table_collation': 'utf32_general_ci',
             'id': 'zenoss_zep(.,.)table1'}, object_map.asUnitTest())
