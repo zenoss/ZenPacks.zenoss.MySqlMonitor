@@ -13,7 +13,7 @@
 
 PYTHON=$(shell which python)
 HERE=$(PWD)
-ZP_DIR=$(HERE)/ZenPacks/zenoss/MySQL
+ZP_DIR=$(HERE)/ZenPacks/zenoss/MySqlMonitor
 LIB_DIR=$(ZP_DIR)/lib
 
 default: egg
@@ -28,7 +28,7 @@ clean:
 	rm -rf build dist *.egg-info
 
 test:
-	runtests ZenPacks.zenoss.MySQL
+	runtests ZenPacks.zenoss.MySqlMonitor
 
 reinstall:
 	./reinstall.sh

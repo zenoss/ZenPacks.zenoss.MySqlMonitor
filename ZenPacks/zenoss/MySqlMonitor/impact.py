@@ -24,7 +24,7 @@ from ZenPacks.zenoss.Impact.impactd.interfaces import INodeTriggers
 AVAILABILITY = 'AVAILABILITY'
 PERCENT = 'policyPercentageTrigger'
 THRESHOLD = 'policyThresholdTrigger'
-RP = 'ZenPacks.zenoss.MySQL'
+RP = 'ZenPacks.zenoss.MySqlMonitor'
 
 
 def guid(obj):

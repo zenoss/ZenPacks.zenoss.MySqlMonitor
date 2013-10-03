@@ -3,7 +3,7 @@
   <!-- ('', 'zport', 'dmd', 'Devices', 'Server', 'MySQL') -->
   <object class="DeviceClass" id="/zport/dmd/Devices/Server/MySQL" module="Products.ZenModel.DeviceClass">
     <property id="zPythonClass" type="string" visible="True">
-      ZenPacks.zenoss.MySQL.MySQLServer
+      ZenPacks.zenoss.MySqlMonitor.MySQLServer
     </property>
     <property id="zCollectorPlugins" type="lines" visible="True">
       ['MySQLServerCollector', 'MySQLProcessCollector', 'MySQLDatabaseCollector']
@@ -48,7 +48,7 @@
               True
             </property>
             <property id="parser" mode="w" type="string">
-              ZenPacks.zenoss.MySQL.parsers.database
+              ZenPacks.zenoss.MySqlMonitor.parsers.database
             </property>
             <tomanycont id="datapoints">
               <object class="RRDDataPoint" id="data_size" module="Products.ZenModel.RRDDataPoint">
@@ -233,7 +233,7 @@
               True
             </property>
             <property id="parser" mode="w" type="string">
-              ZenPacks.zenoss.MySQL.parsers.tables_schema
+              ZenPacks.zenoss.MySqlMonitor.parsers.tables_schema
             </property>
             <tomanycont id="datapoints">
               <object class="RRDDataPoint" id="awg_row_length" module="Products.ZenModel.RRDDataPoint">
@@ -587,7 +587,7 @@
           True
         </property>
         <property id="parser" mode="w" type="string">
-          ZenPacks.zenoss.MySQL.parsers.mysql_parser
+          ZenPacks.zenoss.MySqlMonitor.parsers.mysql_parser
         </property>
         <tomanycont id="datapoints">
           <object class="RRDDataPoint" id="aborted_clients" module="Products.ZenModel.RRDDataPoint">
@@ -1039,7 +1039,7 @@
           True
         </property>
         <property id="parser" mode="w" type="string">
-          ZenPacks.zenoss.MySQL.parsers.innodb_status
+          ZenPacks.zenoss.MySqlMonitor.parsers.innodb_status
         </property>
       </object>
     </tomanycont>

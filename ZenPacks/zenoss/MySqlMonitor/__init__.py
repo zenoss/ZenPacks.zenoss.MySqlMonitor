@@ -24,7 +24,7 @@ productNames = (
 
 # Useful to avoid making literal string references to module and class names
 # throughout the rest of the ZenPack.
-ZP_NAME = 'ZenPacks.zenoss.MySQL'
+ZP_NAME = 'ZenPacks.zenoss.MySqlMonitor'
 MODULE_NAME = {}
 CLASS_NAME = {}
 for product_name in productNames:

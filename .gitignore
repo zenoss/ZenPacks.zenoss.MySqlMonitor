@@ -1,5 +1,5 @@
 *.pyc
-ZenPacks.zenoss.MySQL.egg-info
+ZenPacks.zenoss.MySqlMonitor.egg-info
 .DS_Store
 *.db
 *.swp

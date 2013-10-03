@@ -113,14 +113,14 @@
 
     <!-- Browser Resources -->
     <browser:resourceDirectory
-        name="ZenPacks_zenoss_MySQL"
+        name="ZenPacks_zenoss_MySqlMonitor"
         directory="resources"
         />
 
     <!-- JavaScript needed for all Zenoss pages. -->
     <browser:viewlet
         name="js-mysql"
-        paths="/++resource++ZenPacks_zenoss_MySQL/js/mysql.js"
+        paths="/++resource++ZenPacks_zenoss_MySqlMonitor/js/mysql.js"
         for="*"
         weight="20"
         manager="Products.ZenUI3.browser.interfaces.IJavaScriptSrcManager"
@@ -130,7 +130,7 @@
 
     <browser:viewlet
         name="js-panels"
-        paths="/++resource++ZenPacks_zenoss_MySQL/js/panels.js"
+        paths="/++resource++ZenPacks_zenoss_MySqlMonitor/js/panels.js"
         for=".MySQLServer.MySQLServer"
         weight="20"
         manager="Products.ZenUI3.browser.interfaces.IJavaScriptSrcManager"

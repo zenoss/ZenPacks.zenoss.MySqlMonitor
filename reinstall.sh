@@ -1,13 +1,13 @@
 set -x
 
-zenpack --remove ZenPacks.zenoss.MySQL
+zenpack --remove ZenPacks.zenoss.MySqlMonitor
 cd ..
-zenpack --link --install ZenPacks.zenoss.MySQL
+zenpack --link --install ZenPacks.zenoss.MySqlMonitor
 
 zopectl restart
 zenhub restart
 
-cd ZenPacks.zenoss.MySQL
+cd ZenPacks.zenoss.MySqlMonitor
 zendmd --script=add_device.py
 
 set +x

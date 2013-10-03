@@ -7,7 +7,7 @@ def rid(N):
 
 def add_device():
     dc = dmd.Devices.createOrganizer('/Server/MySQL')
-    dc.setZenProperty('zPythonClass', 'ZenPacks.zenoss.MySQL.MySQLServer')
+    dc.setZenProperty('zPythonClass', 'ZenPacks.zenoss.MySqlMonitor.MySQLServer')
     name = 'mysql_' + rid(3)
     device = dc.createInstance(name)
     device.setPerformanceMonitor('localhost')

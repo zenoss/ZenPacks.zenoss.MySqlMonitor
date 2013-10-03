@@ -10,7 +10,7 @@
 # These variables are overwritten by Zenoss when the ZenPack is exported
 # or saved.  Do not modify them directly here.
 # NB: PACKAGES is deprecated
-NAME = "ZenPacks.zenoss.MySQL"
+NAME = "ZenPacks.zenoss.MySqlMonitor"
 
 VERSION = "0.0.1"
 
@@ -26,10 +26,10 @@ NAMESPACE_PACKAGES = [
 PACKAGES = [
     u'ZenPacks',
     u'ZenPacks.zenoss',
-    u'ZenPacks.zenoss.MySQL',
+    u'ZenPacks.zenoss.MySqlMonitor',
 ]
 
-INSTALL_REQUIRES = ['ZenPacks.zenoss.PythonCollector']
+INSTALL_REQUIRES = []
 COMPAT_ZENOSS_VERS = ">=4.2"
 PREV_ZENPACK_NAME = ""
 

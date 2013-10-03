@@ -21,7 +21,7 @@ from Products.Zuul.infos.device import DeviceInfo
 from Products.Zuul.interfaces.device import IDeviceInfo
 from Products.Zuul.utils import ZuulMessageFactory as _t
 
-from ZenPacks.zenoss.MySQL import MODULE_NAME, SizeUnitsProxyProperty
+from ZenPacks.zenoss.MySqlMonitor import MODULE_NAME, SizeUnitsProxyProperty
 
 
 class MySQLServer(Device):
@@ -65,7 +65,7 @@ class MySQLServer(Device):
 
     def getIconPath(self):
         ''' Return the path to an icon for this component.  '''
-        return '/++resource++ZenPacks_zenoss_MySQL/img/%s.png' % self.meta_type
+        return '/++resource++ZenPacks_zenoss_MySqlMonitor/img/%s.png' % self.meta_type
 
     def setErrorNotification(self, status):
         msg = "Connection Failure, Please check server permissions "
