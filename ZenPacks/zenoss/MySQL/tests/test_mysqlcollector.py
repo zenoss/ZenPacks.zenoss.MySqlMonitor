@@ -15,7 +15,6 @@ from Products.ZenCollector.services.config import DeviceProxy
 from ZenPacks.zenoss.MySQL.modeler.plugins.MySQLDatabaseCollector import MySQLDatabaseCollector
 from ZenPacks.zenoss.MySQL.modeler.plugins.MySQLProcessCollector import MySQLProcessCollector
 from ZenPacks.zenoss.MySQL.modeler.plugins.MySQLServerCollector import MySQLServerCollector
-from ZenPacks.zenoss.MySQL.modeler.plugins.MySQLTableRoutineCollector import MySQLTableRoutineCollector
 
 from .util import load_data
 
@@ -58,11 +57,25 @@ class TestMySQLCollector(BaseTestCase):
             'data_size': '150927376',
             'size': '163346448'}, object_map.asUnitTest())
 
+    def test_server_no_slave_master_collector(self):
+        collector = MySQLServerCollector()
+        results = load_data('model_server_no_master_slave_data.txt')
+        object_map = collector.process(self.device, results, self.logger)
+        object_map.model_time = 'test'
+
+        self.assertEquals({
+            'percent_full_table_scans': 'N/A',
+            'model_time': 'test',
+            'index_size': '12419072',
+            'master_status': 'OFF',
+            'slave_status': 'OFF',
+            'data_size': '150927376',
+            'size': '163346448'}, object_map.asUnitTest())
 
     def test_table_collector(self):
-        collector = MySQLTableRoutineCollector()
-        results = load_data('model_table_routine_data.txt')
-        object_map = collector.process(self.device, results, self.logger)[0].maps[0]
+        collector = MySQLDatabaseCollector()
+        results = load_data('model_database_data.txt')
+        object_map = collector.process(self.device, results, self.logger)[1].maps[0]
 
         self.assertEquals({
             'engine': 'InnoDB',
@@ -74,12 +87,12 @@ class TestMySQLCollector(BaseTestCase):
             'size_mb': '10',
             'index_size': '2',
             'table_collation': 'utf32_general_ci',
-            'id': 'test(.,.)table1'}, object_map.asUnitTest())
+            'id': 'zenoss_zep(.,.)table1'}, object_map.asUnitTest())
 
     def test_routine_collector(self):
-        collector = MySQLTableRoutineCollector()
-        results = load_data('model_table_routine_data.txt')
-        rel_map = collector.process(self.device, results, self.logger)[0].maps[1:]
+        collector = MySQLDatabaseCollector()
+        results = load_data('model_database_data.txt')
+        rel_map = collector.process(self.device, results, self.logger)[2:]
 
         for el in rel_map:
             self.assertEquals({'body': 'SQL',
@@ -91,34 +104,42 @@ class TestMySQLCollector(BaseTestCase):
             'security_type': 'DEFINER',
             'title': 'BINARY'}, el.maps[0].asUnitTest())
 
+    def test_no_routine_collector(self):
+        collector = MySQLDatabaseCollector()
+        results = load_data('model_database_no_routines_statuses_data.txt')
+        rel_map = collector.process(self.device, results, self.logger)[2:]
+        self.assertFalse(rel_map)
+
     def test_database_collector(self):
         collector = MySQLDatabaseCollector()
         results = load_data('model_database_data.txt')
-        object_map = collector.process(self.device, results, self.logger).maps[0]
+        object_map = collector.process(self.device, results, self.logger)[0].maps[0]
 
         self.assertEquals({
             'data_size': '0',
             'default_character_set': 'utf8',
             'default_collation': 'utf8_general_ci',
-            'id': 'information_schema',
+            'id': 'zenoss_zep',
             'index_size': '9216',
             'size': '9216',
-            'title': 'information_schema'}, object_map.asUnitTest())
+            'title': 'zenoss_zep'}, object_map.asUnitTest())
 
     def test_process_collector(self):
         collector = MySQLProcessCollector()
         results = load_data('model_process_data.txt')
-        object_map = collector.process(self.device, results, self.logger).maps[0]
+        rel_map = collector.process(self.device, results, self.logger).maps
+        oms = [object_map.asUnitTest() for object_map in rel_map]
 
-        self.assertEquals({'title': '2',
-            'db': 'zenoss_zep',
-            'state': 'None',
-            'host': 'localhost:36176',
-            'command': 'Sleep',
-            'user': 'zenoss',
-            'time': '0:00:00',
-            'id': '2',
-            'process_info': 'NULL'}, object_map.asUnitTest())
+        for el in ('0:00:00', 'NULL'):
+            self.assertIn({'title': '2',
+                'db': 'zenoss_zep',
+                'state': 'None',
+                'host': 'localhost:36176',
+                'command': 'Sleep',
+                'user': 'zenoss',
+                'time': el,
+                'id': '2',
+                'process_info': 'NULL'}, oms)
 
 
 def test_suite():
