@@ -14,6 +14,9 @@ class Database(CommandParser):
     def processResults(self, cmd, result):
         # Results parsing
         data = cmd.result.output.splitlines()
+        if not data:
+            return result
+
         keys = [column.lower() for column in data[0].split('\t')]
         keys.pop(0)
         query_result = {}
