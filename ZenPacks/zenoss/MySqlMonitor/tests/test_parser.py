@@ -36,7 +36,7 @@ class TestMySQL(BaseTestCase):
 
     def afterSetUp(self):
         self.results = ParsedResults()
-        from ZenPacks.zenoss.MySQL.parsers.mysql_parser import MySQL
+        from ZenPacks.zenoss.MySqlMonitor.parsers.mysql_parser import MySQL
         self.parser = MySQL()
 
     def test_parser_runs(self):
@@ -59,7 +59,7 @@ class TestMySQL(BaseTestCase):
 class TestTablesSchema(BaseTestCase):
     def afterSetUp(self):
         self.results = ParsedResults()
-        from ZenPacks.zenoss.MySQL.parsers.tables_schema import TablesSchema
+        from ZenPacks.zenoss.MySqlMonitor.parsers.tables_schema import TablesSchema
         self.parser = TablesSchema()
 
     def test_gets_values(self):
@@ -84,7 +84,7 @@ class TestTablesSchema(BaseTestCase):
 class TestDatabase(BaseTestCase):
     def afterSetUp(self):
         self.results = ParsedResults()
-        from ZenPacks.zenoss.MySQL.parsers.database import Database
+        from ZenPacks.zenoss.MySqlMonitor.parsers.database import Database
         self.parser = Database()
 
     def test_database_process_results(self):
@@ -107,7 +107,7 @@ class TestDatabase(BaseTestCase):
 class TestInnodbStatusParser(BaseTestCase):
     def afterSetUp(self):
         self.results = ParsedResults()
-        from ZenPacks.zenoss.MySQL.parsers.innodb_status import InnodbStatus
+        from ZenPacks.zenoss.MySqlMonitor.parsers.innodb_status import InnodbStatus
         self.parser = InnodbStatus()
 
     def test_no_events(self):
