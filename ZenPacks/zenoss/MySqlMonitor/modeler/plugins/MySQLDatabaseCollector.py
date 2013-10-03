@@ -17,7 +17,7 @@ from itertools import chain
 from Products.DataCollector.plugins.CollectorPlugin import CommandPlugin
 from Products.DataCollector.plugins.DataMaps import ObjectMap, RelationshipMap
 from Products.ZenUtils.Utils import prepId
-from ZenPacks.zenoss.MySQL import MODULE_NAME, NAME_SPLITTER
+from ZenPacks.zenoss.MySqlMonitor import MODULE_NAME, NAME_SPLITTER
 
 class MySQLDatabaseCollector(CommandPlugin):
 

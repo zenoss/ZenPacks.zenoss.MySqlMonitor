@@ -13,7 +13,7 @@ import queries
 from datetime import timedelta
 
 from Products.DataCollector.plugins.CollectorPlugin import CommandPlugin
-from ZenPacks.zenoss.MySQL import MODULE_NAME
+from ZenPacks.zenoss.MySqlMonitor import MODULE_NAME
 
 class MySQLProcessCollector(CommandPlugin):
 
