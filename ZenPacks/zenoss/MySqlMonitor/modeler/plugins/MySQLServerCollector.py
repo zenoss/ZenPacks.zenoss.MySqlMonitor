@@ -53,8 +53,8 @@ class MySQLServerCollector(CommandPlugin):
         om.data_size = data_size
         om.index_size = index_size
         om.percent_full_table_scans = self._percent_full_table_scans(result['server'])
-        om.master_status = self._master_status(result['master'])
-        om.slave_status = self._slave_status(result['slave'])
+        om.master_status = self._master_status(result.get('master', ''))
+        om.slave_status = self._slave_status(result.get('slave', ''))
 
         return om
 
