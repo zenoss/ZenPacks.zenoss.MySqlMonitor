@@ -76,7 +76,7 @@ def tab_parse(query_result):
 
     # Handling empty query results
     if not query_result[0]:
-        return
+        return {}
 
     result = {}
     key = 0
