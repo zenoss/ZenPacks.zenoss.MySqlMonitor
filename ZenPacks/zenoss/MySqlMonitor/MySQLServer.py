@@ -10,27 +10,24 @@
 from zope.component import adapts
 from zope.interface import implements
 
-from Products.ZenModel.Device import Device
+from Products.ZenRelations.RelSchema import ToOne, ToMany, ToManyCont
 
-from Products.ZenRelations.RelSchema import ToManyCont, ToOne
-
+from Products.Zuul.catalog.paths import DefaultPathReporter, relPath
 from Products.Zuul.decorators import info
 from Products.Zuul.form import schema
 from Products.Zuul.infos import ProxyProperty
-from Products.Zuul.infos.device import DeviceInfo
-from Products.Zuul.interfaces.device import IDeviceInfo
+from Products.Zuul.infos.component import ComponentInfo
+from Products.Zuul.interfaces.component import IComponentInfo
 from Products.Zuul.utils import ZuulMessageFactory as _t
 
-from ZenPacks.zenoss.MySqlMonitor import MODULE_NAME, SizeUnitsProxyProperty
+from . import CLASS_NAME, MODULE_NAME, SizeUnitsProxyProperty
+from .MySQLComponent import MySQLComponent
+from .utils import updateToMany, updateToOne
 
 
-class MySQLServer(Device):
+class MySQLServer(MySQLComponent):
     meta_type = portal_type = 'MySQLServer'
 
-    ip = None
-    version = None
-    model_time = None
-    cmd = None
     size = None
     data_size = None
     index_size = None
@@ -38,34 +35,27 @@ class MySQLServer(Device):
     slave_status = None
     master_status = None
 
-    _properties = Device._properties + (
-        {'id': 'ip', 'type': 'string'},
-        {'id': 'version', 'type': 'string'},
-        {'id': 'model_time', 'type': 'string'},
-        {'id': 'cmd', 'type': 'string'},
+    _properties = MySQLComponent._properties + (
         {'id': 'size', 'type': 'string'},
         {'id': 'data_size', 'type': 'string'},
         {'id': 'index_size', 'type': 'string'},
         {'id': 'percent_full_table_scans', 'type': 'string'},
         {'id': 'slave_status', 'type': 'string'},
         {'id': 'master_status', 'type': 'string'},
-        {'id': 'zCommandPassword', 'type': 'password', 'visible': True},
-        {'id': 'zCommandPort', 'type': 'string', 'visible': True},
-        {'id': 'zCommandUsername', 'type': 'string', 'visible': True},
+        {'id': 'zMySQLConnectionString', 'type': 'string', 'visible': True},
     )
 
-    _relations = Device._relations + (
+    _relations = MySQLComponent._relations + (
+        ('mysql_host', ToOne(ToManyCont,
+            'Products.ZenModel.Device.Device',
+            'mysql_servers',
+            ),),
         ('databases', ToManyCont(
-            ToOne, MODULE_NAME['MySQLDatabase'], 'server'
-        )),
-        ('processes', ToManyCont(
-            ToOne, MODULE_NAME['MySQLProcess'], 'server'
-        )),
+            ToOne, MODULE_NAME['MySQLDatabase'], 'server')),
     )
 
-    def getIconPath(self):
-        ''' Return the path to an icon for this component.  '''
-        return '/++resource++ZenPacks_zenoss_MySqlMonitor/img/%s.png' % self.meta_type
+    def device(self):
+        return self.mysql_host()
 
     def setErrorNotification(self, status):
         msg = "Connection Failure, Please check server permissions "
@@ -83,21 +73,12 @@ class MySQLServer(Device):
     def getErrorNotification(self):
         return
 
-    @property
-    def manageIp(self):
-        #return self.manageIp
-        return self.ip
 
-
-class IMySQLServerInfo(IDeviceInfo):
+class IMySQLServerInfo(IComponentInfo):
     '''
     API Info interface for MySQLServer.
     '''
-
-    ip = schema.TextLine(title=_t(u'MySQL Server IP address'))
-    version = schema.TextLine(title=_t(u'MySQL Version'))
-    model_time = schema.TextLine(title=_t(u'Model time'))
-    cmd = schema.TextLine(title=_t(u'SSH command tool'))
+    
     size = schema.TextLine(title=_t(u'Size'))
     data_size = schema.TextLine(title=_t(u'Data Size'))
     index_size = schema.TextLine(title=_t(u'Index Size'))
@@ -106,19 +87,13 @@ class IMySQLServerInfo(IDeviceInfo):
     master_status = schema.TextLine(title=_t(u'Master status'))
 
 
-class MySQLServerInfo(DeviceInfo):
+class MySQLServerInfo(ComponentInfo):
     ''' API Info adapter factory for MySQLServer '''
 
     implements(IMySQLServerInfo)
     adapts(MySQLServer)
 
-    ip = ProxyProperty('ip')
-    manageIp = ProxyProperty('manageIp')
-    zCommandPort = ProxyProperty('zCommandPort')
-    zCommandUsername = ProxyProperty('zCommandUsername')
-    zCommandPassword = ProxyProperty('zCommandPassword')
-    version = ProxyProperty('version')
-    model_time = ProxyProperty('model_time')
+    zMySQLConnectionString = ProxyProperty('zMySQLConnectionString')
     cmd = ProxyProperty('cmd')
     size = SizeUnitsProxyProperty('size')
     data_size = SizeUnitsProxyProperty('data_size')
@@ -126,9 +101,3 @@ class MySQLServerInfo(DeviceInfo):
     percent_full_table_scans = ProxyProperty('percent_full_table_scans')
     slave_status = ProxyProperty('slave_status')
     master_status = ProxyProperty('master_status')
-
-
-    @property
-    @info
-    def first_seen(self):
-        return self._object.getCreatedTimeString()

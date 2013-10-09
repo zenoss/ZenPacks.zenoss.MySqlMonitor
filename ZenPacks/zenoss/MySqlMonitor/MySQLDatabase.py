@@ -31,23 +31,25 @@ class MySQLDatabase(MySQLComponent):
     size = None
     data_size = None
     index_size = None
-    default_character_set = None
-    default_collation = None
+    default_character_set_name = None
+    default_collation_name = None
+    table_count = None
 
     _properties = MySQLComponent._properties + (
         {'id': 'size', 'type': 'string'},
         {'id': 'data_size', 'type': 'string'},
         {'id': 'index_size', 'type': 'string'},
-        {'id': 'default_character_set', 'type': 'string'},
-        {'id': 'default_collation', 'type': 'string'},
+        {'id': 'default_character_set_name', 'type': 'string'},
+        {'id': 'default_collation_name', 'type': 'string'},
+        {'id': 'table_count', 'type': 'int'},
     )
 
     _relations = MySQLComponent._relations + (
         ('server', ToOne(ToManyCont, MODULE_NAME['MySQLServer'], 'databases')),
-        ('tables', ToManyCont(ToOne, MODULE_NAME['MySQLTable'], 'database')),
-        ('stored_procedures', ToManyCont(ToOne, MODULE_NAME['MySQLStoredProcedure'], 'database')),
-        ('stored_functions', ToManyCont(ToOne, MODULE_NAME['MySQLStoredFunction'], 'database')),
     )
+
+    def device(self):
+        return self.server().device()
 
 
 class IMySQLDatabaseInfo(IComponentInfo):
@@ -59,8 +61,8 @@ class IMySQLDatabaseInfo(IComponentInfo):
     size = schema.TextLine(title=_t(u'Size'))
     data_size = schema.TextLine(title=_t(u'Data size'))
     index_size = schema.TextLine(title=_t(u'Index size'))
-    default_character_set = schema.TextLine(title=_t(u'Default character set'))
-    default_collation = schema.TextLine(title=_t(u'Default collation'))
+    default_character_set_name = schema.TextLine(title=_t(u'Default character set'))
+    default_collation_name = schema.TextLine(title=_t(u'Default collation'))
     table_count = schema.Int(title=_t(u'Number of tables'))
     stored_procedure_count = schema.Int(title=_t(u'Number of stored procedures'))
     stored_function_count = schema.Int(title=_t(u'Number of stored functions'))
@@ -74,28 +76,17 @@ class MySQLDatabaseInfo(ComponentInfo):
     implements(IMySQLDatabaseInfo)
     adapts(MySQLDatabase)
 
+    table_count = ProxyProperty('table_count')
     size = SizeUnitsProxyProperty('size')
     data_size = SizeUnitsProxyProperty('data_size')
     index_size = SizeUnitsProxyProperty('index_size')
-    default_character_set = ProxyProperty('default_character_set')
-    default_collation = ProxyProperty('default_collation')
+    default_character_set_name = ProxyProperty('default_character_set_name')
+    default_collation_name = ProxyProperty('default_collation_name')
 
     @property
     @info
     def server(self):
         return self._object.device()
-
-    @property
-    def table_count(self):
-        return self._object.tables.countObjects()
-
-    @property
-    def stored_procedure_count(self):
-        return self._object.stored_procedures.countObjects()
-
-    @property
-    def stored_function_count(self):
-        return self._object.stored_functions.countObjects()
 
 
 class MySQLDatabasePathReporter(DefaultPathReporter):
