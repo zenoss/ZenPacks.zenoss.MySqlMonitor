@@ -30,28 +30,6 @@ class MySQLComponent(DeviceComponent, ManagedEntity):
             },),
         },)
 
-    def device(self):
-        '''
-        Return device under which this component is contained.
-        '''
-        obj = self
-
-        # looks through up to 200 Parents
-        # if 1 of them is a Device instance, returns it
-        for i in range(200):
-            if isinstance(obj, Device):
-                return obj
-
-            try:
-                obj = obj.getPrimaryParent()
-            except AttributeError as exc:
-                raise AttributeError(
-                    'Unable to determine parent at %s (%s) '
-                    'while getting device for %s' % (
-                        obj, exc, self))
-
-        raise ValueError('Device not found for %s' % self)
-
     def getIconPath(self):
         '''
         Return the path to an icon for this component.

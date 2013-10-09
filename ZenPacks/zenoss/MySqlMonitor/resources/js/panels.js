@@ -24,27 +24,20 @@ Ext.apply(Zenoss.render, {
         } else {
             return value;
         }
-    },
-    table_pingStatus: function(value) {
-        if (value) {
-            result = (value == "OK")? 'Up' : 'Down';
-            return upDownTemplate.apply([result.toLowerCase(), value]);
-        }
     }
 });
 
-/* MySQLDatabase */
-ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
+/* MySQLServer */
+ZC.MySQLServerPanel = Ext.extend(ZC.ComponentGridPanel, {
     subComponentGridPanel: false,
 
     constructor: function(config) {
         config = Ext.applyIf(config||{}, {
             autoExpandColumn: 'name',
-            componentType: 'MySQLDatabase',
+            componentType: 'MySQLServer',
             fields: [
                 {name: 'uid'},
                 {name: 'name'},
-                {name: 'status'},
                 {name: 'severity'},
                 {name: 'usesMonitorAttribute'},
                 {name: 'monitor'},
@@ -53,11 +46,9 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'size'},
                 {name: 'data_size'},
                 {name: 'index_size'},
-                {name: 'table_count'},
-                {name: 'stored_procedure_count'},
-                {name: 'stored_function_count'},
-                {name: 'default_character_set'},
-                {name: 'default_collation'},
+                {name: 'percent_full_table_scans'},
+                {name: 'slave_status'},
+                {name: 'master_status'},
             ],
             columns: [{
                 id: 'severity',
@@ -70,24 +61,94 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 dataIndex: 'name',
                 header: _t('Name'),
             },{                
+                id: 'percent_full_table_scans',
+                dataIndex: 'percent_full_table_scans',
+                header: _t('Full table scans'),
+            },{ 
+                id: 'slave_status',
+                dataIndex: 'slave_status',
+                header: _t('Slave status'),
+            },{ 
+                id: 'master_status',
+                dataIndex: 'master_status',
+                header: _t('Master status'),
+            },{      
+                id: 'size',
+                dataIndex: 'size',
+                header: _t('Size'),
+            },{      
+                id: 'data_size',
+                dataIndex: 'data_size',
+                header: _t('Data size'),
+            },{      
+                id: 'index_size',
+                dataIndex: 'index_size',
+                header: _t('Index size'),
+            },{
+                id: 'monitored',
+                dataIndex: 'monitored',
+                header: _t('Monitored'),
+                renderer: Zenoss.render.checkbox,
+                width: 60
+            },{
+                id: 'locking',
+                dataIndex: 'locking',
+                header: _t('Locking'),
+                renderer: Zenoss.render.locking_icons,
+                width: 60
+            }]
+        });
+        ZC.MySQLServerPanel.superclass.constructor.call(this, config);
+    }
+});
+
+Ext.reg('MySQLServerPanel', ZC.MySQLServerPanel);
+
+/* MySQLDatabase */
+ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
+    subComponentGridPanel: false,
+
+    constructor: function(config) {
+        config = Ext.applyIf(config||{}, {
+            autoExpandColumn: 'name',
+            componentType: 'MySQLDatabase',
+            fields: [
+                {name: 'uid'},
+                {name: 'name'},
+                {name: 'severity'},
+                {name: 'usesMonitorAttribute'},
+                {name: 'monitor'},
+                {name: 'monitored'},
+                {name: 'locking'},
+                {name: 'size'},
+                {name: 'data_size'},
+                {name: 'index_size'},
+                {name: 'table_count'},
+                {name: 'default_character_set_name'},
+                {name: 'default_collation_name'},
+            ],
+            columns: [{
+                id: 'severity',
+                dataIndex: 'severity',
+                header: _t('Events'),
+                renderer: Zenoss.render.severity,
+                width: 50
+            },{
+                id: 'name',
+                dataIndex: 'name',
+                header: _t('Name'),
+                renderer: Zenoss.render.linkFromSubgrid,
+            },{                
                 id: 'table_count',
                 dataIndex: 'table_count',
-                header: _t('Tables'),
-            },{                 
-                id: 'stored_procedure_count',
-                dataIndex: 'stored_procedure_count',
-                header: _t('Stored procedures'),
-            },{                
-                id: 'stored_function_count',
-                dataIndex: 'stored_function_count',
-                header: _t('Stored functions'),
+                header: _t('# Tables'),
             },{ 
-                id: 'default_character_set',
-                dataIndex: 'default_character_set',
+                id: 'default_character_set_name',
+                dataIndex: 'default_character_set_name',
                 header: _t('Default character set'),
             },{ 
-                id: 'default_collation',
-                dataIndex: 'default_collation',
+                id: 'default_collation_name',
+                dataIndex: 'default_collation_name',
                 header: _t('Default collation'),
             },{      
                 id: 'size',
@@ -101,12 +162,6 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 id: 'index_size',
                 dataIndex: 'index_size',
                 header: _t('Index size'),
-            },{ 
-                id: 'status',
-                dataIndex: 'status',
-                header: _t('Status'),
-                renderer: Zenoss.render.pingStatus,
-                width: 50
             },{
                 id: 'monitored',
                 dataIndex: 'monitored',
@@ -127,406 +182,25 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
 
 Ext.reg('MySQLDatabasePanel', ZC.MySQLDatabasePanel);
 
-/* MySQLTable */
-ZC.MySQLTablePanel = Ext.extend(ZC.ComponentGridPanel, {
-    subComponentGridPanel: false,
-
-    constructor: function(config) {
-        config = Ext.applyIf(config||{}, {
-            autoExpandColumn: 'name',
-            componentType: 'MySQLTable',
-            fields: [
-                {name: 'uid'},
-                {name: 'name'},
-                {name: 'status'},
-                {name: 'severity'},
-                {name: 'usesMonitorAttribute'},
-                {name: 'monitor'},
-                {name: 'monitored'},
-                {name: 'locking'},
-                {name: 'database'},
-                {name: 'engine'},
-                {name: 'table_type'},
-                {name: 'table_collation'},
-                {name: 'table_rows'},
-                {name: 'size'},
-                {name: 'data_size'},
-                {name: 'index_size'},
-                {name: 'table_status'},
-            ],
-            columns: [{
-                id: 'severity',
-                dataIndex: 'severity',
-                header: _t('Events'),
-                renderer: Zenoss.render.severity,
-                width: 50
-            },{
-                id: 'name',
-                dataIndex: 'name',
-                header: _t('Name'),
-                renderer: Zenoss.render.linkFromSubgrid,
-            },{
-                id: 'database',
-                dataIndex: 'database',
-                header: _t('Database'),
-                renderer: Zenoss.render.linkFromGrid,
-            },{                 
-                id: 'engine',
-                dataIndex: 'engine',
-                header: _t('Engine'),
-            },{                
-                id: 'table_type',
-                dataIndex: 'table_type',
-                header: _t('Type'),
-            },{                
-                id: 'table_collation',
-                dataIndex: 'table_collation',
-                header: _t('Collation'),
-            },{                 
-                id: 'table_rows',
-                dataIndex: 'table_rows',
-                header: _t('Rows'),
-            },{             
-                id: 'size',
-                dataIndex: 'size',
-                header: _t('Size'),
-            },{     
-                id: 'data_size',
-                dataIndex: 'data_size',
-                header: _t('Data size'),
-            },{      
-                id: 'index_size',
-                dataIndex: 'index_size',
-                header: _t('Index size'),
-            },{ 
-                id: 'table_status',
-                dataIndex: 'table_status',
-                header: _t('Status'),
-                renderer: Zenoss.render.table_pingStatus,
-                width: 50
-            },{
-                id: 'monitored',
-                dataIndex: 'monitored',
-                header: _t('Monitored'),
-                renderer: Zenoss.render.checkbox,
-                width: 60
-            },{
-                id: 'locking',
-                dataIndex: 'locking',
-                header: _t('Locking'),
-                renderer: Zenoss.render.locking_icons,
-                width: 60
-            }]
-        });
-        ZC.MySQLTablePanel.superclass.constructor.call(this, config);
-    }
-});
-
-Ext.reg('MySQLTablePanel', ZC.MySQLTablePanel);
-
-/* MySQLStoredProcedure */
-ZC.MySQLStoredProcedurePanel = Ext.extend(ZC.ComponentGridPanel, {
-    subComponentGridPanel: false,
-
-    constructor: function(config) {
-        config = Ext.applyIf(config||{}, {
-            autoExpandColumn: 'name',
-            componentType: 'MySQLStoredProcedure',
-            fields: [
-                {name: 'uid'},
-                {name: 'name'},
-                {name: 'status'},
-                {name: 'severity'},
-                {name: 'usesMonitorAttribute'},
-                {name: 'monitor'},
-                {name: 'monitored'},
-                {name: 'locking'},
-                {name: 'database'},
-                {name: 'body'},
-                {name: 'security_type'},
-                {name: 'created'},
-                {name: 'last_altered'},
-            ],
-            columns: [{
-                id: 'severity',
-                dataIndex: 'severity',
-                header: _t('Events'),
-                renderer: Zenoss.render.severity,
-                width: 50
-            },{
-                id: 'name',
-                dataIndex: 'name',
-                header: _t('Name'),
-                renderer: Zenoss.render.linkFromSubgrid,
-            },{
-                id: 'database',
-                dataIndex: 'database',
-                header: _t('Database'),
-                renderer: Zenoss.render.linkFromGrid,
-            },{           
-                id: 'body',
-                dataIndex: 'body',
-                header: _t('Body'),
-            },{          
-                id: 'security_type',
-                dataIndex: 'security_type',
-                header: _t('Security type'),
-            },{          
-                id: 'created',
-                dataIndex: 'created',
-                header: _t('Created on'),
-            },{          
-                id: 'last_altered',
-                dataIndex: 'last_altered',
-                header: _t('Altered on'),
-            },{
-                id: 'status',
-                dataIndex: 'status',
-                header: _t('Status'),
-                renderer: Zenoss.render.pingStatus,
-                width: 50
-            },{
-                id: 'monitored',
-                dataIndex: 'monitored',
-                header: _t('Monitored'),
-                renderer: Zenoss.render.checkbox,
-                width: 60
-            },{
-                id: 'locking',
-                dataIndex: 'locking',
-                header: _t('Locking'),
-                renderer: Zenoss.render.locking_icons,
-                width: 60
-            }]
-        });
-        ZC.MySQLStoredProcedurePanel.superclass.constructor.call(this, config);
-    }
-});
-
-Ext.reg('MySQLStoredProcedurePanel', ZC.MySQLStoredProcedurePanel);
-
-/* MySQLStoredFunction */
-ZC.MySQLStoredFunctionPanel = Ext.extend(ZC.ComponentGridPanel, {
-    subComponentGridPanel: false,
-
-    constructor: function(config) {
-        config = Ext.applyIf(config||{}, {
-            autoExpandColumn: 'name',
-            componentType: 'MySQLStoredFunction',
-            fields: [
-                {name: 'uid'},
-                {name: 'name'},
-                {name: 'status'},
-                {name: 'severity'},
-                {name: 'usesMonitorAttribute'},
-                {name: 'monitor'},
-                {name: 'monitored'},
-                {name: 'locking'},
-                {name: 'database'},
-                {name: 'body'},
-                {name: 'security_type'},
-                {name: 'created'},
-                {name: 'last_altered'},
-            ],
-            columns: [{
-                id: 'severity',
-                dataIndex: 'severity',
-                header: _t('Events'),
-                renderer: Zenoss.render.severity,
-                width: 50
-            },{
-                id: 'name',
-                dataIndex: 'name',
-                header: _t('Name'),
-                renderer: Zenoss.render.linkFromSubgrid,
-            },{
-                id: 'database',
-                dataIndex: 'database',
-                header: _t('Database'),
-                renderer: Zenoss.render.linkFromGrid,
-            },{           
-                id: 'body',
-                dataIndex: 'body',
-                header: _t('Body'),
-            },{          
-                id: 'security_type',
-                dataIndex: 'security_type',
-                header: _t('Security type'),
-            },{          
-                id: 'created',
-                dataIndex: 'created',
-                header: _t('Created on'),
-            },{          
-                id: 'last_altered',
-                dataIndex: 'last_altered',
-                header: _t('Altered on'),
-            },{
-                id: 'status',
-                dataIndex: 'status',
-                header: _t('Status'),
-                renderer: Zenoss.render.pingStatus,
-                width: 50
-            },{
-                id: 'monitored',
-                dataIndex: 'monitored',
-                header: _t('Monitored'),
-                renderer: Zenoss.render.checkbox,
-                width: 60
-            },{
-                id: 'locking',
-                dataIndex: 'locking',
-                header: _t('Locking'),
-                renderer: Zenoss.render.locking_icons,
-                width: 60
-            }]
-        });
-        ZC.MySQLStoredFunctionPanel.superclass.constructor.call(this, config);
-    }
-});
-
-Ext.reg('MySQLStoredFunctionPanel', ZC.MySQLStoredFunctionPanel);
-
-/* MySQLProcess */
-ZC.MySQLProcessPanel = Ext.extend(ZC.ComponentGridPanel, {
-    subComponentGridPanel: false,
-
-    constructor: function(config) {
-        config = Ext.applyIf(config||{}, {
-            autoExpandColumn: 'name',
-            componentType: 'MySQLProcess',
-            fields: [
-                {name: 'uid'},
-                {name: 'name'},
-                {name: 'status'},
-                {name: 'severity'},
-                {name: 'usesMonitorAttribute'},
-                {name: 'monitor'},
-                {name: 'monitored'},
-                {name: 'locking'},
-                {name: 'user'},
-                {name: 'host'},
-                {name: 'db'},
-                {name: 'command'},
-                {name: 'time'},
-                {name: 'state'},
-                {name: 'process_info'},
-            ],
-            columns: [{
-                id: 'severity',
-                dataIndex: 'severity',
-                header: _t('Events'),
-                renderer: Zenoss.render.severity,
-                width: 50
-            },{
-                id: 'name',
-                dataIndex: 'name',
-                header: _t('Process ID'),
-                renderer: Zenoss.render.linkFromSubgrid,
-            },{                               
-                id: 'user',
-                dataIndex: 'user',
-                header: _t('User'),
-            },{               
-                id: 'host',
-                dataIndex: 'host',
-                header: _t('Host'),
-            },{               
-                id: 'db',
-                dataIndex: 'db',
-                header: _t('Database'),
-            },{               
-                id: 'command',
-                dataIndex: 'command',
-                header: _t('Command'),
-            },{               
-                id: 'time',
-                dataIndex: 'time',
-                header: _t('Time'),
-            },{               
-                id: 'state',
-                dataIndex: 'state',
-                header: _t('State'),
-            },{               
-                id: 'process_info',
-                dataIndex: 'process_info',
-                header: _t('Info'),
-            },{
-                id: 'status',
-                dataIndex: 'status',
-                header: _t('Status'),
-                renderer: Zenoss.render.pingStatus,
-                width: 50
-            },{
-                id: 'monitored',
-                dataIndex: 'monitored',
-                header: _t('Monitored'),
-                renderer: Zenoss.render.checkbox,
-                width: 60
-            },{
-                id: 'locking',
-                dataIndex: 'locking',
-                header: _t('Locking'),
-                renderer: Zenoss.render.locking_icons,
-                width: 60
-            }]
-        });
-        ZC.MySQLProcessPanel.superclass.constructor.call(this, config);
-    }
-});
-
-Ext.reg('MySQLProcessPanel', ZC.MySQLProcessPanel);
 
 /* Subcomponent Panels */
-/* MySQLTable */
+/* MySQLDatabase */
 Zenoss.nav.appendTo('Component', [{
-    id: 'database_tables',
-    text: _t('Tables'),
-    xtype: 'MySQLTablePanel',
+    id: 'databases',
+    text: _t('Databases'),
+    xtype: 'MySQLDatabasePanel',
     subComponentGridPanel: true,
     filterNav: function(navpanel) {
          switch (navpanel.refOwner.componentType) {
-            case 'MySQLDatabase': return true;
+            case 'MySQLServer': return true;
             default: return false;
          }
     },
     setContext: function(uid) {
-        ZC.MySQLTablePanel.superclass.setContext.apply(this, [uid]);
+        ZC.MySQLDatabasePanel.superclass.setContext.apply(this, [uid]);
     }
 }]);
 
-/* MySQLStoredProcedure */
-Zenoss.nav.appendTo('Component', [{
-    id: 'database_stored_procedures',
-    text: _t('Stored procedures'),
-    xtype: 'MySQLStoredProcedurePanel',
-    subComponentGridPanel: true,
-    filterNav: function(navpanel) {
-         switch (navpanel.refOwner.componentType) {
-            case 'MySQLDatabase': return true;
-            default: return false;
-         }
-    },
-    setContext: function(uid) {
-        ZC.MySQLStoredProcedurePanel.superclass.setContext.apply(this, [uid]);
-    }
-}]);
-
-/* MySQLStoredFunction */
-Zenoss.nav.appendTo('Component', [{
-    id: 'database_stored_functions',
-    text: _t('Stored functions'),
-    xtype: 'MySQLStoredFunctionPanel',
-    subComponentGridPanel: true,
-    filterNav: function(navpanel) {
-         switch (navpanel.refOwner.componentType) {
-            case 'MySQLDatabase': return true;
-            default: return false;
-         }
-    },
-    setContext: function(uid) {
-        ZC.MySQLStoredFunctionPanel.superclass.setContext.apply(this, [uid]);
-    }
-}]);
 
 /* Overview Panel Override */
 Ext.onReady(function(){

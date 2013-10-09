@@ -6,20 +6,33 @@
 # License.zenoss under the directory where your Zenoss product is installed.
 #
 ##############################################################################
-
+"""
+Custom ZenPack initialization code. All code defined in this module will be
+executed at startup time in all Zope clients.
+"""
 import math
 from Products.ZenModel.ZenPack import ZenPackBase
+
+import logging
+log = logging.getLogger('zen.MySqlMonitor')
+
+import Globals
+
+from Products.ZenEvents.EventManagerBase import EventManagerBase
+from Products.ZenModel.Device import Device
+from Products.ZenModel.ZenPack import ZenPack as ZenPackBase
+from Products.ZenRelations.RelSchema import ToManyCont, ToOne
+from Products.ZenUtils.Utils import unused
+from Products.Zuul.interfaces import ICatalogTool
+
+unused(Globals)
 
 
 # Modules containing model classes. Used by zenchkschema to validate
 # bidirectional integrity of defined relationships.
 productNames = (
     'MySQLServer',
-    'MySQLDatabase',
-    'MySQLTable',
-    'MySQLStoredProcedure',
-    'MySQLStoredFunction',
-    'MySQLProcess'
+    'MySQLDatabase'
     )
 
 # Useful to avoid making literal string references to module and class names
@@ -32,15 +45,63 @@ for product_name in productNames:
     CLASS_NAME[product_name] = '.'.join([ZP_NAME, product_name, product_name])
 
 # Useful for components' ids.
-NAME_SPLITTER = '(.,.)'
+NAME_SPLITTER = '(.)'
+
+# Define new device relations.
+NEW_DEVICE_RELATIONS = (
+    ('mysql_servers', 'MySQLServer'),
+    )
+
+NEW_COMPONENT_TYPES = (
+    'ZenPacks.zenoss.MySqlMonitor.MySQLServer.MySQLServer',
+    )
+
+# Add new relationships to Device if they don't already exist.
+for relname, modname in NEW_DEVICE_RELATIONS:
+    if relname not in (x[0] for x in Device._relations):
+        Device._relations += (
+            (relname, ToManyCont(ToOne,
+                '.'.join((ZP_NAME, modname)), 'mysql_host')),
+            )
+
 
 class ZenPack(ZenPackBase):
-    '''
-        ZenPack loader.
-    '''
+    """
+    ZenPack loader that handles custom installation and removal tasks.
+    """
+
     packZProperties = [
-        ('zMySQLCommand', 'mysql', 'string'),
+        ('zMySQLConnectionString', 'root::3306;', 'string'),
     ]
+
+    def install(self, app):
+        super(ZenPack, self).install(app)
+
+        log.info('Adding MySqlMonitor relationships to existing devices')
+        self._buildDeviceRelations()
+
+    def remove(self, app, leaveObjects=False):
+        if not leaveObjects:
+            log.info('Removing MySqlMonitor components')
+            cat = ICatalogTool(app.zport.dmd)
+            for brain in cat.search(types=NEW_COMPONENT_TYPES):
+                component = brain.getObject()
+                component.getPrimaryParent()._delObject(component.id)
+
+            # Remove our Device relations additions.
+            Device._relations = tuple(
+                [x for x in Device._relations \
+                    if x[0] not in NEW_DEVICE_RELATIONS])
+
+            log.info('Removing MySqlMonitor device relationships')
+            self._buildDeviceRelations()
+
+        super(ZenPack, self).remove(app, leaveObjects=leaveObjects)
+
+    def _buildDeviceRelations(self):
+        for d in self.dmd.Devices.getSubDevicesGen():
+            d.buildRelations()
+
 
 def SizeUnitsProxyProperty(propertyName):
     """This uses a closure to make a getter and
