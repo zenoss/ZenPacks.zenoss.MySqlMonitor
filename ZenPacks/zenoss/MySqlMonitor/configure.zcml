@@ -19,30 +19,6 @@
         factory=".MySQLDatabase.MySQLDatabaseInfo"
         />
 
-    <adapter
-        provides=".MySQLTable.IMySQLTableInfo"
-        for=".MySQLTable.MySQLTable"
-        factory=".MySQLTable.MySQLTableInfo"
-        />
-
-    <adapter
-        provides=".MySQLStoredProcedure.IMySQLStoredProcedureInfo"
-        for=".MySQLStoredProcedure.MySQLStoredProcedure"
-        factory=".MySQLStoredProcedure.MySQLStoredProcedureInfo"
-        />
-
-    <adapter
-        provides=".MySQLStoredFunction.IMySQLStoredFunctionInfo"
-        for=".MySQLStoredFunction.MySQLStoredFunction"
-        factory=".MySQLStoredFunction.MySQLStoredFunctionInfo"
-        />
-
-    <adapter
-        provides=".MySQLProcess.IMySQLProcessInfo"
-        for=".MySQLProcess.MySQLProcess"
-        factory=".MySQLProcess.MySQLProcessInfo"
-        />
-
     <!--
     <adapter
         provides=".datasources.AzureMonitoringDataSource.IAzureMonitoringDataSourceInfo"
@@ -50,24 +26,6 @@
         factory=".datasources.AzureMonitoringDataSource.AzureMonitoringDataSourceInfo"
         />
     -->
-
-
-    <!-- API: Routers -->
-    <browser:directRouter
-        name="mysql_router"
-        for="*"
-        class=".api.MySQLRouter"
-        namespace="Zenoss.remote"
-        permission="zenoss.View"
-    />
-
-    <!-- API: Facades -->
-    <adapter
-        name="mysql"
-        provides=".api.IMySQLFacade"
-        for="*"
-        factory=".api.MySQLFacade"
-    />
 
     <!-- Impact -->
     <configure zcml:condition="installed ZenPacks.zenoss.Impact">
@@ -83,30 +41,6 @@
             provides="ZenPacks.zenoss.Impact.impactd.interfaces.IRelationshipDataProvider"
             for=".MySQLDatabase.MySQLDatabase"
             factory=".impact.MySQLDatabaseRelationsProvider"
-            />
-
-        <subscriber
-            provides="ZenPacks.zenoss.Impact.impactd.interfaces.IRelationshipDataProvider"
-            for=".MySQLProcess.MySQLProcess"
-            factory=".impact.MySQLProcessRelationsProvider"
-            />
-
-        <subscriber
-            provides="ZenPacks.zenoss.Impact.impactd.interfaces.IRelationshipDataProvider"
-            for=".MySQLTable.MySQLTable"
-            factory=".impact.MySQLTableRelationsProvider"
-            />
-
-        <subscriber
-            provides="ZenPacks.zenoss.Impact.impactd.interfaces.IRelationshipDataProvider"
-            for=".MySQLStoredProcedure.MySQLStoredProcedure"
-            factory=".impact.MySQLStoredProcedureRelationsProvider"
-            />
-
-        <subscriber
-            provides="ZenPacks.zenoss.Impact.impactd.interfaces.IRelationshipDataProvider"
-            for=".MySQLStoredFunction.MySQLStoredFunction"
-            factory=".impact.MySQLStoredFunctionRelationsProvider"
             />
 
     </configure>
@@ -131,7 +65,7 @@
     <browser:viewlet
         name="js-panels"
         paths="/++resource++ZenPacks_zenoss_MySqlMonitor/js/panels.js"
-        for=".MySQLServer.MySQLServer"
+        for="Products.ZenModel.Device.Device"
         weight="20"
         manager="Products.ZenUI3.browser.interfaces.IJavaScriptSrcManager"
         class="Products.ZenUI3.browser.javascript.JavaScriptSrcBundleViewlet"

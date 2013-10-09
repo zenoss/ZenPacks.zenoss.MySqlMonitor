@@ -6,7 +6,7 @@
       ZenPacks.zenoss.MySqlMonitor.MySQLServer
     </property>
     <property id="zCollectorPlugins" type="lines" visible="True">
-      ['MySQLServerCollector', 'MySQLProcessCollector', 'MySQLDatabaseCollector']
+      ['MySQLCollector']
     </property>
     <property id="zDeviceTemplates" type="lines" visible="True">
       ['mysql']
