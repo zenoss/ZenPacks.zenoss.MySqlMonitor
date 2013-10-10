@@ -11,8 +11,6 @@ Custom ZenPack initialization code. All code defined in this module will be
 executed at startup time in all Zope clients.
 """
 import math
-from Products.ZenModel.ZenPack import ZenPackBase
-
 import logging
 log = logging.getLogger('zen.MySqlMonitor')
 

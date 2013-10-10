@@ -113,6 +113,14 @@ def updateToOne(relationship, root, type_, id_):
     return
 
 def parse_mysql_connection_string(s):
+    """
+    Parse zMySQLConnectionString property.
+
+    @param connection_string: zMySQLConnectionString
+    @type connection_string: str
+    @return: a dict of server id as a key and a dict
+    with user, port and password as a value
+    """
     res = {}
     try:
         for el in filter(None, s.split(';')):

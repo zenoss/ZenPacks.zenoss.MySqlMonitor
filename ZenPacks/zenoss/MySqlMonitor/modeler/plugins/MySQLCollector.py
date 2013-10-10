@@ -10,6 +10,7 @@
 ''' Models discovery tree for MySQL. '''
 
 import collections
+import zope.component
 from itertools import chain
 from MySQLdb import cursors
 from twisted.enterprise import adbapi
@@ -17,12 +18,15 @@ from twisted.internet.defer import DeferredList
 
 from Products.DataCollector.plugins.CollectorPlugin import PythonPlugin
 from Products.DataCollector.plugins.DataMaps import ObjectMap, RelationshipMap
+from Products.ZenCollector.interfaces import IEventService
 from ZenPacks.zenoss.MySqlMonitor import MODULE_NAME, NAME_SPLITTER
 from ZenPacks.zenoss.MySqlMonitor.modeler import queries
 
-# from ZenPacks.zenoss.MySqlMonitor.utils import parse_mysql_connection_string
+from ZenPacks.zenoss.MySqlMonitor.utils import parse_mysql_connection_string
 
 class MySQLCollector(PythonPlugin):
+
+    _eventService = zope.component.queryUtility(IEventService)
 
     deviceProperties = PythonPlugin.deviceProperties + (
         'zMySQLConnectionString',
@@ -38,33 +42,30 @@ class MySQLCollector(PythonPlugin):
 
     def collect(self, device, log):
         log.info("Collecting data for device %s", device.id)
-        servers = device.zMySQLConnectionString.split(';')
+        try:
+            servers = parse_mysql_connection_string(device.zMySQLConnectionString)
+        except ValueError, error:
+            log.error(error.message)
+            self._send_event(error.message, device.id, 5)
+            return
 
         result = []
-        for el in servers:
-            if not el:
-                break
-
-            try:
-                user, passwd, port = el.split(':')
-                port = int(port)
-            except:
-                log.error("Please set zMySQLConnectionString as "
-                    "'[username]:[password]:[port];'")
-                return 
-
+        for el in servers.values():
             dbpool = adbapi.ConnectionPool(
                 "MySQLdb",
-                user=user,
-                port=port,
-                passwd=passwd,
+                user=el.get("user"),
+                port=el.get("port"),
+                passwd=el.get("passwd"),
                 cursorclass=cursors.DictCursor
             )
 
-            d = dbpool.runInteraction(self._getResult, user, port)
+            d = dbpool.runInteraction(
+                self._get_result, log, el.get("user"), el.get("port"))
+            d.addErrback(self._failure, log, device)
             result.append(d)
 
-        return DeferredList(result).addCallback(lambda values: values)
+        result = DeferredList(result)
+        return result.addCallback(lambda values: values)
 
     def process(self, device, results, log):
         log.info(
@@ -79,13 +80,22 @@ class MySQLCollector(PythonPlugin):
 
         # List of servers
         server_oms = []
-        for b, server in results:
-            s_om = ObjectMap(server["server_size"][0])
+        for success, server in results:
+            # Twisted error handling
+            if not success:
+                log.error(server.getErrorMessage())
+                continue
+
+            # Connection error: sending event
+            if not server:
+                return
+
+            s_om = ObjectMap(server.get("server_size")[0])
             s_om.id = self.prepId(server["id"])
             s_om.title = server["id"]
-            s_om.percent_full_table_scans = self._table_scans(server['server'])
-            s_om.master_status = self._master_status(server['master'])
-            s_om.slave_status = self._slave_status(server['slave'])
+            s_om.percent_full_table_scans = self._table_scans(server.get('server', ''))
+            s_om.master_status = self._master_status(server.get('master', ''))
+            s_om.slave_status = self._slave_status(server.get('slave', ''))
             server_oms.append(s_om)
 
             # List of databases
@@ -106,16 +116,18 @@ class MySQLCollector(PythonPlugin):
             modname=MODULE_NAME['MySQLServer'],
             objmaps=server_oms))
 
+        self._send_event("Clear", device.id, 0)
+
         log.info(
             'Modeler %s finished processing data for device %s',
             self.name(), device.id
         )
 
         return list(chain.from_iterable(maps.itervalues()))
-            
 
-    def _getResult(self, txn, user, port):
-        """Is executed in a thread using a pooled connection.
+    def _get_result(self, txn, log, user, port):
+        """
+        Is executed in a thread using a pooled connection.
 
         @param txn: Transaction object
         @type txn: object
@@ -125,24 +137,47 @@ class MySQLCollector(PythonPlugin):
         @type port: string
         @return: Deferred
         """
-        
+
         result = {}
-        result["id"] = "%s:%s" % (user, port)
+        result["id"] = "{0}_{1}".format(user, port)
         for key, query in self.queries.iteritems():
-            txn.execute(query)
-            result[key]=txn.fetchall()
+            try:
+                txn.execute(query)
+                result[key]=txn.fetchall()
+            except Exception, e:
+                result[key]=()
+                log.error(
+                    "Execute query '%s' failed for user '%s': %s",
+                    query.strip(), user, e
+                )
 
         return result
 
+    def _failure(self, error, log, device):
+        """
+        Twisted errBack to handle the exception.
+
+        @parameter error: explanation of the failure
+        @type error: Twisted error instance
+        @parameter log: log object
+        @type log: object
+        @return: dict with error message for event
+        """
+
+        log.error(error.getErrorMessage())
+        self._send_event(error.getErrorMessage(), device.id, 5)
+        return
+
     def _table_scans(self, server_result):
-        """Calculates the percent of full table scans for server.
+        """
+        Calculates the percent of full table scans for server.
 
         @param server_result: result of SERVER_QUERY
         @type server_result: string
         @return: str, rounded value with percent sign
         """
 
-        result = dict((el['variable_name'], el['variable_value']) 
+        result = dict((el['variable_name'], el['variable_value'])
             for el in server_result)
 
         if int(result['HANDLER_READ_KEY']) == 0:
@@ -154,7 +189,8 @@ class MySQLCollector(PythonPlugin):
         return str(round(percent, 3)*100)+'%'
 
     def _master_status(self, master_result):
-        """Parse the result of MASTER_QUERY.
+        """
+        Parse the result of MASTER_QUERY.
 
         @param master_result: result of MASTER_QUERY
         @type master_result: string
@@ -169,7 +205,8 @@ class MySQLCollector(PythonPlugin):
             return "OFF"
 
     def _slave_status(self, slave_result):
-        """Parse the result of SLAVE_QUERY.
+        """
+        Parse the result of SLAVE_QUERY.
 
         @param master_result: result of SLAVE_QUERY
         @type master_result: string
@@ -183,3 +220,16 @@ class MySQLCollector(PythonPlugin):
                 slave['Seconds_Behind_Master'])
         else:
             return "OFF"
+
+    def _send_event(self, reason, id, severity):
+        """
+        Send event for device with specified id, severity and
+        error message.
+        """
+        self._eventService.sendEvent(dict(
+            summary=reason,
+            eventClass='/Status',
+            device=id,
+            eventKey='ConnectionError',
+            severity=severity,
+            ))
