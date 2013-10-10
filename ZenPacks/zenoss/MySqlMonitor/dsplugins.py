@@ -1,3 +1,5 @@
+import time
+
 from twisted.enterprise import adbapi
 from twisted.internet import reactor, defer
 
@@ -10,6 +12,7 @@ class MySqlMonitorPlugin(PythonDataSourcePlugin):
     proxy_attributes = ('zMySQLConnectionString',)
 
     def collect(self, config):
+        print 'Collecting!' * 100
         for ds in config.datasources:
             servers = parse_mysql_connection_string(ds.zMySQLConnectionString)
             server = servers[ds.component]
@@ -19,21 +22,18 @@ class MySqlMonitorPlugin(PythonDataSourcePlugin):
                 port=server['port'],
                 passwd=server['passwd']
             )
-            return dbpool.runQuery("show databases")
+            return dbpool.runQuery("show global status")
  
     def onSuccess(self, result, config):
         print '*********'*10
         print result
         print '*********'*10
 
-        import random
-        import time
-
         return {
             'events': [],
             'values': {
                 'root_3306': {
-                    'random': random.random()
+                    'random': (2, time.time()),
                     },
                 },
             }

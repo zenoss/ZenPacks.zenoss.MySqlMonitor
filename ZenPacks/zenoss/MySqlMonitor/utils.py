@@ -112,7 +112,7 @@ def updateToOne(relationship, root, type_, id_):
 
     return
 
-def parse_mysql_connection_string(s):
+def parse_mysql_connection_string(zMySQLConnectionString):
     """
     Parse zMySQLConnectionString property.
 
@@ -121,12 +121,12 @@ def parse_mysql_connection_string(s):
     @return: a dict of server id as a key and a dict
     with user, port and password as a value
     """
-    res = {}
+    result = {}
     try:
-        for el in filter(None, s.split(';')):
+        for el in filter(None, zMySQLConnectionString.split(';')):
             user, passwd, port = el.split(':')
             id = user + '_' + port
-            res[id] = dict(
+            result[id] = dict(
                 user=user,
                 passwd=passwd,
                 port=int(port)
@@ -134,4 +134,4 @@ def parse_mysql_connection_string(s):
 
     except (ValueError, TypeError):
         raise ValueError('Invalid connection string')
-    return res
+    return result

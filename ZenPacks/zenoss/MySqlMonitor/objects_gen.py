@@ -1,7 +1,6 @@
 def get_monitoring_template(graphs):
     xml = []
     xml.append('''
-  <object class="RRDTemplate" id="/zport/dmd/Devices/rrdTemplates/mysql" module="Products.ZenModel.RRDTemplate">
     <property id="targetPythonClass" mode="w" type="string">
       Products.ZenModel.Device
     </property>
@@ -119,7 +118,6 @@ def get_monitoring_template(graphs):
         ''')
     xml.append('''
     </tomanycont>
-  </object>
     ''')
     return ''.join(xml)
 
