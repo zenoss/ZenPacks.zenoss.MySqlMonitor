@@ -64,8 +64,6 @@ class IMySQLDatabaseInfo(IComponentInfo):
     default_character_set_name = schema.TextLine(title=_t(u'Default character set'))
     default_collation_name = schema.TextLine(title=_t(u'Default collation'))
     table_count = schema.Int(title=_t(u'Number of tables'))
-    stored_procedure_count = schema.Int(title=_t(u'Number of stored procedures'))
-    stored_function_count = schema.Int(title=_t(u'Number of stored functions'))
 
 
 class MySQLDatabaseInfo(ComponentInfo):
