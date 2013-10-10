@@ -57,22 +57,6 @@ class MySQLServer(MySQLComponent):
     def device(self):
         return self.mysql_host()
 
-    def setErrorNotification(self, status):
-        msg = "Connection Failure, Please check server permissions "
-        #send event that connection failed.
-        self.dmd.ZenEventManager.sendEvent(dict(
-            device=self.id,
-            summary=msg,
-            eventClass='/Status',
-            eventKey='ConnectionError',
-            severity=5,
-            ))
-
-        return
-
-    def getErrorNotification(self):
-        return
-
 
 class IMySQLServerInfo(IComponentInfo):
     '''
