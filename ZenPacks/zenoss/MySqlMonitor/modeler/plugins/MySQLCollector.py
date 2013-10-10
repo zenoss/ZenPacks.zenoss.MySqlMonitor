@@ -20,6 +20,8 @@ from Products.DataCollector.plugins.DataMaps import ObjectMap, RelationshipMap
 from ZenPacks.zenoss.MySqlMonitor import MODULE_NAME, NAME_SPLITTER
 from ZenPacks.zenoss.MySqlMonitor.modeler import queries
 
+# from ZenPacks.zenoss.MySqlMonitor.utils import parse_mysql_connection_string
+
 class MySQLCollector(PythonPlugin):
 
     deviceProperties = PythonPlugin.deviceProperties + (

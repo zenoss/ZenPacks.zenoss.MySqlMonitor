@@ -112,3 +112,18 @@ def updateToOne(relationship, root, type_, id_):
 
     return
 
+def parse_mysql_connection_string(s):
+    res = {}
+    try:
+        for el in filter(None, s.split(';')):
+            user, passwd, port = el.split(':')
+            id = user + '_' + port
+            res[id] = dict(
+                user=user,
+                passwd=passwd,
+                port=int(port)
+            )
+
+    except (ValueError, TypeError):
+        raise ValueError('Invalid connection string')
+    return res
