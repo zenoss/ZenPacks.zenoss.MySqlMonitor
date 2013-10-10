@@ -1,13 +1,14 @@
 import time
 
 from twisted.enterprise import adbapi
-from twisted.internet import reactor, defer
+#from twisted.internet import reactor, defer
 
 from ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource \
     import PythonDataSourcePlugin
 
 from ZenPacks.zenoss.MySqlMonitor.utils import parse_mysql_connection_string
- 
+
+
 class MySqlMonitorPlugin(PythonDataSourcePlugin):
     proxy_attributes = ('zMySQLConnectionString',)
 
@@ -18,12 +19,12 @@ class MySqlMonitorPlugin(PythonDataSourcePlugin):
             server = servers[ds.component]
 
             dbpool = adbapi.ConnectionPool("MySQLdb",
-                user=server['user'],
-                port=server['port'],
-                passwd=server['passwd']
-            )
+                                           user=server['user'],
+                                           port=server['port'],
+                                           passwd=server['passwd']
+                                           )
             return dbpool.runQuery("show global status")
- 
+
     def onSuccess(self, result, config):
         print '*********'*10
         print result
@@ -37,7 +38,7 @@ class MySqlMonitorPlugin(PythonDataSourcePlugin):
                     },
                 },
             }
- 
+
     def onError(self, result, config):
         print '*********'*10
         print result

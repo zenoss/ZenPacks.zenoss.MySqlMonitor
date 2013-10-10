@@ -17,14 +17,16 @@ from Products.Zuul.interfaces import ICatalogTool
 from zope.event import notify
 from Products.Zuul.catalog.events import IndexingEvent
 
+
 def here(dir, base=os.path.dirname(__file__)):
     return os.path.join(base, dir)
+
 
 def add_local_lib_path():
     '''
     Helper to add the ZenPack's lib directory to sys.path.
     '''
-    import sys
+    #import sys
     import site
 
     site.addsitedir(here('lib'))
@@ -111,6 +113,7 @@ def updateToOne(relationship, root, type_, id_):
         new_obj.index_object()
 
     return
+
 
 def parse_mysql_connection_string(zMySQLConnectionString):
     """
