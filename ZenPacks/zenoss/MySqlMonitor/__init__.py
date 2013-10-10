@@ -64,7 +64,6 @@ for relname, modname in NEW_DEVICE_RELATIONS:
                 '.'.join((ZP_NAME, modname)), 'mysql_host')),
             )
 
-
 class ZenPack(ZenPackBase):
     """
     ZenPack loader that handles custom installation and removal tasks.
