@@ -4,6 +4,8 @@ import random
 import os
 import string
 import sys
+import subprocess
+
 
 def get_stuff():
     # Zope magic ensues!
@@ -14,14 +16,11 @@ def get_stuff():
     _argv = sys.argv
     sys.argv = [sys.argv[0], ] + [x for x in sys.argv[1:] if x.startswith("-")]
     Zope2.configure(CONF_FILE)
-    sys.argv = _argv # restore normality
+    sys.argv = _argv  # restore normality
 
     from Products.ZenModel.zendmd import _customStuff
     return _customStuff()
 
-stuff = get_stuff()
-dmd = stuff['dmd']
-commit = stuff['commit']
 
 def random_id(N):
     return ''.join(
@@ -42,9 +41,28 @@ def add_device():
     commit()
     return name
 
+
 def model_device(name):
     os.system('zenmodeler run --device=%s' % name)
 
-name = add_device()
-print name
-model_device(name)
+
+def python_monitor_device(name):
+    device = '--device=' + name
+    return subprocess.check_output(['zenpython', 'run', device])
+
+
+def delete_device(name):
+    commit()  # WTF?
+    d = find(name)
+    d.deleteDevice()
+    commit()
+
+stuff = get_stuff()
+dmd = stuff['dmd']
+commit = stuff['commit']
+find = stuff['find']
+
+if __name__ == '__main__':
+    name = add_device()
+    print name
+    model_device(name)

@@ -37,4 +37,4 @@ pretty_xml:
 	python $(ZP_DIR)/xml_format.py $(ZP_DIR)/objects/objects.xml
 
 device:
-	zendmd --script=add_device.py 
+	python add_device.py 
