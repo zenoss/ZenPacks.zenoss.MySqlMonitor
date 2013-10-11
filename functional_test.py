@@ -1,5 +1,7 @@
 import os
+import time
 import subprocess
+from pprint import pformat
 
 from add_device import add_device, model_device, python_monitor_device
 
@@ -10,46 +12,70 @@ def main():
     if not unittests_ok():
         print 'Unittests failed'
         return False
-    dump_zodb()
-    zenpack_remove()
-    zenpack_install()
-    zenoss_restart()
-    device = add_device()
-    model_device(device)
-    monitoring_results = python_monitor_device(device)
+    try:
+        dump_zodb()
+        zenpack_remove()
+        zenpack_install()
+        zenoss('restart')
+        device = add_device()
+        model_device(device)
+        monitoring_results = python_monitor_device(device)
 
-    assert (
-        '- is that the correct name?' not in monitoring_results,
-        'Wrong monitoring configuration'
-    )
+        bprint(monitoring_results)
 
-    restore_zodb()
+        assert '- is that the correct name?' not in monitoring_results
+    except:
+        raise
+    finally:
+        zenoss('stop')
+        restore_zodb()
+        zenoss('start')
+
+    return True
+
+
+def here():
+    bprint(''' return directory which contains this file ''')
+    return os.path.abspath(os.path.dirname(__file__))
 
 
 def unittests_ok():
-    ''' Run unittests and check if ok '''
+    bprint(''' Run unittests and check if ok ''')
     return subprocess.check_call(['make', 'test']) == 0
 
 
 def dump_zodb():
-    ''' Dump zodb database to file '''
-    os.system('mysqldump -u root zodb > zodb.sql')
+    bprint(''' Dump zodb database to file ''')
+    os.system('mysqldump -u root --all-databases > all.sql')
 
 
 def restore_zodb():
-    os.system('mysql -u root zodb < zodb.sql')
+    bprint('''waiting for everyone to cool down''')
+    time.sleep(5)
+    bprint('''Restoring zodb from file''')
+    os.system('mysql -u root -e "drop database zodb;\
+        drop database zodb_session"')
+    os.system('mysql -u root < all.sql')
 
 
 def zenpack_remove():
+    bprint('removing zenpack')
     assert os.system('zenpack --remove %s' % ZENPACK_NAME) == 0
 
 
 def zenpack_install():
-    assert os.system('zenpack --link --install %s' % ZENPACK_NAME) == 0
+    bprint('install zenpack')
+    assert os.system('zenpack --link --install %s' % here()) == 0
 
 
-def zenoss_restart():
-    os.system('zenoss restart')
+def zenoss(cmd):
+    bprint('zenoss %s' % cmd)
+    os.system('zenoss %s' % cmd)
+
+
+def bprint(*args):
+    print '\033[94m%s\033[0m' % pformat(*args)
+
 
 if __name__ == '__main__':
     if main():

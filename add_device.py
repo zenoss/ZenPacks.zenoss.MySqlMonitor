@@ -30,6 +30,7 @@ def random_id(N):
 
 
 def add_device():
+    commit()  # just in case of conflict error
     dc = dmd.Devices.createOrganizer('/Server')
     name = 'test_' + random_id(3)
     device = dc.createInstance(name)
