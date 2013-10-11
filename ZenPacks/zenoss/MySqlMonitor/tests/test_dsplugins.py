@@ -1,9 +1,10 @@
 
 from Products.ZenTestCase.BaseTestCase import BaseTestCase
 
+
 class TestMySQLMonitorPlugin(BaseTestCase):
     def test_imports(self):
-    	from ZenPacks.zenoss.MySqlMonitor.dsplugins import MySqlMonitorPlugin
+        from ZenPacks.zenoss.MySqlMonitor.dsplugins import MySqlMonitorPlugin
         # ok if imports
 
 
