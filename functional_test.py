@@ -1,5 +1,4 @@
 import os
-import time
 import subprocess
 from pprint import pformat
 
@@ -28,6 +27,7 @@ def main():
         raise
     finally:
         zenoss('stop')
+        kill_proc()
         restore_zodb()
         zenoss('start')
 
@@ -49,9 +49,18 @@ def dump_zodb():
     os.system('mysqldump -u root --all-databases > all.sql')
 
 
+def kill_proc():
+    bprint('''Kill all mysql process!''')
+    os.system('mysqladmin -u root processlist > fullproce;')
+    os.system('''cat fullproce |grep Sleep |awk -F " " '{print $2}' > id;''')
+    os.system('''for todos_id in `cat ./id`; do  mysqladmin -u root KILL \
+        $todos_id ; done''')
+    os.system('rm fullproce;')
+    os.system('rm id;')
+
+
 def restore_zodb():
     bprint('''waiting for everyone to cool down''')
-    time.sleep(5)
     bprint('''Restoring zodb from file''')
     os.system('mysql -u root -e "drop database zodb;\
         drop database zodb_session"')
