@@ -48,8 +48,10 @@ def model_device(name):
 
 
 def python_monitor_device(name):
-    device = '--device=' + name
-    return subprocess.check_output(['zenpython', 'run', device])
+    return subprocess.check_output(
+        ['zenpython', 'run', '--device=' + name],
+        stderr=subprocess.STDOUT,
+    )
 
 
 def delete_device(name):

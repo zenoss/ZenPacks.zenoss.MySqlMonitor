@@ -5,6 +5,7 @@ from pprint import pformat
 from add_device import add_device, model_device, python_monitor_device
 
 ZENPACK_NAME = 'ZenPacks.zenoss.MySqlMonitor'
+DUMP_FILE = '/home/zenoss/all.sql'
 
 
 def main():
@@ -35,7 +36,7 @@ def main():
 
 
 def here():
-    bprint(''' return directory which contains this file ''')
+    ''' return directory which contains this file '''
     return os.path.abspath(os.path.dirname(__file__))
 
 
@@ -46,11 +47,11 @@ def unittests_ok():
 
 def dump_zodb():
     bprint(''' Dump zodb database to file ''')
-    os.system('mysqldump -u root --all-databases > all.sql')
+    os.system('mysqldump -u root --all-databases > %s' % DUMP_FILE)
 
 
 def kill_proc():
-    bprint('''Kill all mysql process!''')
+    bprint('''Kill all mysql processes!''')
     os.system('mysqladmin -u root processlist > fullproce;')
     os.system('''cat fullproce |grep Sleep |awk -F " " '{print $2}' > id;''')
     os.system('''for todos_id in `cat ./id`; do  mysqladmin -u root KILL \
@@ -60,11 +61,10 @@ def kill_proc():
 
 
 def restore_zodb():
-    bprint('''waiting for everyone to cool down''')
     bprint('''Restoring zodb from file''')
     os.system('mysql -u root -e "drop database zodb;\
         drop database zodb_session"')
-    os.system('mysql -u root < all.sql')
+    os.system('mysql -u root < %s' % DUMP_FILE)
 
 
 def zenpack_remove():
