@@ -21,10 +21,9 @@ def main():
         model_device(device)
         monitoring_results = python_monitor_device(device)
 
-        bprint(monitoring_results)
-
         assert '- is that the correct name?' not in monitoring_results
-    except:
+        return True
+    except Exception:
         raise
     finally:
         zenoss('stop')
@@ -52,12 +51,15 @@ def dump_zodb():
 
 def kill_proc():
     bprint('''Kill all mysql processes!''')
-    os.system('mysqladmin -u root processlist > fullproce;')
-    os.system('''cat fullproce |grep Sleep |awk -F " " '{print $2}' > id;''')
-    os.system('''for todos_id in `cat ./id`; do  mysqladmin -u root KILL \
-        $todos_id ; done''')
-    os.system('rm fullproce;')
-    os.system('rm id;')
+    o = subprocess.check_output(['mysql', '--batch', '-u', 'root', '-e', 'show processlist'])
+    pl = [x.split('\t') for x in o.splitlines()]
+    cols = dict((c, i) for i, c in enumerate(pl[0]))
+    print ' '.join(['%15s' % p for p in pl[0]])
+    for process in pl[1:]:
+        if (process[cols['Command']] == 'Sleep') and (process[cols['db']] in ('zodb', 'zodb_session')):
+            print ' '.join(['%15s' % p for p in process])
+            cmd = 'mysqladmin -u root KILL %s' % process[cols['Id']]
+            os.system(cmd)
 
 
 def restore_zodb():
