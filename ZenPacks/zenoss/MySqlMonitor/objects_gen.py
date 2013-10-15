@@ -5,30 +5,27 @@ def get_monitoring_template(graphs):
       Products.ZenModel.Device
     </property>
     <tomanycont id="datasources">
-      <object class="BasicDataSource" id="MySQL" module="Products.ZenModel.BasicDataSource">
+      <object class="PythonDataSource" id="MyDataSources" module="ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource">
         <property id="sourcetype" mode="w" select_variable="sourcetypes" type="selection">
-          COMMAND
+          Python
         </property>
         <property id="enabled" mode="w" type="boolean">
           True
         </property>
+        <property id="component" mode="w" type="string">
+          ${here/id}
+        </property>
         <property id="eventClass" mode="w" type="string">
-          /Cmd/Fail
+          /Status
         </property>
         <property id="severity" mode="w" type="int">
           3
         </property>
-        <property id="commandTemplate" mode="w" type="string">
-          /usr/bin/mysql -e 'show global status'
+        <property id="cycletime" mode="w" type="string">
+          300
         </property>
-        <property id="cycletime" mode="w" type="int">
-          5
-        </property>
-        <property id="usessh" mode="w" type="boolean">
-          True
-        </property>
-        <property id="parser" mode="w" type="string">
-          ZenPacks.zenoss.MySQL.parsers.mysql_parser
+        <property id="plugin_classname" mode="w" type="string">
+          ZenPacks.zenoss.MySqlMonitor.dsplugins.MySqlMonitorPlugin
         </property>
         <tomanycont id="datapoints">
     ''')
