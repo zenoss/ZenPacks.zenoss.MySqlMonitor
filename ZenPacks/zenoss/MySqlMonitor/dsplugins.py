@@ -31,7 +31,11 @@ class MySqlMonitorPlugin(PythonDataSourcePlugin):
         print '*********'*10
 
         return {
-            'events': [],
+            'events': [{
+                'summary': 'error: %s' % result,
+                'eventKey': 'myPlugin_result',
+                'severity': 0,
+                }],
             'values': {
                 'root_3306': {
                     'random': (2, time.time()),
