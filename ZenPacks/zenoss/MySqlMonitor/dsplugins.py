@@ -44,7 +44,11 @@ class MySqlMonitorPlugin(PythonDataSourcePlugin):
         values = dict((k.lower(), (v, t)) for k, v in statuses)
 
         return {
-            'events': [],
+            'events': [{
+                'summary': 'error: %s' % result,
+                'eventKey': 'myPlugin_result',
+                'severity': 0,
+                }],
             'values': {component: values}
         }
 

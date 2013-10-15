@@ -51,15 +51,12 @@ def dump_zodb():
 
 def kill_proc():
     bprint('''Kill all mysql processes!''')
-    o = subprocess.check_output(['mysql', '--batch', '-u', 'root', '-e', 'show processlist'])
-    pl = [x.split('\t') for x in o.splitlines()]
-    cols = dict((c, i) for i, c in enumerate(pl[0]))
-    print ' '.join(['%15s' % p for p in pl[0]])
-    for process in pl[1:]:
-        if (process[cols['Command']] == 'Sleep') and (process[cols['db']] in ('zodb', 'zodb_session')):
-            print ' '.join(['%15s' % p for p in process])
-            cmd = 'mysqladmin -u root KILL %s' % process[cols['Id']]
-            os.system(cmd)
+    o = subprocess.check_output(['mysql', '--batch', '-u', 'root', '-e',
+                                'SELECT id FROM information_schema.processlist\
+                                 WHERE Command = "Sleep"'])
+    for process_id in o.split()[1:]:
+        cmd = 'mysqladmin -u root KILL %s' % process_id
+        os.system(cmd)
 
 
 def restore_zodb():
