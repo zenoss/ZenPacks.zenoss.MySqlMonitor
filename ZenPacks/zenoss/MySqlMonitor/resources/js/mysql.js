@@ -19,12 +19,30 @@ Zenoss.zproperties.registerZPropertyType('miltilinecredentials', {xtype: 'miltil
 
 Ext.define("Zenoss.form.MultilineCredentials", {
     alias:['widget.miltilinecredentials'],
-    extend:'Ext.form.Display',
+    //extend:'Ext.form.Display',
+    extend: 'Ext.form.field.Base',
+    mixins: {
+        field: 'Ext.form.field.Field'
+    },
 
     constructor: function(config) {
+        //console.log("CONSTRUCTOR");
+        // console.log(this);
+        // console.log(config);
+        // console.log(arguments);
+
+        config = Ext.applyIf(config || {}, {
+            editable: true,
+            allowBlank: true,
+            submitValue: true,
+            triggerAction: 'all',
+            //inputType: 'hidden'
+        });
+        Zenoss.form.MultilineCredentials.superclass.constructor.call(this, config);
+
         // submitHandler: this.setValue,
-        Zenoss.form.MultilineCredentials.superclass.constructor.apply(this, arguments);
-     },
+        //Zenoss.form.MultilineCredentials.superclass.constructor.apply(this, arguments);
+    },
 
     initComponent: function() {
         this.grid = this.childComponent = Ext.create('Ext.grid.Panel', {
@@ -51,19 +69,19 @@ Ext.define("Zenoss.form.MultilineCredentials", {
             
             tbar: [{
                 itemId: 'user',
-                xtype:"textfield",
+                xtype: "textfield",
                 scope: this,
                 width: 50,
                 value: "root",
             },{
                 itemId: 'password',
-                xtype:"password",
+                xtype: "password",
                 scope: this,
                 width: 50,
                 value: "",
             },{
                 itemId: 'port',
-                xtype:"textfield",
+                xtype: "textfield",
                 scope: this,
                 width: 50,
                 value: "3306",
@@ -75,7 +93,7 @@ Ext.define("Zenoss.form.MultilineCredentials", {
                     var password = this.grid.down('#password');
                     var port = this.grid.down('#port');
 
-                    var value = user.value+":"+password.value+":"+port.value+";";
+                    var value = user.value + ":" + password.value + ":" + port.value + ";";
                     if (user.value !== "") {
                         this.grid.getStore().add({value: value});
                     }
@@ -83,6 +101,8 @@ Ext.define("Zenoss.form.MultilineCredentials", {
                     user.setValue("");
                     password.setValue("");
                     port.setValue("");
+
+                    this.checkChange();
                 }
             },{
                 text: "Remove",
@@ -139,6 +159,8 @@ Ext.define("Zenoss.form.MultilineCredentials", {
                 data.push({value: value});
             });
         }
+        // console.log("SET");
+        // console.log(data);
         this.grid.getStore().loadData(data);
     },
     
@@ -147,7 +169,14 @@ Ext.define("Zenoss.form.MultilineCredentials", {
         this.grid.getStore().each(function(record) {
             data.push(record.get('value'));
         });
+        // console.log("GET");
+        // console.log(data);
         return data;        
+    },
+
+    getSubmitValue: function() {
+        console.log("getSubmitValue");
+        return this.getValue().join(';');
     },
  });
 
