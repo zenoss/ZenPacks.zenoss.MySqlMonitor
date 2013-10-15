@@ -1,417 +1,5 @@
 <?xml version="1.0" ?>
 <objects>
-  <!-- ('', 'zport', 'dmd', 'Devices', 'Server', 'MySQL') -->
-  <object class="DeviceClass" id="/zport/dmd/Devices/Server/MySQL" module="Products.ZenModel.DeviceClass">
-    <property id="zPythonClass" type="string" visible="True">
-      ZenPacks.zenoss.MySqlMonitor.MySQLServer
-    </property>
-    <property id="zCollectorPlugins" type="lines" visible="True">
-      ['MySQLCollector']
-    </property>
-    <property id="zDeviceTemplates" type="lines" visible="True">
-      ['mysql']
-    </property>
-    <property id="zCommandPassword" type="password" visible="True">
-    </property>
-    <property id="zCommandUsername" type="string" visible="True">
-      root
-    </property>
-    <tomanycont id="rrdTemplates">
-      <object class="RRDTemplate" id="MySQLDatabase" module="Products.ZenModel.RRDTemplate">
-        <property id="targetPythonClass" mode="w" type="string">
-          Products.ZenModel.Device
-        </property>
-        <tomanycont id="graphDefs">
-          <object class="GraphDefinition" id="Database" module="Products.ZenModel.GraphDefinition">
-            <property id="height" mode="w" type="int">
-              100
-            </property>
-            <property id="width" mode="w" type="int">
-              500
-            </property>
-            <property id="log" mode="w" type="boolean">
-              False
-            </property>
-            <property id="base" mode="w" type="boolean">
-              False
-            </property>
-            <property id="miny" mode="w" type="int">
-              -1
-            </property>
-            <property id="maxy" mode="w" type="int">
-              -1
-            </property>
-            <property id="hasSummary" mode="w" type="boolean">
-              True
-            </property>
-            <property id="sequence" mode="w" type="long">
-              0
-            </property>
-            <tomanycont id="graphPoints">
-              <object class="DataPointGraphPoint" id="Data size" module="Products.ZenModel.DataPointGraphPoint">
-                <property id="sequence" mode="w" type="long">
-                  2
-                </property>
-                <property id="color" mode="w" type="string">
-                  0000FF
-                </property>
-                <property id="lineType" mode="w" select_variable="lineTypes" type="selection">
-                  LINE
-                </property>
-                <property id="lineWidth" mode="w" type="long">
-                  1
-                </property>
-                <property id="stacked" mode="w" type="boolean">
-                  False
-                </property>
-                <property id="format" mode="w" type="string">
-                  %5.2lf%s
-                </property>
-                <property id="legend" mode="w" type="string">
-                  ${graphPoint/id}
-                </property>
-                <property id="limit" mode="w" type="long">
-                  -1
-                </property>
-                <property id="dpName" mode="w" type="string">
-                  MySQLDatabase_data_size
-                </property>
-                <property id="cFunc" mode="w" type="string">
-                  AVERAGE
-                </property>
-              </object>
-              <object class="DataPointGraphPoint" id="Index size" module="Products.ZenModel.DataPointGraphPoint">
-                <property id="sequence" mode="w" type="long">
-                  1
-                </property>
-                <property id="color" mode="w" type="string">
-                  FF0000
-                </property>
-                <property id="lineType" mode="w" select_variable="lineTypes" type="selection">
-                  LINE
-                </property>
-                <property id="lineWidth" mode="w" type="long">
-                  1
-                </property>
-                <property id="stacked" mode="w" type="boolean">
-                  False
-                </property>
-                <property id="format" mode="w" type="string">
-                  %5.2lf%s
-                </property>
-                <property id="legend" mode="w" type="string">
-                  ${graphPoint/id}
-                </property>
-                <property id="limit" mode="w" type="long">
-                  -1
-                </property>
-                <property id="dpName" mode="w" type="string">
-                  MySQLDatabase_index_size
-                </property>
-                <property id="cFunc" mode="w" type="string">
-                  AVERAGE
-                </property>
-              </object>
-              <object class="DataPointGraphPoint" id="Size" module="Products.ZenModel.DataPointGraphPoint">
-                <property id="sequence" mode="w" type="long">
-                  0
-                </property>
-                <property id="lineType" mode="w" select_variable="lineTypes" type="selection">
-                  LINE
-                </property>
-                <property id="lineWidth" mode="w" type="long">
-                  1
-                </property>
-                <property id="stacked" mode="w" type="boolean">
-                  False
-                </property>
-                <property id="format" mode="w" type="string">
-                  %5.2lf%s
-                </property>
-                <property id="legend" mode="w" type="string">
-                  ${graphPoint/id}
-                </property>
-                <property id="limit" mode="w" type="long">
-                  -1
-                </property>
-                <property id="dpName" mode="w" type="string">
-                  MySQLDatabase_size
-                </property>
-                <property id="cFunc" mode="w" type="string">
-                  AVERAGE
-                </property>
-              </object>
-            </tomanycont>
-          </object>
-        </tomanycont>
-      </object>
-      <object class="RRDTemplate" id="MySQLTable" module="Products.ZenModel.RRDTemplate">
-        <property id="targetPythonClass" mode="w" type="string">
-          Products.ZenModel.Device
-        </property>
-        <tomanycont id="graphDefs">
-          <object class="GraphDefinition" id="Data" module="Products.ZenModel.GraphDefinition">
-            <property id="height" mode="w" type="int">
-              100
-            </property>
-            <property id="width" mode="w" type="int">
-              500
-            </property>
-            <property id="log" mode="w" type="boolean">
-              False
-            </property>
-            <property id="base" mode="w" type="boolean">
-              False
-            </property>
-            <property id="miny" mode="w" type="int">
-              -1
-            </property>
-            <property id="maxy" mode="w" type="int">
-              -1
-            </property>
-            <property id="hasSummary" mode="w" type="boolean">
-              True
-            </property>
-            <property id="sequence" mode="w" type="long">
-              1
-            </property>
-            <tomanycont id="graphPoints">
-              <object class="DataPointGraphPoint" id="schema_data_free" module="Products.ZenModel.DataPointGraphPoint">
-                <property id="sequence" mode="w" type="long">
-                  3
-                </property>
-                <property id="lineType" mode="w" select_variable="lineTypes" type="selection">
-                  LINE
-                </property>
-                <property id="lineWidth" mode="w" type="long">
-                  1
-                </property>
-                <property id="stacked" mode="w" type="boolean">
-                  False
-                </property>
-                <property id="format" mode="w" type="string">
-                  %5.2lf%s
-                </property>
-                <property id="legend" mode="w" type="string">
-                  ${graphPoint/id}
-                </property>
-                <property id="limit" mode="w" type="long">
-                  -1
-                </property>
-                <property id="dpName" mode="w" type="string">
-                  tables_schema_data_free
-                </property>
-                <property id="cFunc" mode="w" type="string">
-                  AVERAGE
-                </property>
-              </object>
-              <object class="DataPointGraphPoint" id="schema_data_length" module="Products.ZenModel.DataPointGraphPoint">
-                <property id="sequence" mode="w" type="long">
-                  0
-                </property>
-                <property id="lineType" mode="w" select_variable="lineTypes" type="selection">
-                  LINE
-                </property>
-                <property id="lineWidth" mode="w" type="long">
-                  1
-                </property>
-                <property id="stacked" mode="w" type="boolean">
-                  False
-                </property>
-                <property id="format" mode="w" type="string">
-                  %5.2lf%s
-                </property>
-                <property id="legend" mode="w" type="string">
-                  ${graphPoint/id}
-                </property>
-                <property id="limit" mode="w" type="long">
-                  -1
-                </property>
-                <property id="dpName" mode="w" type="string">
-                  tables_schema_data_length
-                </property>
-                <property id="cFunc" mode="w" type="string">
-                  AVERAGE
-                </property>
-              </object>
-              <object class="DataPointGraphPoint" id="schema_index_length" module="Products.ZenModel.DataPointGraphPoint">
-                <property id="sequence" mode="w" type="long">
-                  2
-                </property>
-                <property id="lineType" mode="w" select_variable="lineTypes" type="selection">
-                  LINE
-                </property>
-                <property id="lineWidth" mode="w" type="long">
-                  1
-                </property>
-                <property id="stacked" mode="w" type="boolean">
-                  False
-                </property>
-                <property id="format" mode="w" type="string">
-                  %5.2lf%s
-                </property>
-                <property id="legend" mode="w" type="string">
-                  ${graphPoint/id}
-                </property>
-                <property id="limit" mode="w" type="long">
-                  -1
-                </property>
-                <property id="dpName" mode="w" type="string">
-                  tables_schema_index_length
-                </property>
-                <property id="cFunc" mode="w" type="string">
-                  AVERAGE
-                </property>
-              </object>
-              <object class="DataPointGraphPoint" id="schema_max_data_length" module="Products.ZenModel.DataPointGraphPoint">
-                <property id="sequence" mode="w" type="long">
-                  1
-                </property>
-                <property id="lineType" mode="w" select_variable="lineTypes" type="selection">
-                  LINE
-                </property>
-                <property id="lineWidth" mode="w" type="long">
-                  1
-                </property>
-                <property id="stacked" mode="w" type="boolean">
-                  False
-                </property>
-                <property id="format" mode="w" type="string">
-                  %5.2lf%s
-                </property>
-                <property id="legend" mode="w" type="string">
-                  ${graphPoint/id}
-                </property>
-                <property id="limit" mode="w" type="long">
-                  -1
-                </property>
-                <property id="dpName" mode="w" type="string">
-                  tables_schema_max_data_length
-                </property>
-                <property id="cFunc" mode="w" type="string">
-                  AVERAGE
-                </property>
-              </object>
-            </tomanycont>
-          </object>
-          <object class="GraphDefinition" id="Row" module="Products.ZenModel.GraphDefinition">
-            <property id="height" mode="w" type="int">
-              100
-            </property>
-            <property id="width" mode="w" type="int">
-              500
-            </property>
-            <property id="log" mode="w" type="boolean">
-              False
-            </property>
-            <property id="base" mode="w" type="boolean">
-              False
-            </property>
-            <property id="miny" mode="w" type="int">
-              -1
-            </property>
-            <property id="maxy" mode="w" type="int">
-              -1
-            </property>
-            <property id="hasSummary" mode="w" type="boolean">
-              True
-            </property>
-            <property id="sequence" mode="w" type="long">
-              2
-            </property>
-            <tomanycont id="graphPoints">
-              <object class="DataPointGraphPoint" id="schema_awg_row_length" module="Products.ZenModel.DataPointGraphPoint">
-                <property id="sequence" mode="w" type="long">
-                  0
-                </property>
-                <property id="lineType" mode="w" select_variable="lineTypes" type="selection">
-                  LINE
-                </property>
-                <property id="lineWidth" mode="w" type="long">
-                  1
-                </property>
-                <property id="stacked" mode="w" type="boolean">
-                  False
-                </property>
-                <property id="format" mode="w" type="string">
-                  %5.2lf%s
-                </property>
-                <property id="legend" mode="w" type="string">
-                  ${graphPoint/id}
-                </property>
-                <property id="limit" mode="w" type="long">
-                  -1
-                </property>
-                <property id="dpName" mode="w" type="string">
-                  tables_schema_awg_row_length
-                </property>
-                <property id="cFunc" mode="w" type="string">
-                  AVERAGE
-                </property>
-              </object>
-            </tomanycont>
-          </object>
-          <object class="GraphDefinition" id="Table" module="Products.ZenModel.GraphDefinition">
-            <property id="height" mode="w" type="int">
-              100
-            </property>
-            <property id="width" mode="w" type="int">
-              500
-            </property>
-            <property id="log" mode="w" type="boolean">
-              False
-            </property>
-            <property id="base" mode="w" type="boolean">
-              False
-            </property>
-            <property id="miny" mode="w" type="int">
-              -1
-            </property>
-            <property id="maxy" mode="w" type="int">
-              -1
-            </property>
-            <property id="hasSummary" mode="w" type="boolean">
-              True
-            </property>
-            <property id="sequence" mode="w" type="long">
-              0
-            </property>
-            <tomanycont id="graphPoints">
-              <object class="DataPointGraphPoint" id="schema_table_rows" module="Products.ZenModel.DataPointGraphPoint">
-                <property id="sequence" mode="w" type="long">
-                  0
-                </property>
-                <property id="lineType" mode="w" select_variable="lineTypes" type="selection">
-                  LINE
-                </property>
-                <property id="lineWidth" mode="w" type="long">
-                  1
-                </property>
-                <property id="stacked" mode="w" type="boolean">
-                  False
-                </property>
-                <property id="format" mode="w" type="string">
-                  %5.2lf%s
-                </property>
-                <property id="legend" mode="w" type="string">
-                  rows
-                </property>
-                <property id="limit" mode="w" type="long">
-                  -1
-                </property>
-                <property id="dpName" mode="w" type="string">
-                  tables_schema_table_rows
-                </property>
-                <property id="cFunc" mode="w" type="string">
-                  AVERAGE
-                </property>
-              </object>
-            </tomanycont>
-          </object>
-        </tomanycont>
-      </object>
-    </tomanycont>
-  </object>
   <!-- ('', 'zport', 'dmd', 'Devices', 'Server', 'rrdTemplates', 'MySQLServer') -->
   <object class="RRDTemplate" id="/zport/dmd/Devices/Server/rrdTemplates/MySQLServer" module="Products.ZenModel.RRDTemplate">
     <property id="targetPythonClass" mode="w" type="string">
@@ -2623,6 +2211,139 @@
             </property>
             <property id="dpName" mode="w" type="string">
               MySQL_open_tables
+            </property>
+            <property id="cFunc" mode="w" type="string">
+              AVERAGE
+            </property>
+          </object>
+        </tomanycont>
+      </object>
+    </tomanycont>
+  </object>
+  <object class="RRDTemplate" id="MySQLDatabase" module="Products.ZenModel.RRDTemplate">
+    <property id="targetPythonClass" mode="w" type="string">
+      Products.ZenModel.Device
+    </property>
+    <tomanycont id="datasources">
+      <object class="PythonDataSource" id="DbStats" module="ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource">
+        <property id="sourcetype" mode="w" select_variable="sourcetypes" type="selection">
+          Python
+        </property>
+        <property id="enabled" mode="w" type="boolean">
+          True
+        </property>
+        <property id="component" mode="w" type="string">
+          ${here/id}
+        </property>
+        <property id="severity" mode="w" type="int">
+          3
+        </property>
+        <property id="cycletime" mode="w" type="string">
+          3
+        </property>
+        <property id="plugin_classname" mode="w" type="string">
+          ZenPacks.zenoss.MySqlMonitor.dsplugins.MySQLMonitorDatabasesPlugin
+        </property>
+        <tomanycont id="datapoints">
+          <object class="RRDDataPoint" id="data_size" module="Products.ZenModel.RRDDataPoint">
+            <property id="rrdtype" mode="w" select_variable="rrdtypes" type="selection">
+              GAUGE
+            </property>
+            <property id="isrow" mode="w" type="boolean">
+              True
+            </property>
+          </object>
+          <object class="RRDDataPoint" id="size" module="Products.ZenModel.RRDDataPoint">
+            <property id="rrdtype" mode="w" select_variable="rrdtypes" type="selection">
+              GAUGE
+            </property>
+            <property id="isrow" mode="w" type="boolean">
+              True
+            </property>
+          </object>
+        </tomanycont>
+      </object>
+    </tomanycont>
+    <tomanycont id="graphDefs">
+      <object class="GraphDefinition" id="Size" module="Products.ZenModel.GraphDefinition">
+        <property id="height" mode="w" type="int">
+          100
+        </property>
+        <property id="width" mode="w" type="int">
+          500
+        </property>
+        <property id="log" mode="w" type="boolean">
+          False
+        </property>
+        <property id="base" mode="w" type="boolean">
+          False
+        </property>
+        <property id="miny" mode="w" type="int">
+          -1
+        </property>
+        <property id="maxy" mode="w" type="int">
+          -1
+        </property>
+        <property id="hasSummary" mode="w" type="boolean">
+          True
+        </property>
+        <property id="sequence" mode="w" type="long">
+          0
+        </property>
+        <tomanycont id="graphPoints">
+          <object class="DataPointGraphPoint" id="data_size" module="Products.ZenModel.DataPointGraphPoint">
+            <property id="sequence" mode="w" type="long">
+              0
+            </property>
+            <property id="lineType" mode="w" select_variable="lineTypes" type="selection">
+              LINE
+            </property>
+            <property id="lineWidth" mode="w" type="long">
+              1
+            </property>
+            <property id="stacked" mode="w" type="boolean">
+              False
+            </property>
+            <property id="format" mode="w" type="string">
+              %5.2lf%s
+            </property>
+            <property id="legend" mode="w" type="string">
+              ${graphPoint/id}
+            </property>
+            <property id="limit" mode="w" type="long">
+              -1
+            </property>
+            <property id="dpName" mode="w" type="string">
+              DbStats_data_size
+            </property>
+            <property id="cFunc" mode="w" type="string">
+              AVERAGE
+            </property>
+          </object>
+          <object class="DataPointGraphPoint" id="size" module="Products.ZenModel.DataPointGraphPoint">
+            <property id="sequence" mode="w" type="long">
+              1
+            </property>
+            <property id="lineType" mode="w" select_variable="lineTypes" type="selection">
+              LINE
+            </property>
+            <property id="lineWidth" mode="w" type="long">
+              1
+            </property>
+            <property id="stacked" mode="w" type="boolean">
+              False
+            </property>
+            <property id="format" mode="w" type="string">
+              %5.2lf%s
+            </property>
+            <property id="legend" mode="w" type="string">
+              ${graphPoint/id}
+            </property>
+            <property id="limit" mode="w" type="long">
+              -1
+            </property>
+            <property id="dpName" mode="w" type="string">
+              DbStats_size
             </property>
             <property id="cFunc" mode="w" type="string">
               AVERAGE
