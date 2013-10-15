@@ -42,7 +42,6 @@ class MySQLServer(MySQLComponent):
         {'id': 'percent_full_table_scans', 'type': 'string'},
         {'id': 'slave_status', 'type': 'string'},
         {'id': 'master_status', 'type': 'string'},
-        {'id': 'zMySQLConnectionString', 'type': 'string', 'visible': True},
     )
 
     _relations = MySQLComponent._relations + (
@@ -77,7 +76,6 @@ class MySQLServerInfo(ComponentInfo):
     implements(IMySQLServerInfo)
     adapts(MySQLServer)
 
-    zMySQLConnectionString = ProxyProperty('zMySQLConnectionString')
     cmd = ProxyProperty('cmd')
     size = SizeUnitsProxyProperty('size')
     data_size = SizeUnitsProxyProperty('data_size')

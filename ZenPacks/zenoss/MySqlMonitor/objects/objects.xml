@@ -21,63 +21,6 @@
         <property id="targetPythonClass" mode="w" type="string">
           Products.ZenModel.Device
         </property>
-        <tomanycont id="datasources">
-          <object class="BasicDataSource" id="MySQLDatabase" module="Products.ZenModel.BasicDataSource">
-            <property id="sourcetype" mode="w" select_variable="sourcetypes" type="selection">
-              COMMAND
-            </property>
-            <property id="enabled" mode="w" type="boolean">
-              True
-            </property>
-            <property id="component" mode="w" type="string">
-              ${here/id}
-            </property>
-            <property id="eventClass" mode="w" type="string">
-              /Cmd/Fail
-            </property>
-            <property id="severity" mode="w" type="int">
-              3
-            </property>
-            <property id="commandTemplate" mode="w" type="string">
-              mysql -e &quot;SELECT table_schema, sum(data_length + index_length) size, sum(index_length) index_size, sum(data_length) data_size FROM information_schema.TABLES GROUP BY table_schema;&quot;
-            </property>
-            <property id="cycletime" mode="w" type="int">
-              300
-            </property>
-            <property id="usessh" mode="w" type="boolean">
-              True
-            </property>
-            <property id="parser" mode="w" type="string">
-              ZenPacks.zenoss.MySqlMonitor.parsers.database
-            </property>
-            <tomanycont id="datapoints">
-              <object class="RRDDataPoint" id="data_size" module="Products.ZenModel.RRDDataPoint">
-                <property id="rrdtype" mode="w" select_variable="rrdtypes" type="selection">
-                  GAUGE
-                </property>
-                <property id="isrow" mode="w" type="boolean">
-                  True
-                </property>
-              </object>
-              <object class="RRDDataPoint" id="index_size" module="Products.ZenModel.RRDDataPoint">
-                <property id="rrdtype" mode="w" select_variable="rrdtypes" type="selection">
-                  GAUGE
-                </property>
-                <property id="isrow" mode="w" type="boolean">
-                  True
-                </property>
-              </object>
-              <object class="RRDDataPoint" id="size" module="Products.ZenModel.RRDDataPoint">
-                <property id="rrdtype" mode="w" select_variable="rrdtypes" type="selection">
-                  GAUGE
-                </property>
-                <property id="isrow" mode="w" type="boolean">
-                  True
-                </property>
-              </object>
-            </tomanycont>
-          </object>
-        </tomanycont>
         <tomanycont id="graphDefs">
           <object class="GraphDefinition" id="Database" module="Products.ZenModel.GraphDefinition">
             <property id="height" mode="w" type="int">
@@ -206,95 +149,6 @@
         <property id="targetPythonClass" mode="w" type="string">
           Products.ZenModel.Device
         </property>
-        <tomanycont id="datasources">
-          <object class="BasicDataSource" id="tables_schema" module="Products.ZenModel.BasicDataSource">
-            <property id="sourcetype" mode="w" select_variable="sourcetypes" type="selection">
-              COMMAND
-            </property>
-            <property id="enabled" mode="w" type="boolean">
-              True
-            </property>
-            <property id="component" mode="w" type="string">
-              ${here/id}
-            </property>
-            <property id="eventClass" mode="w" type="string">
-              /Cmd/Fail
-            </property>
-            <property id="severity" mode="w" type="int">
-              3
-            </property>
-            <property id="commandTemplate" mode="w" type="string">
-              ${here/zMySQLCommand} -e &quot;select TABLE_SCHEMA, TABLE_NAME, TABLE_ROWS, AVG_ROW_LENGTH, DATA_LENGTH, MAX_DATA_LENGTH, INDEX_LENGTH, DATA_FREE  from information_schema.tables&quot;
-            </property>
-            <property id="cycletime" mode="w" type="int">
-              5
-            </property>
-            <property id="usessh" mode="w" type="boolean">
-              True
-            </property>
-            <property id="parser" mode="w" type="string">
-              ZenPacks.zenoss.MySqlMonitor.parsers.tables_schema
-            </property>
-            <tomanycont id="datapoints">
-              <object class="RRDDataPoint" id="awg_row_length" module="Products.ZenModel.RRDDataPoint">
-                <property id="rrdtype" mode="w" select_variable="rrdtypes" type="selection">
-                  GAUGE
-                </property>
-                <property id="isrow" mode="w" type="boolean">
-                  True
-                </property>
-              </object>
-              <object class="RRDDataPoint" id="data_free" module="Products.ZenModel.RRDDataPoint">
-                <property id="rrdtype" mode="w" select_variable="rrdtypes" type="selection">
-                  GAUGE
-                </property>
-                <property id="isrow" mode="w" type="boolean">
-                  True
-                </property>
-              </object>
-              <object class="RRDDataPoint" id="data_length" module="Products.ZenModel.RRDDataPoint">
-                <property id="rrdtype" mode="w" select_variable="rrdtypes" type="selection">
-                  GAUGE
-                </property>
-                <property id="isrow" mode="w" type="boolean">
-                  True
-                </property>
-              </object>
-              <object class="RRDDataPoint" id="index_length" module="Products.ZenModel.RRDDataPoint">
-                <property id="rrdtype" mode="w" select_variable="rrdtypes" type="selection">
-                  GAUGE
-                </property>
-                <property id="isrow" mode="w" type="boolean">
-                  True
-                </property>
-              </object>
-              <object class="RRDDataPoint" id="max_data_length" module="Products.ZenModel.RRDDataPoint">
-                <property id="rrdtype" mode="w" select_variable="rrdtypes" type="selection">
-                  GAUGE
-                </property>
-                <property id="isrow" mode="w" type="boolean">
-                  True
-                </property>
-              </object>
-              <object class="RRDDataPoint" id="size" module="Products.ZenModel.RRDDataPoint">
-                <property id="rrdtype" mode="w" select_variable="rrdtypes" type="selection">
-                  GAUGE
-                </property>
-                <property id="isrow" mode="w" type="boolean">
-                  True
-                </property>
-              </object>
-              <object class="RRDDataPoint" id="table_rows" module="Products.ZenModel.RRDDataPoint">
-                <property id="rrdtype" mode="w" select_variable="rrdtypes" type="selection">
-                  GAUGE
-                </property>
-                <property id="isrow" mode="w" type="boolean">
-                  True
-                </property>
-              </object>
-            </tomanycont>
-          </object>
-        </tomanycont>
         <tomanycont id="graphDefs">
           <object class="GraphDefinition" id="Data" module="Products.ZenModel.GraphDefinition">
             <property id="height" mode="w" type="int">
@@ -558,36 +412,33 @@
       </object>
     </tomanycont>
   </object>
-  <!-- ('', 'zport', 'dmd', 'Devices', 'rrdTemplates', 'mysql') -->
-  <object class="RRDTemplate" id="/zport/dmd/Devices/rrdTemplates/mysql" module="Products.ZenModel.RRDTemplate">
+  <!-- ('', 'zport', 'dmd', 'Devices', 'Server', 'rrdTemplates', 'MySQLServer') -->
+  <object class="RRDTemplate" id="/zport/dmd/Devices/Server/rrdTemplates/MySQLServer" module="Products.ZenModel.RRDTemplate">
     <property id="targetPythonClass" mode="w" type="string">
       Products.ZenModel.Device
     </property>
     <tomanycont id="datasources">
-      <object class="BasicDataSource" id="MySQL" module="Products.ZenModel.BasicDataSource">
+      <object class="PythonDataSource" id="MySQL" module="ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource">
         <property id="sourcetype" mode="w" select_variable="sourcetypes" type="selection">
-          COMMAND
+          Python
         </property>
         <property id="enabled" mode="w" type="boolean">
           True
         </property>
+        <property id="component" mode="w" type="string">
+          ${here/id}
+        </property>
         <property id="eventClass" mode="w" type="string">
-          /Cmd/Fail
+          /Status
         </property>
         <property id="severity" mode="w" type="int">
           3
         </property>
-        <property id="commandTemplate" mode="w" type="string">
-          /usr/bin/mysql -e 'show global status'
+        <property id="cycletime" mode="w" type="string">
+          3
         </property>
-        <property id="cycletime" mode="w" type="int">
-          5
-        </property>
-        <property id="usessh" mode="w" type="boolean">
-          True
-        </property>
-        <property id="parser" mode="w" type="string">
-          ZenPacks.zenoss.MySqlMonitor.parsers.mysql_parser
+        <property id="plugin_classname" mode="w" type="string">
+          ZenPacks.zenoss.MySqlMonitor.dsplugins.MySqlMonitorPlugin
         </property>
         <tomanycont id="datapoints">
           <object class="RRDDataPoint" id="aborted_clients" module="Products.ZenModel.RRDDataPoint">
@@ -1015,32 +866,6 @@
             </property>
           </object>
         </tomanycont>
-      </object>
-      <object class="BasicDataSource" id="innodb_status" module="Products.ZenModel.BasicDataSource">
-        <property id="sourcetype" mode="w" select_variable="sourcetypes" type="selection">
-          COMMAND
-        </property>
-        <property id="enabled" mode="w" type="boolean">
-          True
-        </property>
-        <property id="eventClass" mode="w" type="string">
-          /Cmd/Fail
-        </property>
-        <property id="severity" mode="w" type="int">
-          3
-        </property>
-        <property id="commandTemplate" mode="w" type="string">
-          ${here/zMySQLCommand} -e 'show engine innodb status'
-        </property>
-        <property id="cycletime" mode="w" type="int">
-          30
-        </property>
-        <property id="usessh" mode="w" type="boolean">
-          True
-        </property>
-        <property id="parser" mode="w" type="string">
-          ZenPacks.zenoss.MySqlMonitor.parsers.innodb_status
-        </property>
       </object>
     </tomanycont>
     <tomanycont id="graphDefs">

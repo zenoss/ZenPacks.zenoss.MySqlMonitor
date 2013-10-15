@@ -17,14 +17,16 @@ from Products.Zuul.interfaces import ICatalogTool
 from zope.event import notify
 from Products.Zuul.catalog.events import IndexingEvent
 
+
 def here(dir, base=os.path.dirname(__file__)):
     return os.path.join(base, dir)
+
 
 def add_local_lib_path():
     '''
     Helper to add the ZenPack's lib directory to sys.path.
     '''
-    import sys
+    #import sys
     import site
 
     site.addsitedir(here('lib'))
@@ -112,3 +114,27 @@ def updateToOne(relationship, root, type_, id_):
 
     return
 
+
+def parse_mysql_connection_string(zMySQLConnectionString):
+    """
+    Parse zMySQLConnectionString property.
+
+    @param connection_string: zMySQLConnectionString
+    @type connection_string: str
+    @return: a dict of server id as a key and a dict
+    with user, port and password as a value
+    """
+    result = {}
+    try:
+        for el in filter(None, zMySQLConnectionString.split(';')):
+            user, passwd, port = el.split(':')
+            id = user + '_' + port
+            result[id] = dict(
+                user=user,
+                passwd=passwd,
+                port=int(port)
+            )
+
+    except (ValueError, TypeError):
+        raise ValueError('Invalid connection string')
+    return result

@@ -22,36 +22,8 @@ from Products.ZenCollector.interfaces import IEventService
 from ZenPacks.zenoss.MySqlMonitor import MODULE_NAME, NAME_SPLITTER
 from ZenPacks.zenoss.MySqlMonitor.modeler import queries
 
+from ZenPacks.zenoss.MySqlMonitor.utils import parse_mysql_connection_string
 
-# To be replaced by Taras and Oleg utils function
-#################################################
-def connection_string(connection_string):
-    """
-    Parse zMySQLConnectionString property.
-
-    @param connection_string: zMySQLConnectionString
-    @type connection_string: str
-    @return: a dict of server id as a key and a dict
-    with user, port and password as a value
-    """
-    result = {}
-    try:
-        for el in filter(None, connection_string.split(';')):
-            user, passwd, port = el.split(':')
-            id = "{0}_{1}".format(user, port)
-            port = int(port)
-            result[id] = dict(
-                user=user,
-                port=port,
-                passwd=passwd,
-            )
-    except:
-        raise ValueError(
-            "Invalid zMySQLConnectionString property"
-        )
-
-    return result
-#################################################
 
 class MySQLCollector(PythonPlugin):
 
@@ -72,7 +44,8 @@ class MySQLCollector(PythonPlugin):
     def collect(self, device, log):
         log.info("Collecting data for device %s", device.id)
         try:
-            servers = connection_string(device.zMySQLConnectionString)
+            servers = parse_mysql_connection_string(
+                device.zMySQLConnectionString)
         except ValueError, error:
             log.error(error.message)
             self._send_event(error.message, device.id, 5)
@@ -122,7 +95,8 @@ class MySQLCollector(PythonPlugin):
             s_om = ObjectMap(server.get("server_size")[0])
             s_om.id = self.prepId(server["id"])
             s_om.title = server["id"]
-            s_om.percent_full_table_scans = self._table_scans(server.get('server', ''))
+            s_om.percent_full_table_scans = self._table_scans(
+                server.get('server', ''))
             s_om.master_status = self._master_status(server.get('master', ''))
             s_om.slave_status = self._slave_status(server.get('slave', ''))
             server_oms.append(s_om)
@@ -172,9 +146,9 @@ class MySQLCollector(PythonPlugin):
         for key, query in self.queries.iteritems():
             try:
                 txn.execute(query)
-                result[key]=txn.fetchall()
+                result[key] = txn.fetchall()
             except Exception, e:
-                result[key]=()
+                result[key] = ()
                 log.error(
                     "Execute query '%s' failed for user '%s': %s",
                     query.strip(), user, e
@@ -206,12 +180,12 @@ class MySQLCollector(PythonPlugin):
         """
 
         result = dict((el['variable_name'], el['variable_value'])
-            for el in server_result)
+                      for el in server_result)
 
         if int(result['HANDLER_READ_KEY']) == 0:
             return "N/A"
 
-        percent = float(result['HANDLER_READ_FIRST'])/\
+        percent = float(result['HANDLER_READ_FIRST']) /\
             float(result['HANDLER_READ_KEY'])
 
         return str(round(percent, 3)*100)+'%'
