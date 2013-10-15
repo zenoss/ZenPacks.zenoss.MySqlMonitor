@@ -1,13 +1,29 @@
 import time
 
 from twisted.enterprise import adbapi
-#from twisted.internet import reactor, defer
+from twisted.internet import defer
 
 from ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource \
     import PythonDataSourcePlugin
 
 from ZenPacks.zenoss.MySqlMonitor.utils import parse_mysql_connection_string
 
+class RandomPlugin(PythonDataSourcePlugin):
+    @defer.inlineCallbacks
+    def collect(self, config):
+        print '*' * 200
+        for ds in config.datasources:
+            yield
+
+    def onSuccess(self, result, config):
+        return {
+            'events': [],
+            'values': {
+                'localhost.localdomain': {
+                    'random': (2, time.time()),
+                    },
+                },
+            }
 
 class MySqlMonitorPlugin(PythonDataSourcePlugin):
     proxy_attributes = ('zMySQLConnectionString',)
