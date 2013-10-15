@@ -115,7 +115,7 @@ class MySQLCollector(PythonPlugin):
                 log.error(server.getErrorMessage())
                 continue
 
-            # Connection error: sending event
+            # Connection error: send event in errback
             if not server:
                 return
 
@@ -190,7 +190,6 @@ class MySQLCollector(PythonPlugin):
         @type error: Twisted error instance
         @parameter log: log object
         @type log: object
-        @return: dict with error message for event
         """
 
         log.error(error.getErrorMessage())
