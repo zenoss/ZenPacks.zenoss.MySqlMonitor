@@ -9,6 +9,17 @@ from ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource \
 from ZenPacks.zenoss.MySqlMonitor.utils import parse_mysql_connection_string
 
 
+def zip_deferred(d, *args):
+    nd = defer.Deferred()
+
+    def new_callback(v):
+        nd.callback((v,) + args)
+
+    d.addCallback(new_callback)
+
+    return nd
+
+
 class MySqlMonitorPlugin(PythonDataSourcePlugin):
     proxy_attributes = ('zMySQLConnectionString',)
 
@@ -18,26 +29,24 @@ class MySqlMonitorPlugin(PythonDataSourcePlugin):
             servers = parse_mysql_connection_string(ds.zMySQLConnectionString)
             server = servers[ds.component]
 
-            dbpool = adbapi.ConnectionPool("MySQLdb",
-                                           user=server['user'],
-                                           port=server['port'],
-                                           passwd=server['passwd']
-                                           )
-            return dbpool.runQuery("show global status")
+            dbpool = adbapi.ConnectionPool(
+               "MySQLdb",
+               user=server['user'],
+               port=server['port'],
+               passwd=server['passwd']
+            )
+            return zip_deferred(dbpool.runQuery("show global status"), ds.component)
 
     def onSuccess(self, result, config):
-        print '*********'*10
-        print result
-        print '*********'*10
+        statuses, component = result
+        t = time.time()
+
+        values = dict((k.lower(), (v, t)) for k, v in statuses)
 
         return {
             'events': [],
-            'values': {
-                'root_3306': {
-                    'random': (2, time.time()),
-                    },
-                },
-            }
+            'values': {component: values}
+        }
 
     def onError(self, result, config):
         print '*********'*10
