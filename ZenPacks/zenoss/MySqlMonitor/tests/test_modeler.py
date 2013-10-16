@@ -8,7 +8,8 @@
 ##############################################################################
 import logging
 from .data import modeling_data
-from mock import MagicMock
+from mock import MagicMock, patch
+from MySQLdb import cursors
 
 from Products.DataCollector.plugins.DataMaps import ObjectMap
 from Products.ZenTestCase.BaseTestCase import BaseTestCase
@@ -39,12 +40,13 @@ class TestMySQLCollector(BaseTestCase):
         self.device.id = "test"
         self.logger = logging.getLogger('.'.join(['zen', __name__]))
         ObjectMap.asUnitTest = patch_asUnitTest
+        self.collector = MySQLCollector()
+        self.collector._eventService = MagicMock()
+        self.collector.queries = {'test': 'test'}
 
-    def test_collector(self):
-        collector = MySQLCollector()
-        collector._eventService = MagicMock()
+    def test_process_data(self):
         results = modeling_data.RESULT1
-        server_map, db_map = collector.process(self.device, results, self.logger)
+        server_map, db_map = self.collector.process(self.device, results, self.logger)
 
         self.assertEquals({
             'data_size': 53423729,
@@ -54,7 +56,7 @@ class TestMySQLCollector(BaseTestCase):
             'percent_full_table_scans': '0.0%',
             'size': 57566833,
             'slave_status': 'IO running: No; SQL running: No; Seconds behind: None',
-            'title': 'root:3306'}, server_map.maps[0].asUnitTest())
+            'title': 'root_3306'}, server_map.maps[0].asUnitTest())
 
         self.assertEquals({
             'data_size': 0,
@@ -65,6 +67,64 @@ class TestMySQLCollector(BaseTestCase):
             'size': 9216,
             'table_count': 40L,
             'title': 'information_schema'}, db_map.maps[0].asUnitTest())
+
+    @patch('ZenPacks.zenoss.MySqlMonitor.modeler.plugins.MySQLCollector.adbapi')
+    def test_collect(self, mock_adbapi):
+        self.device.zMySQLConnectionString = "root:zenoss:3306"
+        self.collector.collect(self.device, self.logger)
+        mock_adbapi.ConnectionPool.assert_called_with(
+            'MySQLdb',
+            passwd='zenoss',
+            port=3306,
+            user='root',
+            cursorclass=cursors.DictCursor
+        )
+
+    def test_table_scans(self):
+        self.assertEquals(
+            self.collector._table_scans(modeling_data.SERVER_STATUS1),
+            '0.0%'
+        )
+        self.assertEquals(
+            self.collector._table_scans(modeling_data.SERVER_STATUS2),
+            'N/A'
+        )
+        self.assertEquals(
+            self.collector._table_scans(modeling_data.SERVER_STATUS3),
+            '50.0%'
+        )
+
+    def test_master_status(self):
+        self.assertEquals(
+            self.collector._master_status(modeling_data.MASTER_STATUS1), 
+            "ON; File: mysql-bin.000002; Position: 107"
+        )
+        self.assertEquals(
+            self.collector._master_status(modeling_data.MASTER_STATUS2), 
+            "OFF"
+        )
+
+    def test_slave_status(self):
+        self.assertEquals(
+            self.collector._slave_status(modeling_data.SLAVE_STATUS1), 
+            "IO running: No; SQL running: No; Seconds behind: 10"
+        )
+        self.assertEquals(
+            self.collector._slave_status(modeling_data.SLAVE_STATUS2), 
+            "OFF"
+        )
+
+    def test_get_result(self):
+        txn = MagicMock()
+        txn.fetchall = MagicMock(return_value="test")
+        user, port = ("root", 3306)
+        
+        self.assertEquals(
+            self.collector._get_result(txn, self.logger, user, port), {
+            'test': 'test',
+            'id': "{0}_{1}".format(user, port)}
+        )
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite
