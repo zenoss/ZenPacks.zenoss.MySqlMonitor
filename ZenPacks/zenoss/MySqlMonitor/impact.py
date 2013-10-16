@@ -136,26 +136,9 @@ class BaseTriggers(object):
 # Impact relationships
 
 class MySQLServerRelationsProvider(BaseRelationsProvider):
-    impacted_by_relationships = ['databases', 'processes']
+    impacted_by_relationships = ['databases']
+    impact_relationships = ['mysql_host']
 
 
 class MySQLDatabaseRelationsProvider(BaseRelationsProvider):
     impact_relationships = ['server']
-    impacted_by_relationships = ['tables', 'stored_procedures',
-        'stored_functions']
-
-
-class MySQLProcessRelationsProvider(BaseRelationsProvider):
-    impact_relationships = ['server']
-
-
-class MySQLTableRelationsProvider(BaseRelationsProvider):
-    impact_relationships = ['database']
-
-
-class MySQLStoredProcedureRelationsProvider(BaseRelationsProvider):
-    impact_relationships = ['database']
-
-
-class MySQLStoredFunctionRelationsProvider(BaseRelationsProvider):
-    impact_relationships = ['database']
