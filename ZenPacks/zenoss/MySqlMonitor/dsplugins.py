@@ -43,12 +43,13 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
             server = servers[ds.component.split(NAME_SPLITTER)[0]]
 
             dbpool = adbapi.ConnectionPool(
-               "MySQLdb",
-               user=server['user'],
-               port=server['port'],
-               passwd=server['passwd']
+                "MySQLdb",
+                user=server['user'],
+                port=server['port'],
+                passwd=server['passwd']
             )
             res = yield dbpool.runQuery(self.get_query(ds.component))
+            dbpool.close()
             values[ds.component] = self.query_results_to_values(res)
             events.extend(self.query_results_to_events(res, ds.component))
 
@@ -66,8 +67,6 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         return result
 
     def onError(self, result, config):
-        print '!@' * 100
-        print result
         return {
             'vaues': {},
             'events': [{
@@ -76,6 +75,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                 'severity': 4,
             }],
         }
+
 
 class MySqlMonitorPlugin(MysqlBasePlugin):
     def get_query(self, component):
