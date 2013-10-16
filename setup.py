@@ -10,6 +10,7 @@
 # These variables are overwritten by Zenoss when the ZenPack is exported
 # or saved.  Do not modify them directly here.
 # NB: PACKAGES is deprecated
+
 NAME = "ZenPacks.zenoss.MySqlMonitor"
 
 VERSION = "0.0.1"
@@ -36,6 +37,7 @@ PREV_ZENPACK_NAME = ""
 # STOP_REPLACEMENTS
 # Zenoss will not overwrite any changes you make below here.
 
+from os.path import join, dirname
 from setuptools import setup, find_packages
 
 setup(
@@ -46,6 +48,9 @@ setup(
     version=VERSION,
     author=AUTHOR,
     license=LICENSE,
+    description='MySQL Database Monitor (Core) ZenPack',
+    long_description=open(join(dirname(__file__), 'README.md')).read(),
+    url='http://wiki.zenoss.org/ZenPack:MySQL_Database_Monitor_%28Core%29',
 
     # This is the version spec which indicates what versions of Zenoss
     # this ZenPack is compatible with
@@ -70,8 +75,8 @@ setup(
     # Tell setuptools what non-python files should also be included
     # with the binary egg.
     package_data={
-         '': ['*.txt'],
-         },
+        '': ['*.txt'],
+        },
 
     # Indicate dependencies on other python modules or ZenPacks.  This line
     # is modified by zenoss when the ZenPack edit page is submitted.  Zenoss
@@ -86,7 +91,6 @@ setup(
     entry_points={
         'zenoss.zenpacks': '%s = %s' % (NAME, NAME),
     },
-
     # All ZenPack eggs must be installed in unzipped form.
     zip_safe=False,
 )
