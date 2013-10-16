@@ -1,3 +1,4 @@
+import re
 import time
 
 from twisted.enterprise import adbapi
@@ -28,11 +29,15 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         raise NotImplemented
 
     def query_results_to_values(self, results):
-        raise NotImplemented
+        return {}
+
+    def query_results_to_events(self, results, component):
+        return []
 
     @defer.inlineCallbacks
     def collect(self, config):
-        results = {}
+        values = {}
+        events = []
         for ds in config.datasources:
             servers = parse_mysql_connection_string(ds.zMySQLConnectionString)
             server = servers[ds.component.split(NAME_SPLITTER)[0]]
@@ -44,21 +49,25 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                passwd=server['passwd']
             )
             res = yield dbpool.runQuery(self.get_query(ds.component))
-            results[ds.component] = self.query_results_to_values(res)
+            values[ds.component] = self.query_results_to_values(res)
+            events.extend(self.query_results_to_events(res, ds.component))
 
-        defer.returnValue(results)
+        defer.returnValue(dict(
+            events=events,
+            values=values,
+        ))
 
     def onSuccess(self, result, config):
-        return {
-            'values': result,
-            'events': [{
-                'summary': 'Monitoring ok',
-                'eventKey': 'mysql_result',
-                'severity': 0,
-            }],
-        }
+        result['events'].append({
+            'summary': 'Monitoring ok',
+            'eventKey': 'mysql_result',
+            'severity': 0,
+        })
+        return result
 
     def onError(self, result, config):
+        print '!@' * 100
+        print result
         return {
             'vaues': {},
             'events': [{
@@ -76,6 +85,32 @@ class MySqlMonitorPlugin(MysqlBasePlugin):
         t = time.time()
         return dict((k.lower(), (v, t)) for k, v in results)
 
+
+class MySqlDeadlockPlugin(MysqlBasePlugin):
+    deadlock_re = re.compile(
+        '\n-+\n(LATEST DETECTED DEADLOCK\n-+\n.*?\n)-+\n',
+        re.M | re.DOTALL
+    )
+
+    def get_query(self, component):
+        return 'show engine innodb status'
+
+    def query_results_to_events(self, results, component):
+        text = results[0][2]
+        deadlock_match = self.deadlock_re.search(text)
+        if deadlock_match:
+            summary = deadlock_match.group(1)
+            severity = 3
+        else:
+            summary = 'No last deadlock data'
+            severity = 0
+
+        return [{
+            'severity': severity,
+            'eventKey': 'innodb_deadlock',
+            'summary': summary,
+            'component': component,
+        }]
 
 class MySQLMonitorDatabasesPlugin(MySqlMonitorPlugin):
     def get_query(self, component):
