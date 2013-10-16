@@ -16,12 +16,13 @@ HERE=$(PWD)
 ZP_DIR=$(HERE)/ZenPacks/zenoss/MySqlMonitor
 LIB_DIR=$(ZP_DIR)/lib
 
-default: egg
+default: build
 
 egg:
 	python setup.py bdist_egg
 
 build:
+	python setup.py bdist_egg
 	python setup.py build
 
 clean:
