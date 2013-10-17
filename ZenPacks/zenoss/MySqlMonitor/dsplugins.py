@@ -1,3 +1,13 @@
+######################################################################
+#
+# Copyright (C) Zenoss, Inc. 2013, all rights reserved.
+#
+# This content is made available according to terms specified in
+# License.zenoss under the directory where your Zenoss product is
+# installed.
+#
+######################################################################
+
 import re
 import time
 
@@ -119,4 +129,4 @@ class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
     def query_results_to_values(self, results):
         t = time.time()
         fields = enumerate(('table_count', 'size', 'data_size', 'index_size'))
-        return dict((f, (results[0][i], t)) for i, f in fields)
+        return dict((f, (results[0][i] or 0, t)) for i, f in fields)
