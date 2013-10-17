@@ -26,56 +26,56 @@ Ext.define("MySQL.ConfigProperty.Grid", {
     constructor: function(config) {
         Ext.applyIf(config, {
             columns: [{
-                    header: _t("Is Local"),
-                    id: 'islocal',
-                    dataIndex: 'islocal',
-                    width: 60,
-                    sortable: true,
-                    filter: false,
-                    renderer: function(value){
-                        if (value) {
-                            return 'Yes';
-                        }
-                        return '';
+                header: _t("Is Local"),
+                id: 'islocal',
+                dataIndex: 'islocal',
+                width: 60,
+                sortable: true,
+                filter: false,
+                renderer: function(value){
+                    if (value) {
+                        return 'Yes';
                     }
-                },{
-                    id: 'category',
-                    dataIndex: 'category',
-                    header: _t('Category'),
-                    sortable: true
-                },{
-                    id: 'id',
-                    dataIndex: 'id',
-                    header: _t('Name'),
-                    width: 200,
-                    sortable: true
-                },{
-                    id: 'value',
-                    dataIndex: 'valueAsString',
-                    header: _t('Value'),
-                    flex: 1,
-                    width: 180,
-                    renderer: function(v, row, record) {
-                        // renderer for zMySQLConnectionString
-                        if (record.internalId == 'zMySQLConnectionString' &&
-                            record.get('value') !== "") {
-                            return this.__renderMySQLConnectionString(record.get('value'));
-                        }
+                    return '';
+                }
+            },{
+                id: 'category',
+                dataIndex: 'category',
+                header: _t('Category'),
+                sortable: true
+            },{
+                id: 'id',
+                dataIndex: 'id',
+                header: _t('Name'),
+                width: 200,
+                sortable: true
+            },{
+                id: 'value',
+                dataIndex: 'valueAsString',
+                header: _t('Value'),
+                flex: 1,
+                width: 180,
+                renderer: function(v, row, record) {
+                    // renderer for zMySQLConnectionString
+                    if (record.internalId == 'zMySQLConnectionString' &&
+                        record.get('value') !== "") {
+                        return this.__renderMySQLConnectionString(record.get('value'));
+                    }
 
-                        if (Zenoss.Security.doesNotHavePermission("zProperties Edit") &&
-                            record.data.id == 'zSnmpCommunity') {
-                            return "*******";
-                        }
-                        return v;
-                    },
-                    sortable: false
-                },{
-                    id: 'path',
-                    dataIndex: 'path',
-                    header: _t('Path'),
-                    width: 200,
-                    sortable: true
-                }]
+                    if (Zenoss.Security.doesNotHavePermission("zProperties Edit") &&
+                        record.data.id == 'zSnmpCommunity') {
+                        return "*******";
+                    }
+                    return v;
+                },
+                sortable: false
+            },{
+                id: 'path',
+                dataIndex: 'path',
+                header: _t('Path'),
+                width: 200,
+                sortable: true
+            }]
         });
         this.callParent(arguments);
     },
