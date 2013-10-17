@@ -1,0 +1,166 @@
+{{ZenPack
+|Flavor=core
+|Summary=This ZenPack provides monitoring of MySQL servers.
+|Organization=Zenoss, Inc.
+|ZenPack name=ZenPacks.zenoss.MySqlMonitor
+|Releases={{Release
+|Version=0.0.1
+|Compatible with=Zenoss Resource Manager 4.2.x
+}}
+|Devices=
+|Applications={{Application
+|Product Name=MySQL
+}}
+}}
+This ZenPack provides support for MySQL monitoring. 
+Monitoring for the following MySQL entities is provided using twisted.enterprise.adbapi asynchronous framework.
+See the Usage section for details.
+
+{{note}} Please restart zenoss after installing this ZenPack. 
+Note that the commercial zenoss version requires ZenPacks.zenoss.Impact, otherwise the DynamicServices panel will be missing.
+
+__TOC__
+
+== Gallery ==
+<gallery widths=250px heights=127px>
+</gallery>
+
+== Features ==
+
+The features added by this ZenPack can be summarized as follows. They are each detailed further below.
+
+* Discovery of MySQL entities.
+* Monitoring of MySQL Server and Database components.
+* Event management and monitoring for certain MySQL states.
+* Optional service impact with addition of Zenoss Service Dynamics product.
+
+=== Discovery ===
+
+The following entities will be discovered through zMySQLConnectionString property you provide. 
+The attributes, tags and collections will be updated on Zenoss' normal remodeling interval which 
+defaults to every 12 hours.
+
+;Servers
+: Attributes: Full table scans, Slave status, Master status, Size, Index size, Data size
+: Tags: Name
+: Collections: Databases
+
+;Databases
+: Attributes: #Tables, Default characted set, Default collation, Size, Data size, Index size
+: Tags: Name
+
+=== Monitoring ===
+
+The following metrics will be collected every 5 minutes by default. The ''Average'' statistic is collected, 
+and the graphed value is per second for anything that resembles a rate.
+
+;Servers
+: Metrics:
+::* Size
+::* Data size
+::* Index size
+::* Connections
+::* Threads connected
+::* Max used connections
+::* Uptime
+::* Aborted clients
+::* Aborted connects
+::* Bytes received
+::* Bytes sent
+::* Com create db
+::* Com drop db
+::* Com alter db
+::* Com create table
+::* Com alter table
+::* Com drop table
+::* Com create user
+::* Com drop user
+::* Com call procedure
+::* Com commit
+::* Com check
+::* Com delete
+::* Com delete multi
+::* Com execute sql
+::* Com flush
+::* Com insert
+::* Com insert select
+::* Com purge
+::* Com repair
+::* Com replace
+::* Com rollback
+::* Com select
+::* Com update
+::* Com update multi
+::* Handler commit
+::* Handler delete
+::* Handler rollback
+::* Handler update
+::* Handler write
+::* Handler read first
+::* Handler read key
+::* Handler read last
+::* Handler read next
+::* Handler read prev
+::* Handler read rnd
+::* Handler read rnd next
+::* Handler savepoint
+::* Key reads
+::* Key writes
+::* Key read requests
+::* Open files
+::* Open streams
+::* Open tables
+::* Select full join
+::* Select full range join
+::* Select range
+::* Select range check
+::* Select scan
+
+;Databases
+: Metrics:
+::* Size
+::* Data size
+::* Index size
+
+=== Event monitoring ===
+
+According to the following MySQL states this ZenPack will trigger info or error events with an appropriate summary message. 
+
+;Device
+: Critical event:
+::* Invalid zMySQLConnectionString property,
+::* Access denied for user with credentials provided in zMySQLConnectionString property.
+
+;Service
+: Critical event: Invalid zMySQLConnectionString property,
+: Warning event:
+::* InnoDB Deadlock,
+::* Slave error (to be implemented). !!!
+
+;Database
+: Warning event: Some event. (to be implemented). !!!
+
+=== Service Impact ===
+
+When combined with the Zenoss Service Dynamics product, this ZenPack adds 
+built-in service impact capability for MySQL. The following 
+service impact relationships are automatically added. These will be included 
+in any services that contain one or more of the explicitly mentioned entities.
+
+;Service Impact Relationships
+* Server failure affects related device.
+* Database failure affects related server.
+
+== Usage ==
+
+=== Adding ===
+
+== Prerequisites ==
+
+== Troubleshooting ==
+
+== Limitations ==
+
+== Installed Items ==
+
+Installing this ZenPack will add the following items to your Zenoss system.
