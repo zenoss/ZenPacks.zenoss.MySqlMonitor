@@ -1,3 +1,16 @@
+######################################################################
+#
+# Copyright (C) Zenoss, Inc. 2013, all rights reserved.
+#
+# This content is made available according to terms specified in
+# License.zenoss under the directory where your Zenoss product is
+# installed.
+#
+######################################################################
+
+from logging import getLogger
+log = getLogger('zen.python')
+
 import re
 import time
 
@@ -57,6 +70,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         return result
 
     def onError(self, result, config):
+        log.error(result)
         return {
             'vaues': {},
             'events': [{
@@ -114,9 +128,33 @@ class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
             information_schema.TABLES
         WHERE
             table_schema = "%s"
-        ''' % component.split(NAME_SPLITTER)[-1]
+        ''' % adbapi.safe(component.split(NAME_SPLITTER)[-1])
 
     def query_results_to_values(self, results):
         t = time.time()
         fields = enumerate(('table_count', 'size', 'data_size', 'index_size'))
-        return dict((f, (results[0][i], t)) for i, f in fields)
+        return dict((f, (results[0][i] or 0, t)) for i, f in fields)
+
+class MySQLDatabaseExistencePlugin(MysqlBasePlugin):
+    def get_query(self, component):
+        return ''' SELECT COUNT(*)
+            FROM information_schema.SCHEMATA
+            WHERE SCHEMA_NAME="%s"
+        ''' % adbapi.safe(
+            component.split(NAME_SPLITTER)[-1]
+        )
+    
+    def query_results_to_events(self, results, component):
+        if results[0][0]:
+            severity = 0
+            summary = 'Database exists'
+        else:
+            severity = 3
+            summary = 'Database not exists'
+
+        return [{
+            'severity': severity,
+            'eventKey': 'db_existence',
+            'summary': summary,
+            'component': component,
+        }]
