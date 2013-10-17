@@ -1,3 +1,16 @@
+######################################################################
+#
+# Copyright (C) Zenoss, Inc. 2013, all rights reserved.
+#
+# This content is made available according to terms specified in
+# License.zenoss under the directory where your Zenoss product is
+# installed.
+#
+######################################################################
+
+from logging import getLogger
+log = getLogger('zen.python')
+
 import re
 import time
 
@@ -10,17 +23,15 @@ from ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource \
 from ZenPacks.zenoss.MySqlMonitor.utils import parse_mysql_connection_string
 from ZenPacks.zenoss.MySqlMonitor import NAME_SPLITTER
 
-
-def zip_deferred(d, *args):
-    nd = defer.Deferred()
-
-    def new_callback(v):
-        nd.callback((v,) + args)
-
-    d.addCallback(new_callback)
-
-    return nd
-
+def datasource_to_dbpool(ds):
+    servers = parse_mysql_connection_string(ds.zMySQLConnectionString)
+    server = servers[ds.component.split(NAME_SPLITTER)[0]]
+    return adbapi.ConnectionPool(
+        "MySQLdb",
+        user=server['user'],
+        port=server['port'],
+        passwd=server['passwd']
+    )
 
 class MysqlBasePlugin(PythonDataSourcePlugin):
     proxy_attributes = ('zMySQLConnectionString',)
@@ -39,15 +50,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         values = {}
         events = []
         for ds in config.datasources:
-            servers = parse_mysql_connection_string(ds.zMySQLConnectionString)
-            server = servers[ds.component.split(NAME_SPLITTER)[0]]
-
-            dbpool = adbapi.ConnectionPool(
-                "MySQLdb",
-                user=server['user'],
-                port=server['port'],
-                passwd=server['passwd']
-            )
+            dbpool = datasource_to_dbpool(ds)
             res = yield dbpool.runQuery(self.get_query(ds.component))
             dbpool.close()
             values[ds.component] = self.query_results_to_values(res)
@@ -67,6 +70,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         return result
 
     def onError(self, result, config):
+        log.error(result)
         return {
             'vaues': {},
             'events': [{
@@ -112,7 +116,7 @@ class MySqlDeadlockPlugin(MysqlBasePlugin):
             'component': component,
         }]
 
-class MySQLMonitorDatabasesPlugin(MySqlMonitorPlugin):
+class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
     def get_query(self, component):
         return '''
         SELECT
@@ -124,9 +128,33 @@ class MySQLMonitorDatabasesPlugin(MySqlMonitorPlugin):
             information_schema.TABLES
         WHERE
             table_schema = "%s"
-        ''' % component.split(NAME_SPLITTER)[-1]
+        ''' % adbapi.safe(component.split(NAME_SPLITTER)[-1])
 
     def query_results_to_values(self, results):
         t = time.time()
         fields = enumerate(('table_count', 'size', 'data_size', 'index_size'))
-        return dict((f, (results[0][i], t)) for i, f in fields)
+        return dict((f, (results[0][i] or 0, t)) for i, f in fields)
+
+class MySQLDatabaseExistencePlugin(MysqlBasePlugin):
+    def get_query(self, component):
+        return ''' SELECT COUNT(*)
+            FROM information_schema.SCHEMATA
+            WHERE SCHEMA_NAME="%s"
+        ''' % adbapi.safe(
+            component.split(NAME_SPLITTER)[-1]
+        )
+    
+    def query_results_to_events(self, results, component):
+        if results[0][0]:
+            severity = 0
+            summary = 'Database exists'
+        else:
+            severity = 3
+            summary = 'Database not exists'
+
+        return [{
+            'severity': severity,
+            'eventKey': 'db_existence',
+            'summary': summary,
+            'component': component,
+        }]

@@ -37,7 +37,7 @@ PREV_ZENPACK_NAME = ""
 # STOP_REPLACEMENTS
 # Zenoss will not overwrite any changes you make below here.
 
-from os.path import join, dirname
+from os.path import dirname
 from setuptools import setup, find_packages
 
 setup(
@@ -49,7 +49,8 @@ setup(
     author=AUTHOR,
     license=LICENSE,
     description='MySQL Database Monitor (Core) ZenPack',
-    long_description=open(join(dirname(__file__), 'README.md')).read(),
+    long_description=(open(
+        dirname(__file__) + 'README.md').read().split('\n'))[0],
     url='http://wiki.zenoss.org/ZenPack:MySQL_Database_Monitor_%28Core%29',
 
     # This is the version spec which indicates what versions of Zenoss
