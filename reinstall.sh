@@ -8,6 +8,5 @@ zopectl restart
 zenhub restart
 
 cd ZenPacks.zenoss.MySqlMonitor
-zendmd --script=add_device.py
 
 set +x
