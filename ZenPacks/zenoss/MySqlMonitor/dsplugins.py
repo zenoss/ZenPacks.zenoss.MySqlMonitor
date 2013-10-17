@@ -8,6 +8,9 @@
 #
 ######################################################################
 
+from logging import getLogger
+log = getLogger('zen.python')
+
 import re
 import time
 
@@ -67,6 +70,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         return result
 
     def onError(self, result, config):
+        log.error(result)
         return {
             'vaues': {},
             'events': [{
@@ -135,7 +139,7 @@ class MySQLDatabaseExistencePlugin(MysqlBasePlugin):
     def get_query(self, component):
         return ''' SELECT COUNT(*)
             FROM information_schema.SCHEMATA
-            'WHERE SCHEMA_NAME="%s"
+            WHERE SCHEMA_NAME="%s"
         ''' % adbapi.safe(
             component.split(NAME_SPLITTER)[-1]
         )

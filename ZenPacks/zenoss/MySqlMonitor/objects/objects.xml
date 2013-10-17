@@ -6,6 +6,26 @@
       Products.ZenModel.Device
     </property>
     <tomanycont id="datasources">
+      <object class="PythonDataSource" id="DbExistence" module="ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource">
+        <property id="sourcetype" mode="w" select_variable="sourcetypes" type="selection">
+          Python
+        </property>
+        <property id="enabled" mode="w" type="boolean">
+          True
+        </property>
+        <property id="component" mode="w" type="string">
+          ${here/id}
+        </property>
+        <property id="severity" mode="w" type="int">
+          3
+        </property>
+        <property id="cycletime" mode="w" type="string">
+          3
+        </property>
+        <property id="plugin_classname" mode="w" type="string">
+          ZenPacks.zenoss.MySqlMonitor.dsplugins.MySQLDatabaseExistencePlugin
+        </property>
+      </object>
       <object class="PythonDataSource" id="DbStats" module="ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource">
         <property id="sourcetype" mode="w" select_variable="sourcetypes" type="selection">
           Python
