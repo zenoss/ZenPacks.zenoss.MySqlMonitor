@@ -1,41 +1,88 @@
+
 import unittest
-from mock import MagicMock
+from mock import Mock, patch, sentinel
+
 from Products.ZenTestCase.BaseTestCase import BaseTestCase
+
+from ZenPacks.zenoss.MySqlMonitor import NAME_SPLITTER
 from ZenPacks.zenoss.MySqlMonitor import dsplugins
 
+class Test_datasource_to_dbpool(BaseTestCase):
 
-class TestMySQLMonitorPlugin(BaseTestCase):
-    def test_imports(self):
-        from ZenPacks.zenoss.MySqlMonitor.dsplugins import MySqlMonitorPlugin
-        # ok if imports
+    @patch.object(dsplugins, 'parse_mysql_connection_string')
+    @patch.object(dsplugins, 'adbapi')
+    def test_extracts_server(self, adbapi, parse_mysql_connection_string):
+        adbapi.ConnectionPool.return_value = sentinel.dbpool
+        parse_mysql_connection_string.return_value = {
+            'server_id': dict(
+                user=sentinel.user,
+                port=sentinel.port,
+                passwd=sentinel.passwd
+            )
+        }
+        ds = Mock()
+        ds.component = 'server_id' + NAME_SPLITTER + 'something other'
+        ds.zMySQLConnectionString = sentinel.zMySQLConnectionString
 
+        dbpool = dsplugins.datasource_to_dbpool(ds)
 
-class TestMonitoring(unittest.TestCase):
+        self.assertEquals(dbpool, sentinel.dbpool)
+
+        adbapi.ConnectionPool.assert_called_with(
+            'MySQLdb',
+            user=sentinel.user,
+            port=sentinel.port,
+            passwd=sentinel.passwd
+        )
+        parse_mysql_connection_string.assert_called_with(
+            sentinel.zMySQLConnectionString
+        )
+
+class  TestMysqlBasePlugin(BaseTestCase):
     def setUp(self):
-        self.config = MagicMock()
-        self.ds = MagicMock()
-        self.ds.zMySQLConnectionString = 'root::3306;'
-        self.ds.component = 'root_3306'
-        self.config.datasources = [self.ds]
-        dsplugins.adbapi = MagicMock()
-        dsplugins.adbapi.ConnectionPool.return_value.runQuery.return_value = MagicMock(return_value='a')
+        self.plugin = dsplugins.MysqlBasePlugin()
 
-    def test_collect_defered(self):
-        deferred = dsplugins.MySqlMonitorPlugin().collect(self.config)
-        self.assertIn("Deferred", str(deferred))
+    def test_onSuccess_clears_event(self):
+        result = {'events': []}
 
-    def test_collect_entered_zMySQLConnectionString(self):
-        self.ds.zMySQLConnectionString = 'root::306;'
-        self.assertRaises(KeyError, dsplugins.MySqlMonitorPlugin().collect, self.config)
+        self.plugin.onSuccess(result, sentinel.any_value)
 
-    def test_collect_entered_component(self):
-        self.ds.component = 'root3306'
-        self.assertRaises(KeyError, dsplugins.MySqlMonitorPlugin().collect, self.config)
+        event = result['events'][0]
+        self.assertEquals(event['severity'], 0)
+        self.assertEquals(event['eventKey'], 'mysql_result')
 
- 
+    def test_onError_event(self):
+        result = self.plugin.onError(sentinel.some_result, sentinel.any_value)
+
+        event = result['events'][0]
+        self.assertEquals(event['severity'], 4)
+        self.assertEquals(event['eventKey'], 'mysql_result')
+
+
+class TestMySqlMonitorPlugin(BaseTestCase):
+
+    @patch.object(dsplugins, 'time')
+    def test_results_to_values(self, time):
+        time.time.return_value = sentinel.current_time
+        results = (
+            ('Value', sentinel.value),
+        )
+
+        plugin = dsplugins.MySqlMonitorPlugin()
+        values = plugin.query_results_to_values(results)
+
+        self.assertEquals(values, {
+            'value': (sentinel.value, sentinel.current_time)
+        })
+
+        
+
+
+
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
-    suite.addTest(makeSuite(TestMySQLMonitorPlugin))
-    suite.addTest(makeSuite(TestMonitoring))
+    suite.addTest(makeSuite(Test_datasource_to_dbpool))
+    suite.addTest(makeSuite(TestMysqlBasePlugin))
+    suite.addTest(makeSuite(TestMySqlMonitorPlugin))
     return suite

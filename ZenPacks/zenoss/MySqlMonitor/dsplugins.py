@@ -10,17 +10,15 @@ from ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource \
 from ZenPacks.zenoss.MySqlMonitor.utils import parse_mysql_connection_string
 from ZenPacks.zenoss.MySqlMonitor import NAME_SPLITTER
 
-
-def zip_deferred(d, *args):
-    nd = defer.Deferred()
-
-    def new_callback(v):
-        nd.callback((v,) + args)
-
-    d.addCallback(new_callback)
-
-    return nd
-
+def datasource_to_dbpool(ds):
+    servers = parse_mysql_connection_string(ds.zMySQLConnectionString)
+    server = servers[ds.component.split(NAME_SPLITTER)[0]]
+    return adbapi.ConnectionPool(
+        "MySQLdb",
+        user=server['user'],
+        port=server['port'],
+        passwd=server['passwd']
+    )
 
 class MysqlBasePlugin(PythonDataSourcePlugin):
     proxy_attributes = ('zMySQLConnectionString',)
@@ -39,15 +37,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         values = {}
         events = []
         for ds in config.datasources:
-            servers = parse_mysql_connection_string(ds.zMySQLConnectionString)
-            server = servers[ds.component.split(NAME_SPLITTER)[0]]
-
-            dbpool = adbapi.ConnectionPool(
-                "MySQLdb",
-                user=server['user'],
-                port=server['port'],
-                passwd=server['passwd']
-            )
+            dbpool = datasource_to_dbpool(ds)
             res = yield dbpool.runQuery(self.get_query(ds.component))
             dbpool.close()
             values[ds.component] = self.query_results_to_values(res)
@@ -112,7 +102,7 @@ class MySqlDeadlockPlugin(MysqlBasePlugin):
             'component': component,
         }]
 
-class MySQLMonitorDatabasesPlugin(MySqlMonitorPlugin):
+class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
     def get_query(self, component):
         return '''
         SELECT
