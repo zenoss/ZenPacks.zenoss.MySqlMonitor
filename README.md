@@ -1,4 +1,3 @@
-
 Zenoss Zenpack for monitoring MySQL server
 ==========================================
 
