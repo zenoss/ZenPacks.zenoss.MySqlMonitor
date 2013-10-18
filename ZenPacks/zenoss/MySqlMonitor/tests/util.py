@@ -35,36 +35,36 @@ def add_obj(relationship, obj):
     return obj
 
 
-def test_subscription(dmd, factor=1):
+def test_device(dmd, factor=1):
     '''
-    Return an example MySqlMonitorSubscription with a full set of example components.
+    Return an example MySqlMonitorDevice with a full set of example components.
     '''
     from ZenPacks.zenoss.MySqlMonitor.MySQLDatabase import MySQLDatabase
     from ZenPacks.zenoss.MySqlMonitor.MySQLServer import MySQLServer
     
 
-    dc = dmd.Devices.createOrganizer('/MySqlMonitor/MySqlSubscription')
-    dc.setZenProperty('zPythonClass', 'ZenPacks.zenoss.MySqlMonitor.MySqlSubscription')
+    dc = dmd.Devices.createOrganizer('/MySqlMonitor/MySqlMonitorDevice')
+    dc.setZenProperty('zPythonClass', 'ZenPacks.zenoss.MySqlMonitor.MySqlMonitorDevice')
 
-    subscription = dc.createInstance('subscription')
-    subscription.setPerformanceMonitor('localhost')
-    subscription.linuxDeviceClass = '/Server/Linux'
-    subscription.index_object()
-    notify(IndexingEvent(subscription))
+    device = dc.createInstance('device')
+    device.setPerformanceMonitor('localhost')
+    device.linuxDeviceClass = '/Server/Linux'
+    device.index_object()
+    notify(IndexingEvent(device))
 
 
-        # Server
-        for server_id in range(factor):
-            server = add_obj(
-                subscription.servers,
-                MySQLServer('server%s' % (
-                    server_id)))
+    # Server
+    for server_id in range(factor):
+        server = add_obj(
+            device.servers,
+            MySQLServer('server%s' % (
+                server_id)))
 
-                # Database
-                for database_id in range(factor):
-                    database = add_obj(
-                        subscription.databases,
-                        MySQLDatabase('database%s-%s' % (
-                            database_id)))
+        # Database
+        for database_id in range(factor):
+            database = add_obj(
+                device.databases,
+                MySQLDatabase('database%s-%s' % (
+                    database_id)))
 
-        return subscription
+    return device

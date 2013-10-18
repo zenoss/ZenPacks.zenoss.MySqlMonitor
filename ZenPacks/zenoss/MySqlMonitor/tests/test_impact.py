@@ -17,7 +17,7 @@ from Products.ZenTestCase.BaseTestCase import BaseTestCase
 from Products.ZenUtils.guid.interfaces import IGUIDManager
 from Products.ZenUtils.Utils import unused
 
-from ZenPacks.zenoss.MySqlMonitor.tests.utils import test_subscription
+from ZenPacks.zenoss.MySqlMonitor.tests.util import test_device
 
 def require_impact(f):
     @functools.wraps(f)
@@ -84,29 +84,29 @@ class TestImpact(BaseTestCase):
         except ImportError:
             pass
 
-        import ZenPacks.zenoss.Microsoft.Azure
+        import ZenPacks.zenoss.MySqlMonitor
         zcml.load_config('configure.zcml', ZenPacks.zenoss.MySqlMonitor)
 
-    def subscription(self):
-        if not hasattr(self, '_subscription'):
-            self._subscription = test_subscription(self.dmd, factor=1)
+    def device(self):
+        if not hasattr(self, '_device'):
+            self._device = test_device(self.dmd, factor=1)
 
-        return self._subscription
+        return self._device
 
 
     @require_impact
-    def test_MySqlMonitorSubscriptionImpacts(self):
-        impacts, impacted_by = impacts_for(self.subscription())
+    def test_MySqlMonitorDeviceImpacts(self):
+        impacts, impacted_by = impacts_for(self.device())
 
-        # Database -> Subscription
+        # Database -> Device
         self.assertTrue('database0' in impacted_by)
-        # Servers -> Subscription
+        # Servers -> Device
         self.assertTrue('server0' in impacted_by)
 
 
     @require_impact
     def test_MySqlMonitorServerImpacts(self):
-        sr = self.subscription().getObjByPath(
+        sr = self.device().getObjByPath(
             'servers/server0')
 
         impacts, impacted_by = impacts_for(sr)
@@ -115,7 +115,7 @@ class TestImpact(BaseTestCase):
     
     @require_impact
     def test_MySqlMonitorDatabaseImpacts(self):
-        db = self.subscription().getObjByPath(
+        db = self.device().getObjByPath(
             'servers/server0/databases/database0')
     
         
