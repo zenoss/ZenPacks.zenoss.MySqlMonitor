@@ -9,8 +9,8 @@ class TestMysqlConnectionStringParsing(BaseTestCase):
         self.assertEquals(parse_mysql_connection_string(input), output)
 
     def test_empty(self):
-        self.tcase('', {})
-        self.tcase(';;', {})
+        self.tcase([], {})
+        self.tcase([''], {})
 
     def test_one(self):
         d = {
@@ -20,8 +20,8 @@ class TestMysqlConnectionStringParsing(BaseTestCase):
                 'port': 123,
             }
         }
-        self.tcase('user:passwd:123', d)
-        self.tcase('user:passwd:123;', d)
+        self.tcase(['{"user":"user","passwd":"passwd","port":"123"}'], d)
+        self.tcase(['{"user":"user","passwd":"passwd","port":"123"}'], d)
 
     def test_two(self):
         d = {
@@ -36,13 +36,16 @@ class TestMysqlConnectionStringParsing(BaseTestCase):
                 'port': 2,
             }
         }
-        self.tcase('user:passwd:123;u:passwd:2;', d)
+        self.tcase(
+            ['{"user":"user","passwd":"passwd","port":"123"}', '{"user":"u","passwd":"passwd","port":"2"}'], d)
 
     def test_port_not_int(self):
-        self.assertRaises(ValueError, lambda : parse_mysql_connection_string('user:password:port'))
+        self.assertRaises(ValueError, lambda : parse_mysql_connection_string(
+            ['{"user":"user","passwd":"password","port":"port"}']))
 
     def test_no_port(self):
-        self.assertRaises(ValueError, lambda : parse_mysql_connection_string('user:passwd'))
+        self.assertRaises(ValueError, lambda : parse_mysql_connection_string(
+            ['{"user":"user","passwd":"password"']))
 
 
 
