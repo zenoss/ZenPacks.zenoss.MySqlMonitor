@@ -1325,12 +1325,6 @@ mysqld
 <property type="string" id="regex" mode="w" >
 sbin\/mysqld
 </property>
-<property type="string" id="replaceRegex" mode="w" >
-^(.*sbin\/mysqld).*
-</property>
-<property type="string" id="replacement" mode="w" >
-\1
-</property>
 <property type="text" id="description" mode="w" >
 MySQL Server Process
 </property>
