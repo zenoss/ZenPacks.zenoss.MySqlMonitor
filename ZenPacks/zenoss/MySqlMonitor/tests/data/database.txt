@@ -1,2 +1,0 @@
-table_schema	size	index_size	data_size
-test	1	2	3
