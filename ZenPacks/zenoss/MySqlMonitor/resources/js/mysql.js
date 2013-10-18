@@ -11,7 +11,7 @@
 
 var ZC = Ext.ns('Zenoss.component');
 
-ZC.registerName('MySQLServer', _t('MySQL Server'), _t('MySQL Server'));
+ZC.registerName('MySQLServer', _t('MySQL Server'), _t('MySQL Servers'));
 ZC.registerName('MySQLDatabase', _t('Database'), _t('Databases'));
 
 /* helper function to get the number of stars returned for password */
@@ -81,15 +81,16 @@ Ext.define("MySQL.ConfigProperty.Grid", {
     },
 
     __renderMySQLConnectionString: function(value) {
-        value = value.split(';');
-        data = []
-        for (el in value) {
-            var bits = value[el].split(":");
-            if (bits.length == 3) {
-                data.push(bits[0] + ":" + "*".repeat(bits[1].length) + ":" + bits[2])
+        result = [];
+        Ext.each(value, function (value) {
+            try {
+                var v = JSON.parse(value);
+                result.push(v.user + ":" + "*".repeat(v.passwd.length) + ":" + v.port);
+            } catch (err) {
+                result.push("ERROR: Invalid connection string!");
             }
-        }
-        return data.join(';');
+        })
+        return result.join(';');
     }
 });
 
@@ -121,10 +122,10 @@ Ext.define("Zenoss.form.MultilineCredentials", {
                 dataIndex: 'value',
                 flex: 1,
                 renderer: function(value) {
-                    var bits = value.split(":");
-                    if (bits.length == 3) {
-                        return bits[0] + ":" + "*".repeat(bits[1].length) + ":" + bits[2]
-                    } else {
+                    try {
+                        value = JSON.parse(value);
+                        return value.user + ":" + "*".repeat(value.passwd.length) + ":" + value.port;
+                    } catch (err) {
                         return "ERROR: Invalid connection string!";
                     }
                 }
@@ -166,9 +167,13 @@ Ext.define("Zenoss.form.MultilineCredentials", {
                     var password = this.grid.down('#password');
                     var port = this.grid.down('#port');
 
-                    var value = user.value + ":" + password.value + ":" + port.value;
+                    var value = {
+                        'user': user.value,
+                        'passwd': password.value, 
+                        'port': port.value
+                    };
                     if (user.value) {
-                        this.grid.getStore().add({value: value});
+                        this.grid.getStore().add({value: JSON.stringify(value)});
                     }
 
                     user.setValue("");
@@ -229,7 +234,6 @@ Ext.define("Zenoss.form.MultilineCredentials", {
     setValue: function(values) {
         var data = [];
         if (values) {
-            values = values.split(';');
             Ext.each(values, function(value) {
                 data.push({value: value});
             });
@@ -246,7 +250,7 @@ Ext.define("Zenoss.form.MultilineCredentials", {
     },
 
     getSubmitValue: function() {
-        return this.getValue().join(';');
+        return this.getValue();
     },
 });
 
