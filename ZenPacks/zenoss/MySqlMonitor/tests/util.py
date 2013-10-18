@@ -43,7 +43,7 @@ def test_device(dmd, factor=1):
     from ZenPacks.zenoss.MySqlMonitor.MySQLServer import MySQLServer
     
 
-    dc = dmd.Devices.createOrganizer('/MySqlMonitor/MySqlMonitorDevice')
+    dc = dmd.Devices.createOrganizer('/Server')
     dc.setZenProperty('zPythonClass', 'ZenPacks.zenoss.MySqlMonitor.MySqlMonitorDevice')
 
     device = dc.createInstance('device')
@@ -51,7 +51,6 @@ def test_device(dmd, factor=1):
     device.linuxDeviceClass = '/Server/Linux'
     device.index_object()
     notify(IndexingEvent(device))
-
 
     # Server
     for server_id in range(factor):
@@ -63,7 +62,7 @@ def test_device(dmd, factor=1):
         # Database
         for database_id in range(factor):
             database = add_obj(
-                device.databases,
+                server.databases,
                 MySQLDatabase('database%s-%s' % (
                     database_id)))
 
