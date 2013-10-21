@@ -42,6 +42,7 @@ def test_device(dmd, factor=1):
     from ZenPacks.zenoss.MySqlMonitor.MySQLDatabase import MySQLDatabase
     from ZenPacks.zenoss.MySqlMonitor.MySQLServer import MySQLServer
     
+
     dc = dmd.Devices.createOrganizer('/Server')
     dc.setZenProperty('zPythonClass', 'ZenPacks.zenoss.MySqlMonitor.MySqlMonitorDevice')
 
