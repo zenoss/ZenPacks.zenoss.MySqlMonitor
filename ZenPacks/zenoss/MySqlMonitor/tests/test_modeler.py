@@ -70,7 +70,7 @@ class TestMySQLCollector(BaseTestCase):
 
     @patch('ZenPacks.zenoss.MySqlMonitor.modeler.plugins.MySQLCollector.adbapi')
     def test_collect(self, mock_adbapi):
-        self.device.zMySQLConnectionString = "root:zenoss:3306"
+        self.device.zMySQLConnectionString = ['{"user":"root","passwd":"zenoss","port":"3306"}']
         self.collector.collect(self.device, self.logger)
         mock_adbapi.ConnectionPool.assert_called_with(
             'MySQLdb',

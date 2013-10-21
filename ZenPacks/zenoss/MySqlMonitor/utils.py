@@ -8,6 +8,7 @@
 ##############################################################################
 
 import os
+import json
 
 from Products.AdvancedQuery import Eq, Or
 
@@ -120,19 +121,19 @@ def parse_mysql_connection_string(zMySQLConnectionString):
     Parse zMySQLConnectionString property.
 
     @param connection_string: zMySQLConnectionString
-    @type connection_string: str
+    @type connection_string: list
     @return: a dict of server id as a key and a dict
     with user, port and password as a value
     """
     result = {}
     try:
-        for el in filter(None, zMySQLConnectionString.split(';')):
-            user, passwd, port = el.split(':')
-            id = user + '_' + port
+        for el in filter(None, zMySQLConnectionString):
+            el = json.loads(el)
+            id = el.get('user') + '_' + el.get('port')
             result[id] = dict(
-                user=user,
-                passwd=passwd,
-                port=int(port)
+                user=el.get('user'),
+                passwd=el.get('passwd'),
+                port=int(el.get('port'))
             )
 
     except (ValueError, TypeError):

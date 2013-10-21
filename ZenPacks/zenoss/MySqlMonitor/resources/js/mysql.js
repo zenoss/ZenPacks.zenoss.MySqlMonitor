@@ -11,7 +11,7 @@
 
 var ZC = Ext.ns('Zenoss.component');
 
-ZC.registerName('MySQLServer', _t('MySQL Server'), _t('MySQL Server'));
+ZC.registerName('MySQLServer', _t('MySQL Server'), _t('MySQL Servers'));
 ZC.registerName('MySQLDatabase', _t('Database'), _t('Databases'));
 
 /* helper function to get the number of stars returned for password */
@@ -26,70 +26,71 @@ Ext.define("MySQL.ConfigProperty.Grid", {
     constructor: function(config) {
         Ext.applyIf(config, {
             columns: [{
-                    header: _t("Is Local"),
-                    id: 'islocal',
-                    dataIndex: 'islocal',
-                    width: 60,
-                    sortable: true,
-                    filter: false,
-                    renderer: function(value){
-                        if (value) {
-                            return 'Yes';
-                        }
-                        return '';
+                header: _t("Is Local"),
+                id: 'islocal',
+                dataIndex: 'islocal',
+                width: 60,
+                sortable: true,
+                filter: false,
+                renderer: function(value){
+                    if (value) {
+                        return 'Yes';
                     }
-                },{
-                    id: 'category',
-                    dataIndex: 'category',
-                    header: _t('Category'),
-                    sortable: true
-                },{
-                    id: 'id',
-                    dataIndex: 'id',
-                    header: _t('Name'),
-                    width: 200,
-                    sortable: true
-                },{
-                    id: 'value',
-                    dataIndex: 'valueAsString',
-                    header: _t('Value'),
-                    flex: 1,
-                    width: 180,
-                    renderer: function(v, row, record) {
-                        // renderer for zMySQLConnectionString
-                        if (record.internalId == 'zMySQLConnectionString' &&
-                            record.get('value') !== "") {
-                            return this.__renderMySQLConnectionString(record.get('value'));
-                        }
+                    return '';
+                }
+            },{
+                id: 'category',
+                dataIndex: 'category',
+                header: _t('Category'),
+                sortable: true
+            },{
+                id: 'id',
+                dataIndex: 'id',
+                header: _t('Name'),
+                width: 200,
+                sortable: true
+            },{
+                id: 'value',
+                dataIndex: 'valueAsString',
+                header: _t('Value'),
+                flex: 1,
+                width: 180,
+                renderer: function(v, row, record) {
+                    // renderer for zMySQLConnectionString
+                    if (record.internalId == 'zMySQLConnectionString' &&
+                        record.get('value') !== "") {
+                        return this.__renderMySQLConnectionString(record.get('value'));
+                    }
 
-                        if (Zenoss.Security.doesNotHavePermission("zProperties Edit") &&
-                            record.data.id == 'zSnmpCommunity') {
-                            return "*******";
-                        }
-                        return v;
-                    },
-                    sortable: false
-                },{
-                    id: 'path',
-                    dataIndex: 'path',
-                    header: _t('Path'),
-                    width: 200,
-                    sortable: true
-                }]
+                    if (Zenoss.Security.doesNotHavePermission("zProperties Edit") &&
+                        record.data.id == 'zSnmpCommunity') {
+                        return "*******";
+                    }
+                    return v;
+                },
+                sortable: false
+            },{
+                id: 'path',
+                dataIndex: 'path',
+                header: _t('Path'),
+                width: 200,
+                sortable: true
+            }]
         });
         this.callParent(arguments);
     },
 
     __renderMySQLConnectionString: function(value) {
-        value = value.split(';');
-        data = []
-        for (el in value) {
-            var bits = value[el].split(":");
-            if (bits.length == 3) {
-                data.push(bits[0] + ":" + "*".repeat(bits[1].length) + ":" + bits[2])
+        result = [];
+        Ext.each(value, function (value) {
+            try {
+                var v = JSON.parse(value);
+                result.push(v.user + ":" + "*".repeat(v.passwd.length) + ":" + v.port);
+            } catch (err) {
+                result.push("ERROR: Invalid connection string!");
             }
-        }
-        return data.join(';');
+        })
+        return result.join(';');
     }
 });
 
@@ -121,10 +122,10 @@ Ext.define("Zenoss.form.MultilineCredentials", {
                 dataIndex: 'value',
                 flex: 1,
                 renderer: function(value) {
-                    var bits = value.split(":");
-                    if (bits.length == 3) {
-                        return bits[0] + ":" + "*".repeat(bits[1].length) + ":" + bits[2]
-                    } else {
+                    try {
+                        value = JSON.parse(value);
+                        return value.user + ":" + "*".repeat(value.passwd.length) + ":" + value.port;
+                    } catch (err) {
                         return "ERROR: Invalid connection string!";
                     }
                 }
@@ -166,9 +167,13 @@ Ext.define("Zenoss.form.MultilineCredentials", {
                     var password = this.grid.down('#password');
                     var port = this.grid.down('#port');
 
-                    var value = user.value + ":" + password.value + ":" + port.value;
+                    var value = {
+                        'user': user.value,
+                        'passwd': password.value, 
+                        'port': port.value
+                    };
                     if (user.value) {
-                        this.grid.getStore().add({value: value});
+                        this.grid.getStore().add({value: JSON.stringify(value)});
                     }
 
                     user.setValue("");
@@ -229,7 +234,6 @@ Ext.define("Zenoss.form.MultilineCredentials", {
     setValue: function(values) {
         var data = [];
         if (values) {
-            values = values.split(';');
             Ext.each(values, function(value) {
                 data.push({value: value});
             });
@@ -246,7 +250,7 @@ Ext.define("Zenoss.form.MultilineCredentials", {
     },
 
     getSubmitValue: function() {
-        return this.getValue().join(';');
+        return this.getValue();
     },
 });
 
