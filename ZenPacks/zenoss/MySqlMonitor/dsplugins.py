@@ -112,6 +112,7 @@ class MySqlDeadlockPlugin(MysqlBasePlugin):
         return [{
             'severity': severity,
             'eventKey': 'innodb_deadlock',
+            'eventClass': '/Status',
             'summary': summary,
             'component': component,
         }]
@@ -155,6 +156,7 @@ class MySQLDatabaseExistencePlugin(MysqlBasePlugin):
         return [{
             'severity': severity,
             'eventKey': 'db_existence',
+            'eventClass': '/Status',
             'summary': summary,
             'component': component,
         }]
