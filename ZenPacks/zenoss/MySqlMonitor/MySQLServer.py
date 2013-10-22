@@ -76,7 +76,6 @@ class MySQLServerInfo(ComponentInfo):
     implements(IMySQLServerInfo)
     adapts(MySQLServer)
 
-    cmd = ProxyProperty('cmd')
     size = SizeUnitsProxyProperty('size')
     data_size = SizeUnitsProxyProperty('data_size')
     index_size = SizeUnitsProxyProperty('index_size')
