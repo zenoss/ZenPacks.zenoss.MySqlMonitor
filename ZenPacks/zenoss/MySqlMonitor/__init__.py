@@ -68,7 +68,7 @@ class ZenPack(ZenPackBase):
     """
 
     packZProperties = [
-        ('zMySQLConnectionString', 'root::3306', 'miltilinecredentials'),
+        ('zMySQLConnectionString', '', 'multilinecredentials'),
     ]
 
     def install(self, app):

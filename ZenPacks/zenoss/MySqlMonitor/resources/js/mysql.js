@@ -95,10 +95,10 @@ Ext.define("MySQL.ConfigProperty.Grid", {
 });
 
 /* zMySQLConnectionString property */
-Zenoss.zproperties.registerZPropertyType('miltilinecredentials', {xtype: 'miltilinecredentials'});
+Zenoss.zproperties.registerZPropertyType('multilinecredentials', {xtype: 'multilinecredentials'});
 
 Ext.define("Zenoss.form.MultilineCredentials", {
-    alias:['widget.miltilinecredentials'],
+    alias:['widget.multilinecredentials'],
     extend: 'Ext.form.field.Base',
     mixins: {
         field: 'Ext.form.field.Field'
