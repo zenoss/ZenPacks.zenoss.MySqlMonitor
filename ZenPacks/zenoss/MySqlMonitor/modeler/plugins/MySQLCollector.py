@@ -66,8 +66,7 @@ class MySQLCollector(PythonPlugin):
             d.addErrback(self._failure, log, device)
             result.append(d)
 
-        result = DeferredList(result)
-        return result.addCallback(lambda values: values)
+        return DeferredList(result)
 
     def process(self, device, results, log):
         log.info(
