@@ -44,7 +44,7 @@ def test_device(dmd, factor=1):
     
 
     dc = dmd.Devices.createOrganizer('/Server')
-    dc.setZenProperty('zPythonClass', 'ZenPacks.zenoss.MySqlMonitor.MySqlMonitorDevice')
+    dc.setZenProperty('zPythonClass', 'Products.ZenModel.Device.Device')
 
     device = dc.createInstance('device')
     device.setPerformanceMonitor('localhost')
@@ -54,7 +54,7 @@ def test_device(dmd, factor=1):
     # Server
     for server_id in range(factor):
         server = add_obj(
-            device.servers,
+            device.mysql_servers,
             MySQLServer('server%s' % (
                 server_id)))
 

@@ -93,29 +93,21 @@ class TestImpact(BaseTestCase):
 
         return self._device
 
-
-    @require_impact
-    def test_MySqlMonitorDeviceImpacts(self):
-        impacts, impacted_by = impacts_for(self.device())
-
-        # Database -> Device
-        self.assertTrue('database0' in impacted_by)
-        # Servers -> Device
-        self.assertTrue('server0' in impacted_by)
-
-
     @require_impact
     def test_MySqlMonitorServerImpacts(self):
         sr = self.device().getObjByPath(
-            'servers/server0')
+            'mysql_servers/server0')
 
         impacts, impacted_by = impacts_for(sr)
-        self.assertTrue('database0-0' in impacted_by)
 
+        self.assertTrue('device' in impacts)
+        self.assertTrue('database0-0' in impacted_by)
     
     @require_impact
     def test_MySqlMonitorDatabaseImpacts(self):
         db = self.device().getObjByPath(
-            'servers/server0/databases/database0')
+            'mysql_servers/server0/databases/database0-0')
     
-        
+        impacts, impacted_by = impacts_for(db)
+
+        self.assertTrue('server0' in impacts)
