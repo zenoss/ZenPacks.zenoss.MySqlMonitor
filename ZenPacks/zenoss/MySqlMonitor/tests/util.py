@@ -48,7 +48,6 @@ def test_device(dmd, factor=1):
 
     device = dc.createInstance('device')
     device.setPerformanceMonitor('localhost')
-    device.linuxDeviceClass = '/Server/Linux'
     device.index_object()
     notify(IndexingEvent(device))
 
@@ -64,6 +63,6 @@ def test_device(dmd, factor=1):
             database = add_obj(
                 server.databases,
                 MySQLDatabase('database%s-%s' % (
-                    database_id)))
+                    server_id, database_id)))
 
     return device
