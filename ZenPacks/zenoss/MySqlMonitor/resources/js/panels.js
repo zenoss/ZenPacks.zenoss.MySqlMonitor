@@ -63,7 +63,7 @@ ZC.MySQLServerPanel = Ext.extend(ZC.ComponentGridPanel, {
             },{                
                 id: 'percent_full_table_scans',
                 dataIndex: 'percent_full_table_scans',
-                header: _t('Full table scans'),
+                header: _t('Percentage of full table scans'),
             },{ 
                 id: 'slave_status',
                 dataIndex: 'slave_status',
@@ -121,6 +121,7 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'monitored'},
                 {name: 'locking'},
                 {name: 'size'},
+                {name: 'server'},
                 {name: 'data_size'},
                 {name: 'index_size'},
                 {name: 'table_count'},
@@ -138,10 +139,15 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 dataIndex: 'name',
                 header: _t('Name'),
                 renderer: Zenoss.render.linkFromSubgrid,
-            },{                
+            },{ 
+                id: 'server',
+                dataIndex: 'server',
+                header: _t('Server'),
+                renderer: Zenoss.render.linkFromGrid,
+            },{ 
                 id: 'table_count',
                 dataIndex: 'table_count',
-                header: _t('# Tables'),
+                header: _t('Number of tables'),
             },{ 
                 id: 'default_character_set_name',
                 dataIndex: 'default_character_set_name',
