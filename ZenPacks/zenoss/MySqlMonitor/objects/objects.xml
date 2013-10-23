@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <objects>
   <!-- ('', 'zport', 'dmd', 'Devices', 'Server', 'rrdTemplates', 'MySQLDatabase') -->
-  <object class="RRDTemplate" id="/zport/dmd/Devices/Server/rrdTemplates/MySQLDatabase" module="Products.ZenModel.RRDTemplate">
+  <object class="RRDTemplate" id="/zport/dmd/Devices/rrdTemplates/MySQLDatabase" module="Products.ZenModel.RRDTemplate">
     <property id="targetPythonClass" mode="w" type="string">
       Products.ZenModel.Device
     </property>
@@ -155,7 +155,7 @@
     </tomanycont>
   </object>
   <!-- ('', 'zport', 'dmd', 'Devices', 'Server', 'rrdTemplates', 'MySQLServer') -->
-  <object class="RRDTemplate" id="/zport/dmd/Devices/Server/rrdTemplates/MySQLServer" module="Products.ZenModel.RRDTemplate">
+  <object class="RRDTemplate" id="/zport/dmd/Devices/rrdTemplates/MySQLServer" module="Products.ZenModel.RRDTemplate">
     <property id="targetPythonClass" mode="w" type="string">
       Products.ZenModel.Device
     </property>
