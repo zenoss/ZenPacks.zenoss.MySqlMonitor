@@ -57,6 +57,7 @@ class IMySQLDatabaseInfo(IComponentInfo):
     API Info interface for MySQLDatabase.
     '''
 
+    device = schema.Entity(title=_t(u'Device'))
     server = schema.Entity(title=_t(u'Server'))
     size = schema.TextLine(title=_t(u'Size'))
     data_size = schema.TextLine(title=_t(u'Data size'))
@@ -83,8 +84,13 @@ class MySQLDatabaseInfo(ComponentInfo):
 
     @property
     @info
-    def server(self):
+    def device(self):
         return self._object.device()
+
+    @property
+    @info
+    def server(self):
+        return self._object.server()
 
 
 class MySQLDatabasePathReporter(DefaultPathReporter):
