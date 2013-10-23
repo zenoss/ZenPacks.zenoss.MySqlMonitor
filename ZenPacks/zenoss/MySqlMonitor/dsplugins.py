@@ -64,6 +64,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
     def onSuccess(self, result, config):
         result['events'].append({
             'summary': 'Monitoring ok',
+            'eventClass': '/Status',
             'eventKey': 'mysql_result',
             'severity': 0,
         })
@@ -75,6 +76,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
             'vaues': {},
             'events': [{
                 'summary': 'error: %s' % result,
+                'eventClass': '/Status',
                 'eventKey': 'mysql_result',
                 'severity': 4,
             }],

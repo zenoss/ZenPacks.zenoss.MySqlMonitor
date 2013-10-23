@@ -63,7 +63,7 @@ class MySQLCollector(PythonPlugin):
 
             d = dbpool.runInteraction(
                 self._get_result, log, el.get("user"), el.get("port"))
-            d.addErrback(self._failure, log, device)
+            d.addErrback(self._failure, log, device, el)
             result.append(d)
 
         return DeferredList(result)
@@ -155,7 +155,7 @@ class MySQLCollector(PythonPlugin):
 
         return result
 
-    def _failure(self, error, log, device):
+    def _failure(self, error, log, device, el):
         """
         Twisted errBack to handle the exception.
 
@@ -164,9 +164,14 @@ class MySQLCollector(PythonPlugin):
         @parameter log: log object
         @type log: object
         """
-
         log.error(error.getErrorMessage())
-        self._send_event(error.getErrorMessage(), device.id, 5)
+
+        creds = "%s:***:%s" % (el["user"], el["port"])
+        self._send_event(
+            "Error modelling MySQL server for %s" % creds,
+            device.id,
+            5
+        )
         return
 
     def _table_scans(self, server_result):
