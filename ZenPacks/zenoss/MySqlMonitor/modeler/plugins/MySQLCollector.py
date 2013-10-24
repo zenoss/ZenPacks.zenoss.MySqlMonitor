@@ -62,6 +62,7 @@ class MySQLCollector(PythonPlugin):
                 "MySQLdb",
                 user=el.get("user"),
                 port=el.get("port"),
+                host=device.manageIp,
                 passwd=el.get("passwd"),
                 cursorclass=cursors.DictCursor
             )
@@ -69,6 +70,7 @@ class MySQLCollector(PythonPlugin):
             d = dbpool.runInteraction(
                 self._get_result, log, el.get("user"), el.get("port"), device)
             d.addErrback(self._failure, log, device, el)
+            dbpool.close()
             result.append(d)
 
         return DeferredList(result)
