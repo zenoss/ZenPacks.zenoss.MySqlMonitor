@@ -26,6 +26,10 @@ from ZenPacks.zenoss.MySqlMonitor.utils import parse_mysql_connection_string
 
 
 class MySQLCollector(PythonPlugin):
+    '''
+    PythonCollector plugin for modelling device components
+    '''
+    is_clear_run = True
 
     _eventService = zope.component.queryUtility(IEventService)
 
@@ -47,6 +51,7 @@ class MySQLCollector(PythonPlugin):
             servers = parse_mysql_connection_string(
                 device.zMySQLConnectionString)
         except ValueError, error:
+            self.is_clear_run = False
             log.error(error.message)
             self._send_event(error.message, device.id, 5)
             return
@@ -62,7 +67,7 @@ class MySQLCollector(PythonPlugin):
             )
 
             d = dbpool.runInteraction(
-                self._get_result, log, el.get("user"), el.get("port"))
+                self._get_result, log, el.get("user"), el.get("port"), device)
             d.addErrback(self._failure, log, device, el)
             result.append(d)
 
@@ -84,11 +89,13 @@ class MySQLCollector(PythonPlugin):
         for success, server in results:
             # Twisted error handling
             if not success:
+                self.is_clear_run = False
                 log.error(server.getErrorMessage())
                 continue
 
             # Connection error: send event in errback
             if not server:
+                self.is_clear_run = False
                 return
 
             s_om = ObjectMap(server.get("server_size")[0])
@@ -118,7 +125,8 @@ class MySQLCollector(PythonPlugin):
             modname=MODULE_NAME['MySQLServer'],
             objmaps=server_oms))
 
-        self._send_event("Clear", device.id, 0)
+        if self.is_clear_run:
+            self._send_event("Clear", device.id, 0)
 
         log.info(
             'Modeler %s finished processing data for device %s',
@@ -127,7 +135,7 @@ class MySQLCollector(PythonPlugin):
 
         return list(chain.from_iterable(maps.itervalues()))
 
-    def _get_result(self, txn, log, user, port):
+    def _get_result(self, txn, log, user, port, device):
         """
         Is executed in a thread using a pooled connection.
 
@@ -147,11 +155,23 @@ class MySQLCollector(PythonPlugin):
                 txn.execute(query)
                 result[key] = txn.fetchall()
             except Exception, e:
+                self.is_clear_run = False
+
                 result[key] = ()
+                
                 log.error(
                     "Execute query '%s' failed for user '%s': %s",
                     query.strip(), user, e
                 )
+                
+                if "Access denied" in str(e):
+                    msg = "Access denied for user '%s', \
+                        some queries failed. Please check permissions" % user
+                else:
+                    msg = "Execute query '%s' failed for user '%s': %s" % (
+                        query.strip(), user, error_str
+                    )
+                self._send_event(msg, device.id, 4) # Error
 
         return result
 
@@ -165,6 +185,8 @@ class MySQLCollector(PythonPlugin):
         @type log: object
         """
         log.error(error.getErrorMessage())
+
+        self.is_clear_run = False
 
         creds = "%s:***:%s" % (el["user"], el["port"])
         self._send_event(
