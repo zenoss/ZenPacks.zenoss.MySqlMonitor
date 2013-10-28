@@ -9,25 +9,27 @@
 
 
 DB_QUERY = """
-    SELECT schema_name title, default_character_set_name, default_collation_name, 
-        size, data_size, index_size, table_count
-    FROM information_schema.schemata LEFT JOIN 
-        (SELECT table_schema, count(table_name) table_count, sum(data_length + index_length) size, 
+    SELECT schema_name title, default_character_set_name,
+        default_collation_name, size, data_size,
+        index_size, table_count
+    FROM information_schema.schemata LEFT JOIN
+        (SELECT table_schema, count(table_name) table_count,
+            sum(data_length + index_length) size,
             sum(data_length) data_size, sum(index_length) index_size
-        FROM information_schema.TABLES 
+        FROM information_schema.TABLES
         GROUP BY table_schema) as sizes
     ON schema_name = sizes.table_schema;
 """
 
 SERVER_QUERY = """
-    SELECT variable_name, variable_value  
-    FROM information_schema.SESSION_STATUS 
-    WHERE variable_name IN ("Handler_read_first", "Handler_read_key", 
+    SELECT variable_name, variable_value
+    FROM information_schema.SESSION_STATUS
+    WHERE variable_name IN ("Handler_read_first", "Handler_read_key",
         "Slave_running");
 """
 
 SERVER_SIZE_QUERY = """
-    SELECT sum(data_length + index_length) size, 
+    SELECT sum(data_length + index_length) size,
         sum(data_length) data_size, sum(index_length) index_size
     FROM information_schema.TABLES;
 """

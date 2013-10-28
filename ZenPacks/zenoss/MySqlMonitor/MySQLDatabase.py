@@ -62,7 +62,8 @@ class IMySQLDatabaseInfo(IComponentInfo):
     size = schema.TextLine(title=_t(u'Size'))
     data_size = schema.TextLine(title=_t(u'Data size'))
     index_size = schema.TextLine(title=_t(u'Index size'))
-    default_character_set_name = schema.TextLine(title=_t(u'Default character set'))
+    default_character_set_name = \
+        schema.TextLine(title=_t(u'Default character set'))
     default_collation_name = schema.TextLine(title=_t(u'Default collation'))
     table_count = schema.Int(title=_t(u'Number of tables'))
 

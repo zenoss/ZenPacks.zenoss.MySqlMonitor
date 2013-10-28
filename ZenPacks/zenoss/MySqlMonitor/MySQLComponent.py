@@ -34,4 +34,5 @@ class MySQLComponent(DeviceComponent, ManagedEntity):
         '''
         Return the path to an icon for this component.
         '''
-        return '/++resource++ZenPacks_zenoss_MySqlMonitor/img/%s.png' % self.meta_type
+        return '/++resource++ZenPacks_zenoss_MySqlMonitor/img/%s.png' \
+               % self.meta_type

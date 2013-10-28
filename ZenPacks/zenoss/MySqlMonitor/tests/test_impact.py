@@ -19,6 +19,7 @@ from Products.ZenUtils.Utils import unused
 
 from ZenPacks.zenoss.MySqlMonitor.tests.util import test_device
 
+
 def require_impact(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
@@ -102,12 +103,12 @@ class TestImpact(BaseTestCase):
 
         self.assertTrue('device' in impacts)
         self.assertTrue('database0-0' in impacted_by)
-    
+
     @require_impact
     def test_MySqlMonitorDatabaseImpacts(self):
         db = self.device().getObjByPath(
             'mysql_servers/server0/databases/database0-0')
-    
+
         impacts, impacted_by = impacts_for(db)
 
         self.assertTrue('server0' in impacts)

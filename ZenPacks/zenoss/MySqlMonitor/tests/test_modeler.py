@@ -17,6 +17,7 @@ from Products.ZenCollector.services.config import DeviceProxy
 
 from ZenPacks.zenoss.MySqlMonitor.modeler.plugins.MySQLCollector import MySQLCollector
 
+
 def patch_asUnitTest(self):
     """
     Patch asUnitTest method of ObjectMap so that it does not
@@ -32,6 +33,7 @@ def patch_asUnitTest(self):
     except:
         pass
     return map
+
 
 class TestMySQLCollector(BaseTestCase):
 
@@ -98,21 +100,21 @@ class TestMySQLCollector(BaseTestCase):
 
     def test_master_status(self):
         self.assertEquals(
-            self.collector._master_status(modeling_data.MASTER_STATUS1), 
+            self.collector._master_status(modeling_data.MASTER_STATUS1),
             "ON; File: mysql-bin.000002; Position: 107"
         )
         self.assertEquals(
-            self.collector._master_status(modeling_data.MASTER_STATUS2), 
+            self.collector._master_status(modeling_data.MASTER_STATUS2),
             "OFF"
         )
 
     def test_slave_status(self):
         self.assertEquals(
-            self.collector._slave_status(modeling_data.SLAVE_STATUS1), 
+            self.collector._slave_status(modeling_data.SLAVE_STATUS1),
             "IO running: No; SQL running: No; Seconds behind: 10"
         )
         self.assertEquals(
-            self.collector._slave_status(modeling_data.SLAVE_STATUS2), 
+            self.collector._slave_status(modeling_data.SLAVE_STATUS2),
             "OFF"
         )
 

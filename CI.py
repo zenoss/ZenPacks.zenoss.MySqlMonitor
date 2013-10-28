@@ -1,6 +1,7 @@
 import os
 import time
 
+
 def main():
     while True:
         run_time = time.time()

@@ -150,7 +150,7 @@ class MySQLDatabaseExistencePlugin(MysqlBasePlugin):
         ''' % adbapi.safe(
             component.split(NAME_SPLITTER)[-1]
         )
-    
+
     def query_results_to_events(self, results, component):
         if results[0][0]:
             severity = 0

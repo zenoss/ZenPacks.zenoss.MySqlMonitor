@@ -2,6 +2,7 @@ import sys
 
 import xml.dom.minidom as minidom
 
+
 def patch_minidom():
     ''' Because default version outputs to much whitespace '''
 
@@ -12,11 +13,13 @@ def patch_minidom():
 
     minidom.Text.writexml = writexml_text
 
+
 def format_xml(filename):
     patch_minidom()
     xml = minidom.parse(filename)
-    with open(filename,"wb") as f:
+    with open(filename, "wb") as f:
         f.write(xml.toprettyxml(indent='  '))
+
 
 def main(args):
     if len(args) < 2:

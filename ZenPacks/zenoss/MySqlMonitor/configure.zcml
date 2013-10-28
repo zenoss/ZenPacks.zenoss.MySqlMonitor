@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
-<configure 
+<?xml version = "1.0" encoding = "utf-8"?>
+<configure
     xmlns="http://namespaces.zope.org/zope"
-    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:browser = "http://namespaces.zope.org/browser"
     xmlns:zcml="http://namespaces.zope.org/zcml"
     >
 
@@ -21,9 +21,11 @@
 
     <!--
     <adapter
-        provides=".datasources.AzureMonitoringDataSource.IAzureMonitoringDataSourceInfo"
+        provides=".datasources.AzureMonitoringDataSource" \
+                 ".IAzureMonitoringDataSourceInfo"
         for=".datasources.AzureMonitoringDataSource.AzureMonitoringDataSource"
-        factory=".datasources.AzureMonitoringDataSource.AzureMonitoringDataSourceInfo"
+        factory=".datasources.AzureMonitoringDataSource" \
+                ".AzureMonitoringDataSourceInfo"
         />
     -->
 
@@ -32,13 +34,15 @@
         <include package="ZenPacks.zenoss.Impact" file="meta.zcml"/>
 
         <subscriber
-            provides="ZenPacks.zenoss.Impact.impactd.interfaces.IRelationshipDataProvider"
+            provides="ZenPacks.zenoss.Impact.impactd.interfaces" \
+                     ".IRelationshipDataProvider"
             for=".MySQLServer.MySQLServer"
             factory=".impact.MySQLServerRelationsProvider"
             />
-    
+
         <subscriber
-            provides="ZenPacks.zenoss.Impact.impactd.interfaces.IRelationshipDataProvider"
+            provides="ZenPacks.zenoss.Impact.impactd.interfaces" \
+                     ".IRelationshipDataProvider"
             for=".MySQLDatabase.MySQLDatabase"
             factory=".impact.MySQLDatabaseRelationsProvider"
             />
