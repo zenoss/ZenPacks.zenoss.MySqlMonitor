@@ -23,6 +23,7 @@ from ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource \
 from ZenPacks.zenoss.MySqlMonitor.utils import parse_mysql_connection_string
 from ZenPacks.zenoss.MySqlMonitor import NAME_SPLITTER
 
+
 def datasource_to_dbpool(ds):
     servers = parse_mysql_connection_string(ds.zMySQLConnectionString)
     server = servers[ds.component.split(NAME_SPLITTER)[0]]
@@ -32,6 +33,7 @@ def datasource_to_dbpool(ds):
         port=server['port'],
         passwd=server['passwd']
     )
+
 
 class MysqlBasePlugin(PythonDataSourcePlugin):
     proxy_attributes = ('zMySQLConnectionString',)
@@ -119,6 +121,7 @@ class MySqlDeadlockPlugin(MysqlBasePlugin):
             'component': component,
         }]
 
+
 class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
     def get_query(self, component):
         return '''
@@ -137,6 +140,7 @@ class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
         t = time.time()
         fields = enumerate(('table_count', 'size', 'data_size', 'index_size'))
         return dict((f, (results[0][i] or 0, t)) for i, f in fields)
+
 
 class MySQLDatabaseExistencePlugin(MysqlBasePlugin):
     def get_query(self, component):

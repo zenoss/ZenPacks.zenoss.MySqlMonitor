@@ -62,6 +62,7 @@ for relname, modname in NEW_DEVICE_RELATIONS:
                 '.'.join((ZP_NAME, modname)), 'mysql_host')),
             )
 
+
 class ZenPack(ZenPackBase):
     """
     ZenPack loader that handles custom installation and removal tasks.
@@ -87,7 +88,7 @@ class ZenPack(ZenPackBase):
 
             # Remove our Device relations additions.
             Device._relations = tuple(
-                [x for x in Device._relations \
+                [x for x in Device._relations 
                     if x[0] not in NEW_DEVICE_RELATIONS])
 
             log.info('Removing MySqlMonitor device relationships')

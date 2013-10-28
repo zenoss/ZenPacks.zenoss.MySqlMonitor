@@ -8,7 +8,7 @@ def patch_minidom():
     def writexml_text(self, writer, indent='', addindent='', newl=''):
         text = self.data.strip()
         if text:
-            minidom._write_data(writer, "%s%s%s"%(indent, text, newl))
+            minidom._write_data(writer, "%s%s%s" % (indent, text, newl))
 
     minidom.Text.writexml = writexml_text
 
