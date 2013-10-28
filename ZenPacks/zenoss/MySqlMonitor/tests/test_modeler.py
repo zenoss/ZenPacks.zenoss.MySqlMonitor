@@ -38,6 +38,7 @@ class TestMySQLCollector(BaseTestCase):
     def afterSetUp(self):
         self.device = DeviceProxy()
         self.device.id = "test"
+        self.device.manageIp = "127.0.0.1"
         self.logger = logging.getLogger('.'.join(['zen', __name__]))
         ObjectMap.asUnitTest = patch_asUnitTest
         self.collector = MySQLCollector()
@@ -76,6 +77,7 @@ class TestMySQLCollector(BaseTestCase):
             'MySQLdb',
             passwd='zenoss',
             port=3306,
+            host='127.0.0.1',
             user='root',
             cursorclass=cursors.DictCursor
         )
@@ -112,17 +114,6 @@ class TestMySQLCollector(BaseTestCase):
         self.assertEquals(
             self.collector._slave_status(modeling_data.SLAVE_STATUS2), 
             "OFF"
-        )
-
-    def test_get_result(self):
-        txn = MagicMock()
-        txn.fetchall = MagicMock(return_value="test")
-        user, port = ("root", 3306)
-        
-        self.assertEquals(
-            self.collector._get_result(txn, self.logger, user, port), {
-            'test': 'test',
-            'id': "{0}_{1}".format(user, port)}
         )
 
 

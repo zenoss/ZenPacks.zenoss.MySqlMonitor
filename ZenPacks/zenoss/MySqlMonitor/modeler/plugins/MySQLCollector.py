@@ -81,7 +81,7 @@ class MySQLCollector(PythonPlugin):
 
                     log.error(msg)
                     self._send_event("Clear", device.id, 0)
-                    self._send_event(msg, device.id, severity) # Error
+                    self._send_event(msg, device.id, severity)
 
                     if severity == 5:
                         return
@@ -155,6 +155,7 @@ class MySQLCollector(PythonPlugin):
         @return: message and severity for event
         @rtype: str, int
         """
+
         if "privilege" in error:
             msg = "Access denied for user '%s', some queries failed.\
                 Please check permissions" % user
@@ -163,8 +164,7 @@ class MySQLCollector(PythonPlugin):
             msg = "Access denied for user '%s:***:%s'. " % (user, port)
             severity = 5
         else:
-            msg = "Error modelling MySQL server for "
-            "%s:***:%s" % (user, port)
+            msg = "Error modelling MySQL server for %s:***:%s" % (user, port)
             severity = 5
 
         return msg, severity
@@ -230,6 +230,7 @@ class MySQLCollector(PythonPlugin):
         Send event for device with specified id, severity and
         error message.
         """
+
         self._eventService.sendEvent(dict(
             summary=reason,
             eventClass='/Status',
