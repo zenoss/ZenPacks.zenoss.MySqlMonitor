@@ -14,7 +14,7 @@ import zope.component
 from itertools import chain
 from MySQLdb import cursors
 from twisted.enterprise import adbapi
-from twisted.internet.defer import DeferredList
+from twisted.internet import defer
 
 from Products.DataCollector.plugins.CollectorPlugin import PythonPlugin
 from Products.DataCollector.plugins.DataMaps import ObjectMap, RelationshipMap
@@ -45,6 +45,7 @@ class MySQLCollector(PythonPlugin):
         'db': queries.DB_QUERY
     }
 
+    @defer.inlineCallbacks
     def collect(self, device, log):
         log.info("Collecting data for device %s", device.id)
         try:
@@ -67,13 +68,28 @@ class MySQLCollector(PythonPlugin):
                 cursorclass=cursors.DictCursor
             )
 
-            d = dbpool.runInteraction(
-                self._get_result, log, el.get("user"), el.get("port"), device)
-            d.addErrback(self._failure, log, device, el)
-            dbpool.close()
-            result.append(d)
+            res = {}
+            res["id"] = "{0}_{1}".format(el.get("user"), el.get("port"))
+            for key, query in self.queries.iteritems():
+                try:
+                    res[key] = yield dbpool.runQuery(query)
+                except Exception, e:
+                    self.is_clear_run = False
+                    res[key] = ()
+                    msg, severity = self._error(
+                        str(e), el.get("user"), el.get("port"))
 
-        return DeferredList(result)
+                    log.error(msg)
+                    self._send_event("Clear", device.id, 0)
+                    self._send_event(msg, device.id, severity)
+
+                    if severity == 5:
+                        return
+
+            dbpool.close()
+            result.append(res)
+
+        defer.returnValue(result)
 
     def process(self, device, results, log):
         log.info(
@@ -88,18 +104,7 @@ class MySQLCollector(PythonPlugin):
 
         # List of servers
         server_oms = []
-        for success, server in results:
-            # Twisted error handling
-            if not success:
-                self.is_clear_run = False
-                log.error(server.getErrorMessage())
-                continue
-
-            # Connection error: send event in errback
-            if not server:
-                self.is_clear_run = False
-                return
-
+        for server in results:
             s_om = ObjectMap(server.get("server_size")[0])
             s_om.id = self.prepId(server["id"])
             s_om.title = server["id"]
@@ -137,66 +142,32 @@ class MySQLCollector(PythonPlugin):
 
         return list(chain.from_iterable(maps.itervalues()))
 
-    def _get_result(self, txn, log, user, port, device):
+    def _error(self, error, user, port):
         """
-        Is executed in a thread using a pooled connection.
+        Create an error messsage for event.
 
-        @param txn: Transaction object
-        @type txn: object
-        @param user: user name
+        @param error: mysql error
+        @type error: string
+        @param user: user
         @type user: string
         @param port: port
         @type port: string
-        @return: Deferred
+        @return: message and severity for event
+        @rtype: str, int
         """
 
-        result = {}
-        result["id"] = "{0}_{1}".format(user, port)
-        for key, query in self.queries.iteritems():
-            try:
-                txn.execute(query)
-                result[key] = txn.fetchall()
-            except Exception, e:
-                self.is_clear_run = False
+        if "privilege" in error:
+            msg = "Access denied for user '%s', some queries failed.\
+                Please check permissions" % user
+            severity = 4
+        elif "Access denied" in error:
+            msg = "Access denied for user '%s:***:%s'. " % (user, port)
+            severity = 5
+        else:
+            msg = "Error modelling MySQL server for %s:***:%s" % (user, port)
+            severity = 5
 
-                result[key] = ()
-                
-                log.error(
-                    "Execute query '%s' failed for user '%s': %s",
-                    query.strip(), user, e
-                )
-                
-                if "Access denied" in str(e):
-                    msg = "Access denied for user '%s', \
-                        some queries failed. Please check permissions" % user
-                else:
-                    msg = "Execute query '%s' failed for user '%s': %s" % (
-                        query.strip(), user, error_str
-                    )
-                self._send_event(msg, device.id, 4) # Error
-
-        return result
-
-    def _failure(self, error, log, device, el):
-        """
-        Twisted errBack to handle the exception.
-
-        @parameter error: explanation of the failure
-        @type error: Twisted error instance
-        @parameter log: log object
-        @type log: object
-        """
-        log.error(error.getErrorMessage())
-
-        self.is_clear_run = False
-
-        creds = "%s:***:%s" % (el["user"], el["port"])
-        self._send_event(
-            "Error modelling MySQL server for %s" % creds,
-            device.id,
-            5
-        )
-        return
+        return msg, severity
 
     def _table_scans(self, server_result):
         """
@@ -204,7 +175,8 @@ class MySQLCollector(PythonPlugin):
 
         @param server_result: result of SERVER_QUERY
         @type server_result: string
-        @return: str, rounded value with percent sign
+        @return: rounded value with percent sign
+        @rtype: str
         """
 
         result = dict((el['variable_name'], el['variable_value'])
@@ -224,7 +196,8 @@ class MySQLCollector(PythonPlugin):
 
         @param master_result: result of MASTER_QUERY
         @type master_result: string
-        @return: str, master status
+        @return: master status
+        @rtype: str
         """
 
         if master_result:
@@ -240,7 +213,8 @@ class MySQLCollector(PythonPlugin):
 
         @param master_result: result of SLAVE_QUERY
         @type master_result: string
-        @return: str, slave status
+        @return: slave status
+        @rtype: str
         """
 
         if slave_result:
@@ -256,6 +230,7 @@ class MySQLCollector(PythonPlugin):
         Send event for device with specified id, severity and
         error message.
         """
+
         self._eventService.sendEvent(dict(
             summary=reason,
             eventClass='/Status',

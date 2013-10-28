@@ -26,7 +26,7 @@ class TestMysqlConnectionStringParsing(BaseTestCase):
     def test_two(self):
         d = {
             'user_123': {
-                 'user': 'user',
+                'user': 'user',
                 'passwd': 'passwd',
                 'port': 123,
             },

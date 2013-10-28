@@ -49,7 +49,7 @@ class Test_datasource_to_dbpool(BaseTestCase):
         )
 
 
-class  TestMysqlBasePlugin(BaseTestCase):
+class TestMysqlBasePlugin(BaseTestCase):
     def setUp(self):
         self.plugin = dsplugins.MysqlBasePlugin()
 
