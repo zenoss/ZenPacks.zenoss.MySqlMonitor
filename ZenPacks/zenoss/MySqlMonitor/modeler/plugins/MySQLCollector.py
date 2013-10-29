@@ -84,6 +84,7 @@ class MySQLCollector(PythonPlugin):
                     self._send_event(msg, device.id, severity)
 
                     if severity == 5:
+                        dbpool.close()
                         return
 
             dbpool.close()

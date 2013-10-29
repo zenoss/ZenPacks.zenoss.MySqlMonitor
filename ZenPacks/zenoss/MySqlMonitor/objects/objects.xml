@@ -20,7 +20,7 @@
           3
         </property>
         <property id="cycletime" mode="w" type="string">
-          3
+          300
         </property>
         <property id="plugin_classname" mode="w" type="string">
           ZenPacks.zenoss.MySqlMonitor.dsplugins.MySQLDatabaseExistencePlugin
@@ -40,7 +40,7 @@
           3
         </property>
         <property id="cycletime" mode="w" type="string">
-          3
+          300
         </property>
         <property id="plugin_classname" mode="w" type="string">
           ZenPacks.zenoss.MySqlMonitor.dsplugins.MySQLMonitorDatabasesPlugin
@@ -174,7 +174,7 @@
           3
         </property>
         <property id="cycletime" mode="w" type="string">
-          3
+          300
         </property>
         <property id="plugin_classname" mode="w" type="string">
           ZenPacks.zenoss.MySqlMonitor.dsplugins.MySqlDeadlockPlugin
@@ -197,7 +197,7 @@
           3
         </property>
         <property id="cycletime" mode="w" type="string">
-          3
+          300
         </property>
         <property id="plugin_classname" mode="w" type="string">
           ZenPacks.zenoss.MySqlMonitor.dsplugins.MySqlMonitorPlugin
