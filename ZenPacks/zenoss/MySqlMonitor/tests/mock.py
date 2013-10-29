@@ -1025,7 +1025,8 @@ class CallableMixin(Base):
             if ret_val is DEFAULT:
                 ret_val = self.return_value
 
-        if (self._mock_wraps is not None and self._mock_return_value is DEFAULT):
+        if (self._mock_wraps is not None and
+                self._mock_return_value is DEFAULT):
             return self._mock_wraps(*args, **kwargs)
 
         if ret_val is DEFAULT:
@@ -1042,8 +1043,8 @@ class Mock(CallableMixin, NonCallableMock):
     * `spec`: This can be either a list of strings or an existing object (a
       class or instance) that acts as the specification for the mock object. If
       you pass in an object then a list of strings is formed by calling dir on
-      the object (excluding unsupported magic attributes and methods). Accessing
-      any attribute not in this list will raise an `AttributeError`.
+      the object (excluding unsupported magic attributes and methods).
+      Accessing any attribute not in this list will raise an `AttributeError`.
 
       If `spec` is an object (rather than a list of strings) then
       `mock.__class__` returns the class of the spec object. This allows mocks
@@ -1073,8 +1074,8 @@ class Mock(CallableMixin, NonCallableMock):
       then calling the Mock will pass the call through to the wrapped object
       (returning the real result and ignoring `return_value`). Attribute
       access on the mock will return a Mock object that wraps the corresponding
-      attribute of the wrapped object (so attempting to access an attribute that
-      doesn't exist will raise an `AttributeError`).
+      attribute of the wrapped object (so attempting to access an attribute
+      that doesn't exist will raise an `AttributeError`).
 
       If the mock has an explicit `return_value` set then calls are not passed
       to the wrapped object and the `return_value` is returned instead.
@@ -1118,8 +1119,8 @@ class _patch(object):
 
     def __init__(
             self, getter, attribute, new, spec, create,
-            mocksignature, spec_set, autospec, new_callable, kwargs
-        ):
+            mocksignature, spec_set, autospec, new_callable, kwargs):
+
         if new_callable is not None:
             if new is not DEFAULT:
                 raise ValueError(
@@ -1200,7 +1201,7 @@ class _patch(object):
                     return func(*args, **keywargs)
                 except:
                     if (patching not in entered_patchers and
-                        _is_started(patching)):
+                            _is_started(patching)):
                         # the patcher may have been started, but an exception
                         # raised whilst entering one of its additional_patchers
                         entered_patchers.append(patching)
@@ -1276,7 +1277,8 @@ class _patch(object):
 
             # add a name to mocks
             if (isinstance(Klass, type) and
-                issubclass(Klass, NonCallableMock) and self.attribute):
+                    issubclass(Klass, NonCallableMock) and
+                    self.attribute):
                 _kwargs['name'] = self.attribute
 
             _kwargs.update(kwargs)
@@ -1286,7 +1288,7 @@ class _patch(object):
                 # we can only tell if the instance should be callable if the
                 # spec is not a list
                 if (not _is_list(spec or spec_set) and not
-                    _instance_callable(spec or spec_set)):
+                        _instance_callable(spec or spec_set)):
                     Klass = NonCallableMagicMock
 
                 _kwargs.pop('name')
@@ -1369,8 +1371,7 @@ def _get_target(target):
 def _patch_object(
         target, attribute, new=DEFAULT, spec=None,
         create=False, mocksignature=False, spec_set=None, autospec=False,
-        new_callable=None, **kwargs
-    ):
+        new_callable=None, **kwargs):
     """
     patch.object(target, attribute, new=DEFAULT, spec=None, create=False,
                  mocksignature=False, spec_set=None, autospec=False,
@@ -1448,8 +1449,7 @@ def _patch_multiple(target, spec=None, create=False,
 def patch(
         target, new=DEFAULT, spec=None, create=False,
         mocksignature=False, spec_set=None, autospec=False,
-        new_callable=None, **kwargs
-    ):
+        new_callable=None, **kwargs):
     """
     `patch` acts as a function decorator, class decorator or a context
     manager. Inside the body of the function or with statement, the `target`
@@ -1584,7 +1584,7 @@ class _patch_dict(object):
             attr_value = getattr(klass, attr)
 
             if (attr.startswith(patch.TEST_PREFIX) and
-                hasattr(attr_value, "__call__")):
+                    hasattr(attr_value, "__call__")):
                 decorator = _patch_dict(self.in_dict, self.values, self.clear)
                 decorated = decorator(attr_value)
                 setattr(klass, attr, decorated)

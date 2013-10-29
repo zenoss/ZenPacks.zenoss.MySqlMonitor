@@ -37,7 +37,10 @@ class TestMysqlConnectionStringParsing(BaseTestCase):
             }
         }
         self.tcase(
-            ['{"user":"user","passwd":"passwd","port":"123"}', '{"user":"u","passwd":"passwd","port":"2"}'], d)
+            [
+                '{"user":"user","passwd":"passwd","port":"123"}',
+                '{"user":"u","passwd":"passwd","port":"2"}'
+            ], d)
 
     def test_port_not_int(self):
         self.assertRaises(ValueError, lambda: parse_mysql_connection_string(
