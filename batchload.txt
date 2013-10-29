@@ -13,7 +13,7 @@
 127.0.0.1 zMySQLConnectionString=['{"user": "root", "passwd": "", "port": "3306"}']
 
 ## Zenoss 4.2.3 VM
-192.168.172.150 zMySQLConnectionString=['{"user": "root", "passwd": "", "port": "3306"}']
+192.168.172.150 zMySQLConnectionString=['{"user": "root", "passwd": "1", "port": "3306"}']
 
 ## Zenoss 4.2.4 VM
 ## Uncomment it if wish to bulkload on 4.2.3
