@@ -41,4 +41,4 @@ device:
 	python add_device.py
 
 pep8:
-	./pep8.py --show-source $(find . | grep py$)
+	./check_pep8.sh
