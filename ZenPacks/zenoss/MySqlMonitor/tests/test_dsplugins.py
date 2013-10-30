@@ -107,7 +107,8 @@ Per second averages calculated from the last 35 seconds
 -----------------
 BACKGROUND THREAD
 -----------------
-srv_master_thread loops: 18395 1_second, 18394 sleeps, 1839 10_second, 4 background, 4 flush
+srv_master_thread loops: 18395 1_second, 18394 sleeps,
+1839 10_second, 4 background, 4 flush
 srv_master_thread log flush and writes: 18448
 ----------
 SEMAPHORES
@@ -125,61 +126,85 @@ Purge done for trx's n:o < 1BD432 undo n:o < 0
 History list length 559
 LIST OF TRANSACTIONS FOR EACH SESSION:
 ---TRANSACTION 0, not started
-MySQL thread id 1497, OS thread handle 0x7f2ff0d94700, query id 217512 localhost root
+MySQL thread id 1497, OS thread handle 0x7f2ff0d94700,
+query id 217512 localhost root
 show engine innodb status
 ---TRANSACTION 1BD3F2, not started
-MySQL thread id 1397, OS thread handle 0x7f2fed4c9700, query id 206785 localhost zenoss
+MySQL thread id 1397, OS thread handle 0x7f2fed4c9700,
+query id 206785 localhost zenoss
 ---TRANSACTION 1BD3F1, not started
-MySQL thread id 1396, OS thread handle 0x7f2ff0e57700, query id 206784 localhost zenoss
+MySQL thread id 1396, OS thread handle 0x7f2ff0e57700,
+query id 206784 localhost zenoss
 ---TRANSACTION 1BE0CF, not started
-MySQL thread id 1395, OS thread handle 0x7f2ff0c4f700, query id 217472 localhost zenoss
+MySQL thread id 1395, OS thread handle 0x7f2ff0c4f700,
+query id 217472 localhost zenoss
 ---TRANSACTION 1BD3FD, not started
-MySQL thread id 1394, OS thread handle 0x7f2fed6d1700, query id 206832 localhost zenoss
+MySQL thread id 1394, OS thread handle 0x7f2fed6d1700,
+query id 206832 localhost zenoss
 ---TRANSACTION 1BD2A4, not started
-MySQL thread id 1392, OS thread handle 0x7f2fed60e700, query id 205722 localhost zenoss
+MySQL thread id 1392, OS thread handle 0x7f2fed60e700,
+query id 205722 localhost zenoss
 ---TRANSACTION 1BD29E, not started
-MySQL thread id 1390, OS thread handle 0x7f2fed5cd700, query id 205670 localhost zenoss
+MySQL thread id 1390, OS thread handle 0x7f2fed5cd700,
+query id 205670 localhost zenoss
 ---TRANSACTION 1BD3EE, not started
-MySQL thread id 1389, OS thread handle 0x7f2fed58c700, query id 206771 localhost zenoss
+MySQL thread id 1389, OS thread handle 0x7f2fed58c700,
+query id 206771 localhost zenoss
 ---TRANSACTION 1BD3F6, not started
-MySQL thread id 1388, OS thread handle 0x7f2ff0ed9700, query id 206799 localhost zenoss
+MySQL thread id 1388, OS thread handle 0x7f2ff0ed9700,
+query id 206799 localhost zenoss
 ---TRANSACTION 1BD3ED, not started
-MySQL thread id 1387, OS thread handle 0x7f2ff10a0700, query id 206770 localhost zenoss
+MySQL thread id 1387, OS thread handle 0x7f2ff10a0700,
+query id 206770 localhost zenoss
 ---TRANSACTION 1BD3F5, not started
-MySQL thread id 1386, OS thread handle 0x7f2ff0f1a700, query id 206798 localhost zenoss
+MySQL thread id 1386, OS thread handle 0x7f2ff0f1a700,
+query id 206798 localhost zenoss
 ---TRANSACTION 1BE0D4, not started
-MySQL thread id 1384, OS thread handle 0x7f2fed64f700, query id 217486 localhost zenoss
+MySQL thread id 1384, OS thread handle 0x7f2fed64f700,
+query id 217486 localhost zenoss
 ---TRANSACTION 1BE0D3, not started
-MySQL thread id 1379, OS thread handle 0x7f2ff0f9c700, query id 217485 localhost zenoss
+MySQL thread id 1379, OS thread handle 0x7f2ff0f9c700,
+query id 217485 localhost zenoss
 ---TRANSACTION 1BE0DC, not started
-MySQL thread id 1170, OS thread handle 0x7f2fed50a700, query id 217510 localhost 127.0.0.1 zenoss
+MySQL thread id 1170, OS thread handle 0x7f2fed50a700,
+query id 217510 localhost 127.0.0.1 zenoss
 ---TRANSACTION 1BB3B5, not started
-MySQL thread id 1, OS thread handle 0x7f2ff11e5700, query id 171474 localhost 127.0.0.1 zenoss
+MySQL thread id 1, OS thread handle 0x7f2ff11e5700,
+query id 171474 localhost 127.0.0.1 zenoss
 ---TRANSACTION 1BE061, not started
-MySQL thread id 2, OS thread handle 0x7f2ff11a4700, query id 217132 localhost 127.0.0.1 zenoss
+MySQL thread id 2, OS thread handle 0x7f2ff11a4700,
+query id 217132 localhost 127.0.0.1 zenoss
 ---TRANSACTION 1BE0C2, ACTIVE 14 sec
-MySQL thread id 1412, OS thread handle 0x7f2ff10e1700, query id 217419 localhost zenoss
+MySQL thread id 1412, OS thread handle 0x7f2ff10e1700,
+query id 217419 localhost zenoss
 Trx read view will not see trx with id >= 1BE0C3, sees < 1BD425
 ---TRANSACTION 1BE0C1, ACTIVE 14 sec
-MySQL thread id 1385, OS thread handle 0x7f2fed690700, query id 217417 localhost zenoss
+MySQL thread id 1385, OS thread handle 0x7f2fed690700,
+query id 217417 localhost zenoss
 Trx read view will not see trx with id >= 1BE0C2, sees < 1BD425
 ---TRANSACTION 1BE093, ACTIVE 23 sec
-MySQL thread id 27, OS thread handle 0x7f2ff105f700, query id 217296 localhost zenoss
+MySQL thread id 27, OS thread handle 0x7f2ff105f700,
+query id 217296 localhost zenoss
 Trx read view will not see trx with id >= 1BE094, sees < 1BD425
 ---TRANSACTION 1BE091, ACTIVE 23 sec
-MySQL thread id 21, OS thread handle 0x7f2ff0fdd700, query id 217290 localhost zenoss
+MySQL thread id 21, OS thread handle 0x7f2ff0fdd700,
+query id 217290 localhost zenoss
 Trx read view will not see trx with id >= 1BE092, sees < 1BD425
 ---TRANSACTION 1BE090, ACTIVE 23 sec
-MySQL thread id 26, OS thread handle 0x7f2ff0f5b700, query id 217287 localhost zenoss
+MySQL thread id 26, OS thread handle 0x7f2ff0f5b700,
+query id 217287 localhost zenoss
 Trx read view will not see trx with id >= 1BE091, sees < 1BD425
 ---TRANSACTION 1BE08E, ACTIVE 23 sec
-MySQL thread id 19, OS thread handle 0x7f2ff101e700, query id 217281 localhost zenoss
+MySQL thread id 19, OS thread handle 0x7f2ff101e700,
+query id 217281 localhost zenoss
 Trx read view will not see trx with id >= 1BE08F, sees < 1BD425
 ---TRANSACTION 1BD426, ACTIVE 1169 sec
-MySQL thread id 1410, OS thread handle 0x7f2ff0d12700, query id 207014 localhost zenoss
+MySQL thread id 1410, OS thread handle 0x7f2ff0d12700,
+query id 207014 localhost zenoss
 Trx read view will not see trx with id >= 1BD427, sees < 1BD25E
 ---TRANSACTION 1BD425, ACTIVE 1169 sec
-MySQL thread id 1409, OS thread handle 0x7f2ff0c90700, query id 207007 localhost zenoss
+MySQL thread id 1409, OS thread handle 0x7f2ff0c90700,
+query id 207007 localhost zenoss
 Trx read view will not see trx with id >= 1BD426, sees < 1BD25E
 --------
 FILE I/O
@@ -234,7 +259,8 @@ Pages made young 10, not young 0
 Pages read 1546, created 485, written 34930
 0.00 reads/s, 0.00 creates/s, 2.26 writes/s
 Buffer pool hit rate 1000 / 1000, young-making rate 0 / 1000 not 0 / 1000
-Pages read ahead 0.00/s, evicted without access 0.00/s, Random read ahead 0.00/s
+Pages read ahead 0.00/s, evicted without
+access 0.00/s, Random read ahead 0.00/s
 LRU len: 2031, unzip_LRU len: 0
 I/O sum[0]:cur[0], unzip sum[0]:cur[0]
 --------------
@@ -268,7 +294,8 @@ Per second averages calculated from the last 15 seconds
 -----------------
 BACKGROUND THREAD
 -----------------
-srv_master_thread loops: 28 1_second, 28 sleeps, 2 10_second, 11 background, 11 flush
+srv_master_thread loops: 28 1_second, 28 sleeps, 2 10_second,
+11 background, 11 flush
 srv_master_thread log flush and writes: 30
 ----------
 SEMAPHORES
@@ -286,10 +313,12 @@ LATEST DETECTED DEADLOCK
 TRANSACTION 11703, ACTIVE 71 sec starting index read
 mysql tables in use 1, locked 1
 LOCK WAIT 5 lock struct(s), heap size 1024, 3 row lock(s)
-MySQL thread id 40, OS thread handle 0xa4b6cb40, query id 131 localhost bunyk Searching rows for update
+MySQL thread id 40, OS thread handle 0xa4b6cb40, query id 131 localhost
+bunyk Searching rows for update
 update test.innodb_deadlock_maker set a = 0 where a <> 0
 *** (1) WAITING FOR THIS LOCK TO BE GRANTED:
-RECORD LOCKS space id 0 page no 635 n bits 72 index `PRIMARY` of table `test`.`innodb_deadlock_maker` trx id 11703 lock_mode X waiting
+RECORD LOCKS space id 0 page no 635 n bits 72 index `PRIMARY`
+of table `test`.`innodb_deadlock_maker` trx id 11703 lock_mode X waiting
 Record lock, heap no 3 PHYSICAL RECORD: n_fields 3; compact format; info bits 0
  0: len 4; hex 80000001; asc     ;;
  1: len 6; hex 000000011701; asc       ;;
@@ -299,17 +328,22 @@ Record lock, heap no 3 PHYSICAL RECORD: n_fields 3; compact format; info bits 0
 TRANSACTION 11702, ACTIVE 78 sec starting index read
 mysql tables in use 1, locked 1
 4 lock struct(s), heap size 320, 2 row lock(s)
-MySQL thread id 41, OS thread handle 0xa4b3bb40, query id 132 localhost bunyk Searching rows for update
+MySQL thread id 41, OS thread handle 0xa4b3bb40, query id 132 localhost
+bunyk Searching rows for update
 update test.innodb_deadlock_maker set a = 1 where a <> 1
 *** (2) HOLDS THE LOCK(S):
-RECORD LOCKS space id 0 page no 635 n bits 72 index `PRIMARY` of table `test`.`innodb_deadlock_maker` trx id 11702 lock mode S locks rec but not gap
+RECORD LOCKS space id 0 page no 635 n bits 72 index `PRIMARY`
+of table `test`.`innodb_deadlock_maker` trx id 11702 lock
+mode S locks rec but not gap
 Record lock, heap no 3 PHYSICAL RECORD: n_fields 3; compact format; info bits 0
  0: len 4; hex 80000001; asc     ;;
  1: len 6; hex 000000011701; asc       ;;
  2: len 7; hex 82000001f8011d; asc        ;;
 
 *** (2) WAITING FOR THIS LOCK TO BE GRANTED:
-RECORD LOCKS space id 0 page no 635 n bits 72 index `PRIMARY` of table `test`.`innodb_deadlock_maker` trx id 11702 lock_mode X waiting
+RECORD LOCKS space id 0 page no 635 n bits 72 index
+`PRIMARY` of table `test`.`innodb_deadlock_maker`
+trx id 11702 lock_mode X waiting
 Record lock, heap no 2 PHYSICAL RECORD: n_fields 3; compact format; info bits 0
  0: len 4; hex 80000000; asc     ;;
  1: len 6; hex 000000011701; asc       ;;
@@ -379,7 +413,8 @@ Pages made young 0, not young 0
 Pages read 548, created 1, written 17
 0.00 reads/s, 0.00 creates/s, 0.00 writes/s
 No buffer pool page gets since the last printout
-Pages read ahead 0.00/s, evicted without access 0.00/s, Random read ahead 0.00/s
+Pages read ahead 0.00/s, evicted without access 0.00/s,
+Random read ahead 0.00/s
 LRU len: 549, unzip_LRU len: 0
 I/O sum[0]:cur[0], unzip sum[0]:cur[0]
 --------------
@@ -438,6 +473,7 @@ class TestMySQLMonitorDatabasesPlugin(BaseTestCase):
             index_size=(sentinel.index_size, sentinel.current_time),
         ))
 
+
 class TestMySQLDatabaseExistencePlugin(BaseTestCase):
     def test_db_not_exists(self):
         results = ((0,),)
@@ -460,6 +496,7 @@ class TestMySQLDatabaseExistencePlugin(BaseTestCase):
         self.assertEquals(events[0]['eventKey'], 'db_existence')
         self.assertEquals(events[0]['component'], sentinel.component)
         self.assertEquals(events[0]['severity'], 0)
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite

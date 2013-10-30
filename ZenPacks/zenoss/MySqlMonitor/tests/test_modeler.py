@@ -15,7 +15,9 @@ from Products.DataCollector.plugins.DataMaps import ObjectMap
 from Products.ZenTestCase.BaseTestCase import BaseTestCase
 from Products.ZenCollector.services.config import DeviceProxy
 
-from ZenPacks.zenoss.MySqlMonitor.modeler.plugins.MySQLCollector import MySQLCollector
+from ZenPacks.zenoss.MySqlMonitor.modeler.plugins.MySQLCollector \
+    import MySQLCollector
+
 
 def patch_asUnitTest(self):
     """
@@ -33,6 +35,7 @@ def patch_asUnitTest(self):
         pass
     return map
 
+
 class TestMySQLCollector(BaseTestCase):
 
     def afterSetUp(self):
@@ -47,7 +50,8 @@ class TestMySQLCollector(BaseTestCase):
 
     def test_process_data(self):
         results = modeling_data.RESULT1
-        server_map, db_map = self.collector.process(self.device, results, self.logger)
+        server_map, db_map = self.collector.\
+            process(self.device, results, self.logger)
 
         self.assertEquals({
             'data_size': 53423729,
@@ -56,7 +60,8 @@ class TestMySQLCollector(BaseTestCase):
             'master_status': 'OFF',
             'percent_full_table_scans': '0.0%',
             'size': 57566833,
-            'slave_status': 'IO running: No; SQL running: No; Seconds behind: None',
+            'slave_status': 'IO running: No; SQL running: '
+                            'No; Seconds behind: None',
             'title': 'root_3306'}, server_map.maps[0].asUnitTest())
 
         self.assertEquals({
@@ -69,9 +74,12 @@ class TestMySQLCollector(BaseTestCase):
             'table_count': 40L,
             'title': 'information_schema'}, db_map.maps[0].asUnitTest())
 
-    @patch('ZenPacks.zenoss.MySqlMonitor.modeler.plugins.MySQLCollector.adbapi')
+    @patch('ZenPacks.zenoss.MySqlMonitor.modeler.'
+           'plugins.MySQLCollector.adbapi')
     def test_collect(self, mock_adbapi):
-        self.device.zMySQLConnectionString = ['{"user":"root","passwd":"zenoss","port":"3306"}']
+        self.device.zMySQLConnectionString = ['{"user":"root",'
+                                              '"passwd":"zenoss",'
+                                              '"port":"3306"}']
         self.collector.collect(self.device, self.logger)
         mock_adbapi.ConnectionPool.assert_called_with(
             'MySQLdb',
@@ -98,21 +106,21 @@ class TestMySQLCollector(BaseTestCase):
 
     def test_master_status(self):
         self.assertEquals(
-            self.collector._master_status(modeling_data.MASTER_STATUS1), 
+            self.collector._master_status(modeling_data.MASTER_STATUS1),
             "ON; File: mysql-bin.000002; Position: 107"
         )
         self.assertEquals(
-            self.collector._master_status(modeling_data.MASTER_STATUS2), 
+            self.collector._master_status(modeling_data.MASTER_STATUS2),
             "OFF"
         )
 
     def test_slave_status(self):
         self.assertEquals(
-            self.collector._slave_status(modeling_data.SLAVE_STATUS1), 
+            self.collector._slave_status(modeling_data.SLAVE_STATUS1),
             "IO running: No; SQL running: No; Seconds behind: 10"
         )
         self.assertEquals(
-            self.collector._slave_status(modeling_data.SLAVE_STATUS2), 
+            self.collector._slave_status(modeling_data.SLAVE_STATUS2),
             "OFF"
         )
 

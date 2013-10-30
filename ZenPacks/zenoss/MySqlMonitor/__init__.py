@@ -58,9 +58,9 @@ NEW_COMPONENT_TYPES = (
 for relname, modname in NEW_DEVICE_RELATIONS:
     if relname not in (x[0] for x in Device._relations):
         Device._relations += (
-            (relname, ToManyCont(ToOne,
-                '.'.join((ZP_NAME, modname)), 'mysql_host')),
-            )
+            (relname,
+             ToManyCont(ToOne, '.'.join((ZP_NAME, modname)), 'mysql_host')),
+        )
 
 
 class ZenPack(ZenPackBase):
@@ -88,7 +88,7 @@ class ZenPack(ZenPackBase):
 
             # Remove our Device relations additions.
             Device._relations = tuple(
-                [x for x in Device._relations 
+                [x for x in Device._relations
                     if x[0] not in NEW_DEVICE_RELATIONS])
 
             log.info('Removing MySqlMonitor device relationships')

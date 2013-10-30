@@ -38,4 +38,7 @@ pretty_xml:
 	python $(ZP_DIR)/xml_format.py $(ZP_DIR)/objects/objects.xml
 
 device:
-	python add_device.py 
+	python add_device.py
+
+pep8:
+	./check_pep8.sh

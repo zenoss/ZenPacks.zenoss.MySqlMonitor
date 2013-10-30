@@ -5,8 +5,10 @@ def get_monitoring_template(graphs):
       Products.ZenModel.Device
     </property>
     <tomanycont id="datasources">
-      <object class="PythonDataSource" id="MyDataSources" module="ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource">
-        <property id="sourcetype" mode="w" select_variable="sourcetypes" type="selection">
+      <object class="PythonDataSource" id="MyDataSources"
+        module="ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource">
+        <property id="sourcetype" mode="w"
+        select_variable="sourcetypes" type="selection">
           Python
         </property>
         <property id="enabled" mode="w" type="boolean">
@@ -32,8 +34,10 @@ def get_monitoring_template(graphs):
     for graph in graphs:
         for datapoint in graph[1]:
             xml.append('''
-          <object class="RRDDataPoint" id="{datapoint}" module="Products.ZenModel.RRDDataPoint">
-            <property id="rrdtype" mode="w" select_variable="rrdtypes" type="selection">
+          <object class="RRDDataPoint" id="{datapoint}"
+            module="Products.ZenModel.RRDDataPoint">
+            <property id="rrdtype" mode="w"
+            select_variable="rrdtypes" type="selection">
               GAUGE
             </property>
             <property id="isrow" mode="w" type="boolean">
@@ -50,7 +54,8 @@ def get_monitoring_template(graphs):
     ''')
     for graph in graphs:
         xml.append('''
-      <object class="GraphDefinition" id="{graph_id}" module="Products.ZenModel.GraphDefinition">
+      <object class="GraphDefinition" id="{graph_id}"
+        module="Products.ZenModel.GraphDefinition">
         <property id="height" mode="w" type="int">
           100
         </property>
@@ -79,11 +84,13 @@ def get_monitoring_template(graphs):
         '''.format(graph_id=graph[0]))
         for datapoint in graph[1]:
             xml.append('''
-          <object class="DataPointGraphPoint" id="{datapoint}" module="Products.ZenModel.DataPointGraphPoint">
+          <object class="DataPointGraphPoint" id="{datapoint}"
+            module="Products.ZenModel.DataPointGraphPoint">
             <property id="sequence" mode="w" type="long">
               1
             </property>
-            <property id="lineType" mode="w" select_variable="lineTypes" type="selection">
+            <property id="lineType" mode="w"
+            select_variable="lineTypes" type="selection">
               LINE
             </property>
             <property id="lineWidth" mode="w" type="long">
@@ -117,6 +124,7 @@ def get_monitoring_template(graphs):
     </tomanycont>
     ''')
     return ''.join(xml)
+
 
 def get_id(datapoint):
     return datapoint.lower().replace(' ', '_')
