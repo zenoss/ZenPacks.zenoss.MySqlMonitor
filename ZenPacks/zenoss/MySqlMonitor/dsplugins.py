@@ -24,11 +24,12 @@ from ZenPacks.zenoss.MySqlMonitor.utils import parse_mysql_connection_string
 from ZenPacks.zenoss.MySqlMonitor import NAME_SPLITTER
 
 
-def datasource_to_dbpool(ds):
+def datasource_to_dbpool(ds, ip):
     servers = parse_mysql_connection_string(ds.zMySQLConnectionString)
     server = servers[ds.component.split(NAME_SPLITTER)[0]]
     return adbapi.ConnectionPool(
         "MySQLdb",
+        host=ip,
         user=server['user'],
         port=server['port'],
         passwd=server['passwd']
@@ -37,6 +38,8 @@ def datasource_to_dbpool(ds):
 
 class MysqlBasePlugin(PythonDataSourcePlugin):
     proxy_attributes = ('zMySQLConnectionString',)
+
+    component = None
 
     def get_query(self, component):
         raise NotImplemented
@@ -51,25 +54,41 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
     def collect(self, config):
         values = {}
         events = []
+        maps = []
         for ds in config.datasources:
-            dbpool = datasource_to_dbpool(ds)
-            res = yield dbpool.runQuery(self.get_query(ds.component))
-            dbpool.close()
-            values[ds.component] = self.query_results_to_values(res)
-            events.extend(self.query_results_to_events(res, ds.component))
+            try:
+                dbpool = datasource_to_dbpool(ds, config.manageIp)
+                self.component = ds.component
+                res = yield dbpool.runQuery(self.get_query(ds.component))
+                dbpool.close()
+                values[ds.component] = self.query_results_to_values(res)
+                events.extend(self.query_results_to_events(res, ds.component))
+            except Exception, e:
+                events.append({
+                    'component': ds.component,
+                    'summary': str(e),
+                    'eventClass': '/Status',
+                    'eventKey': 'mysql_result',
+                    'severity': 4,
+                })
 
         defer.returnValue(dict(
             events=events,
             values=values,
+            maps=maps,
         ))
 
     def onSuccess(self, result, config):
-        result['events'].append({
-            'summary': 'Monitoring ok',
-            'eventClass': '/Status',
-            'eventKey': 'mysql_result',
-            'severity': 0,
-        })
+        for ds in config.datasources:
+            # Insert clear events before
+            # events from collect method.
+            result['events'].insert(0, {
+                'component': ds.component,
+                'summary': 'Monitoring ok',
+                'eventClass': '/Status',
+                'eventKey': 'mysql_result',
+                'severity': 0,
+            })
         return result
 
     def onError(self, result, config):
@@ -82,6 +101,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                 'eventKey': 'mysql_result',
                 'severity': 4,
             }],
+            'maps': [],
         }
 
 
@@ -157,7 +177,7 @@ class MySQLDatabaseExistencePlugin(MysqlBasePlugin):
             summary = 'Database exists'
         else:
             severity = 3
-            summary = 'Database not exists'
+            summary = 'Database does not exist'
 
         return [{
             'severity': severity,
