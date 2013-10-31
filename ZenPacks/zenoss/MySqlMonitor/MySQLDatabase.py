@@ -51,6 +51,9 @@ class MySQLDatabase(MySQLComponent):
     def device(self):
         return self.server().device()
 
+    def getStatus(self):
+        return super(MySQLDatabase, self).getStatus("/Status")
+
 
 class IMySQLDatabaseInfo(IComponentInfo):
     '''
