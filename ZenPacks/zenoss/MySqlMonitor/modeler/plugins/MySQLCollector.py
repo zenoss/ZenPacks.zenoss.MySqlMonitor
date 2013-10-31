@@ -232,10 +232,11 @@ class MySQLCollector(PythonPlugin):
         error message.
         """
 
-        self._eventService.sendEvent(dict(
-            summary=reason,
-            eventClass='/Status',
-            device=id,
-            eventKey='ConnectionError',
-            severity=severity,
-            ))
+        if self._eventService:
+            self._eventService.sendEvent(dict(
+                summary=reason,
+                eventClass='/Status',
+                device=id,
+                eventKey='ConnectionError',
+                severity=severity,
+                ))

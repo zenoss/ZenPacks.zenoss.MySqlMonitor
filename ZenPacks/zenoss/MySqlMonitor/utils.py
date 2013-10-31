@@ -125,10 +125,16 @@ def parse_mysql_connection_string(zMySQLConnectionString):
     @return: a dict of server id as a key and a dict
     with user, port and password as a value
     """
+    data = zMySQLConnectionString
     result = {}
+
     try:
-        for el in filter(None, zMySQLConnectionString):
-            el = json.loads(el)
+        if isinstance(data, str):
+            data = json.loads(data)
+
+        for el in filter(None, data):
+            if isinstance(el, str):
+                el = json.loads(el)
             id = el.get('user') + '_' + el.get('port')
             result[id] = dict(
                 user=el.get('user'),
@@ -138,4 +144,6 @@ def parse_mysql_connection_string(zMySQLConnectionString):
 
     except (ValueError, TypeError):
         raise ValueError('Invalid connection string')
+    except:
+        raise ValueError('Bad formatted connection string')
     return result
