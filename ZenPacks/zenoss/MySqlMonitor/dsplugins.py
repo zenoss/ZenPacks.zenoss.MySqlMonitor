@@ -39,8 +39,6 @@ def datasource_to_dbpool(ds, ip):
 class MysqlBasePlugin(PythonDataSourcePlugin):
     proxy_attributes = ('zMySQLConnectionString',)
 
-    component = None
-
     def get_query(self, component):
         raise NotImplemented
 
@@ -58,7 +56,6 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         for ds in config.datasources:
             try:
                 dbpool = datasource_to_dbpool(ds, config.manageIp)
-                self.component = ds.component
                 res = yield dbpool.runQuery(self.get_query(ds.component))
                 dbpool.close()
                 values[ds.component] = self.query_results_to_values(res)
