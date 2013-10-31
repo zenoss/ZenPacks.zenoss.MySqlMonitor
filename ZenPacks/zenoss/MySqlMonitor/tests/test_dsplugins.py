@@ -34,7 +34,7 @@ class Test_datasource_to_dbpool(BaseTestCase):
         ds.component = 'server_id' + NAME_SPLITTER + 'something other'
         ds.zMySQLConnectionString = sentinel.zMySQLConnectionString
 
-        dbpool = dsplugins.datasource_to_dbpool(ds)
+        dbpool = dsplugins.datasource_to_dbpool(ds, '127.0.0.1')
 
         self.assertEquals(dbpool, sentinel.dbpool)
 
@@ -42,7 +42,8 @@ class Test_datasource_to_dbpool(BaseTestCase):
             'MySQLdb',
             user=sentinel.user,
             port=sentinel.port,
-            passwd=sentinel.passwd
+            passwd=sentinel.passwd,
+            host='127.0.0.1',
         )
         parse_mysql_connection_string.assert_called_with(
             sentinel.zMySQLConnectionString
@@ -56,7 +57,9 @@ class TestMysqlBasePlugin(BaseTestCase):
     def test_onSuccess_clears_event(self):
         result = {'events': []}
 
-        self.plugin.onSuccess(result, sentinel.any_value)
+        config = Mock()
+        config.datasources = [Mock()]
+        self.plugin.onSuccess(result, config)
 
         event = result['events'][0]
         self.assertEquals(event['severity'], 0)
