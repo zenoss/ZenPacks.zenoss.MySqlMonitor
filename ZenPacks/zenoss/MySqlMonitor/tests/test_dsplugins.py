@@ -55,11 +55,9 @@ class TestMysqlBasePlugin(BaseTestCase):
         self.plugin = dsplugins.MysqlBasePlugin()
 
     def test_onSuccess_clears_event(self):
-        result = {'events': []}
+        result = {'events': [], 'values': {"test": "test"}}
 
-        config = Mock()
-        config.datasources = [Mock()]
-        self.plugin.onSuccess(result, config)
+        self.plugin.onSuccess(result, sentinel.any_value)
 
         event = result['events'][0]
         self.assertEquals(event['severity'], 0)

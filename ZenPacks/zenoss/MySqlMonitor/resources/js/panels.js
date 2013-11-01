@@ -42,6 +42,7 @@ ZC.MySQLServerPanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'usesMonitorAttribute'},
                 {name: 'monitor'},
                 {name: 'monitored'},
+                {name: 'status'},
                 {name: 'locking'},
                 {name: 'size'},
                 {name: 'data_size'},
@@ -76,14 +77,19 @@ ZC.MySQLServerPanel = Ext.extend(ZC.ComponentGridPanel, {
                 id: 'size',
                 dataIndex: 'size',
                 header: _t('Size'),
-            },{      
+            },{ 
                 id: 'data_size',
                 dataIndex: 'data_size',
                 header: _t('Data size'),
-            },{      
+            },{ 
                 id: 'index_size',
                 dataIndex: 'index_size',
                 header: _t('Index size'),
+            },{
+                id: 'status',
+                dataIndex: 'status',
+                header: _t('Status'),
+                renderer: Zenoss.render.pingStatus,
             },{
                 id: 'monitored',
                 dataIndex: 'monitored',
@@ -119,6 +125,7 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'usesMonitorAttribute'},
                 {name: 'monitor'},
                 {name: 'monitored'},
+                {name: 'status'},
                 {name: 'locking'},
                 {name: 'size'},
                 {name: 'server'},
@@ -168,6 +175,11 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 id: 'index_size',
                 dataIndex: 'index_size',
                 header: _t('Index size'),
+            },{
+                id: 'status',
+                dataIndex: 'status',
+                header: _t('Status'),
+                renderer: Zenoss.render.pingStatus,
             },{
                 id: 'monitored',
                 dataIndex: 'monitored',

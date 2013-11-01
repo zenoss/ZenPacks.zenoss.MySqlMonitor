@@ -76,11 +76,10 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         ))
 
     def onSuccess(self, result, config):
-        for ds in config.datasources:
-            # Insert clear events before
-            # events from collect method.
+        for component in result["values"].keys():
+            # Clear events for success components.
             result['events'].insert(0, {
-                'component': ds.component,
+                'component': component,
                 'summary': 'Monitoring ok',
                 'eventClass': '/Status',
                 'eventKey': 'mysql_result',
