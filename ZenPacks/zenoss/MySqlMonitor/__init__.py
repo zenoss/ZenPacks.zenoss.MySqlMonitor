@@ -63,6 +63,41 @@ for relname, modname in NEW_DEVICE_RELATIONS:
         )
 
 
+# Add ErrorNotification to Device
+def setErrorNotification(self, status):
+    MSGS = {
+        "clear": "All ok",
+        "creds": "Bad credentials"
+    }
+
+    msg = MSGS[status]
+
+    if status == 'clear':
+        self.dmd.ZenEventManager.sendEvent(dict(
+            device=self.id,
+            summary=msg,
+            eventClass='/Status',
+            eventKey='ConnectionError',
+            severity=0,
+            ))
+    else:
+        self.dmd.ZenEventManager.sendEvent(dict(
+            device=self.id,
+            summary=msg,
+            eventClass='/Status',
+            eventKey='ConnectionError',
+            severity=5,
+            ))
+
+    return
+
+def getErrorNotification(self):
+    return
+
+Device.setErrorNotification = setErrorNotification
+Device.getErrorNotification = getErrorNotification
+
+
 class ZenPack(ZenPackBase):
     """
     ZenPack loader that handles custom installation and removal tasks.
