@@ -240,3 +240,6 @@ class MySQLCollector(PythonPlugin):
                 eventKey='ConnectionError',
                 severity=severity,
                 ))
+        else:
+            if severity > 0:
+                raise
