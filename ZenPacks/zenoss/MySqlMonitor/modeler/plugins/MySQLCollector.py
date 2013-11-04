@@ -245,7 +245,7 @@ class MySQLCollector(PythonPlugin):
         error message.
         """
 
-        if not self._eventService:
+        if self._eventService:
             self._eventService.sendEvent(dict(
                 summary=reason,
                 eventClass='/Status',
