@@ -30,6 +30,7 @@ class MySQLCollector(PythonPlugin):
     PythonCollector plugin for modelling device components
     '''
     is_clear_run = True
+    device_om = None
 
     _eventService = zope.component.queryUtility(IEventService)
 
@@ -55,6 +56,7 @@ class MySQLCollector(PythonPlugin):
             self.is_clear_run = False
             log.error(error.message)
             self._send_event(error.message, device.id, 5)
+            defer.returnValue('Error')
             return
 
         result = []
@@ -80,11 +82,12 @@ class MySQLCollector(PythonPlugin):
                         str(e), el.get("user"), el.get("port"))
 
                     log.error(msg)
-                    self._send_event("Clear", device.id, 0)
+                    self._send_event("clear", device.id, 0)
                     self._send_event(msg, device.id, severity)
 
                     if severity == 5:
                         dbpool.close()
+                        defer.returnValue('Error')
                         return
 
             dbpool.close()
@@ -98,9 +101,18 @@ class MySQLCollector(PythonPlugin):
             self.name(), device.id
         )
 
+        # 4.2.3 event sending
+        if self.device_om:
+            return self.device_om
+
+        # 4.2.4 workaround
+        if results == 'Error':
+            return
+
         maps = collections.OrderedDict([
             ('servers', []),
             ('databases', []),
+            ('device', []),
         ])
 
         # List of servers
@@ -133,13 +145,14 @@ class MySQLCollector(PythonPlugin):
             modname=MODULE_NAME['MySQLServer'],
             objmaps=server_oms))
 
-        if self.is_clear_run:
-            self._send_event("Clear", device.id, 0)
-
         log.info(
             'Modeler %s finished processing data for device %s',
             self.name(), device.id
         )
+        if self.is_clear_run:
+            self._send_event("clear", device.id, 0, True)
+            if self.device_om:
+                maps['device'] = [self.device_om]
 
         return list(chain.from_iterable(maps.itervalues()))
 
@@ -226,7 +239,7 @@ class MySQLCollector(PythonPlugin):
         else:
             return "OFF"
 
-    def _send_event(self, reason, id, severity):
+    def _send_event(self, reason, id, severity, force=False):
         """
         Send event for device with specified id, severity and
         error message.
@@ -240,6 +253,9 @@ class MySQLCollector(PythonPlugin):
                 eventKey='ConnectionError',
                 severity=severity,
                 ))
+            return True
         else:
-            if severity > 0:
-                raise
+            if force or (severity > 0):
+                self.device_om = ObjectMap({
+                    'setErrorNotification': reason
+                })
