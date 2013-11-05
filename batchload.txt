@@ -1,0 +1,20 @@
+## !!! File is expected to use on ESX Zenoss 4.2.4 VM
+
+## This is file with devices to use with zenbatchload
+## Usage:
+## zenbatchload [this file name]
+
+## 1st line is class of device to create + global params
+## 2..N lines - devices
+
+/Devices/Server/Linux zCollectorPlugins=['MySQLCollector']
+
+## Localhost
+127.0.0.1 zMySQLConnectionString=['{"user": "root", "passwd": "", "port": "3306"}']
+
+## Zenoss 4.2.3 VM
+192.168.172.150 zMySQLConnectionString=['{"user": "root", "passwd": "1", "port": "3306"}']
+
+## Zenoss 4.2.4 VM
+## Uncomment it if wish to bulkload on 4.2.3
+## 192.168.172.44 zMySQLConnectionString=['{"user": "root", "passwd": "", "port": "3306"}']
