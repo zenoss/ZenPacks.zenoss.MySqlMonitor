@@ -29,8 +29,8 @@ PACKAGES = [
     u'ZenPacks.zenoss',
     u'ZenPacks.zenoss.MySqlMonitor',
 ]
+INSTALL_REQUIRES = ['ZenPacks.zenoss.PythonCollector']
 
-INSTALL_REQUIRES = []
 COMPAT_ZENOSS_VERS = ">=4.2"
 PREV_ZENPACK_NAME = ""
 
