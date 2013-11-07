@@ -52,9 +52,8 @@ RESULT1 = [{
         'size': 9216
     },),
     'server': (
-        {'variable_value': '0', 'variable_name': 'HANDLER_READ_FIRST'},
-        {'variable_value': '127', 'variable_name': 'HANDLER_READ_KEY'},
-        {'variable_value': 'OFF', 'variable_name': 'SLAVE_RUNNING'}
+        {'Value': '0', 'Variable_name': 'Handler_read_first'},
+        {'Value': '127', 'Variable_name': 'Handler_read_key'}
     ),
     'master': (),
     'server_size': ({
@@ -62,21 +61,27 @@ RESULT1 = [{
         'data_size': 53423729,
         'size': 57566833
     },),
+    'version': (
+        {'Value': '5.5.28', 'Variable_name': 'version'},
+        {'Value': 'MySQL Community Server (GPL)', 'Variable_name': 'version_comment'},
+        {'Value': 'i686', 'Variable_name': 'version_compile_machine'},
+        {'Value': 'Linux', 'Variable_name': 'version_compile_os'}
+    ),
     'id': 'root_3306'}
 ]
 # -------------------------------------------------------------------------
 # Server results
 SERVER_STATUS1 = (
-    {'variable_value': '0', 'variable_name': 'HANDLER_READ_FIRST'},
-    {'variable_value': '127', 'variable_name': 'HANDLER_READ_KEY'},
+    {'Value': '0', 'Variable_name': 'Handler_read_first'},
+    {'Value': '127', 'Variable_name': 'Handler_read_key'},
 )
 SERVER_STATUS2 = (
-    {'variable_value': '127', 'variable_name': 'HANDLER_READ_FIRST'},
-    {'variable_value': '0', 'variable_name': 'HANDLER_READ_KEY'},
+    {'Value': '127', 'Variable_name': 'Handler_read_first'},
+    {'Value': '0', 'Variable_name': 'Handler_read_key'},
 )
 SERVER_STATUS3 = (
-    {'variable_value': '10', 'variable_name': 'HANDLER_READ_FIRST'},
-    {'variable_value': '20', 'variable_name': 'HANDLER_READ_KEY'},
+    {'Value': '10', 'Variable_name': 'Handler_read_first'},
+    {'Value': '20', 'Variable_name': 'Handler_read_key'},
 )
 # -------------------------------------------------------------------------
 # Master results
@@ -132,3 +137,11 @@ SLAVE_STATUS1 = ({
     'Master_SSL_Cipher': ''
 },)
 SLAVE_STATUS2 = ()
+# -------------------------------------------------------------------------
+# Version results
+VERSION1 = (
+    {'Value': '5.5.28', 'Variable_name': 'version'},
+    {'Value': 'MySQL Community Server (GPL)', 'Variable_name': 'version_comment'},
+    {'Value': 'i686', 'Variable_name': 'version_compile_machine'},
+    {'Value': 'Linux', 'Variable_name': 'version_compile_os'}
+)
