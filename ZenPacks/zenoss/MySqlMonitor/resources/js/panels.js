@@ -50,6 +50,7 @@ ZC.MySQLServerPanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'percent_full_table_scans'},
                 {name: 'slave_status'},
                 {name: 'master_status'},
+                {name: 'version'},
             ],
             columns: [{
                 id: 'severity',
@@ -61,7 +62,11 @@ ZC.MySQLServerPanel = Ext.extend(ZC.ComponentGridPanel, {
                 id: 'name',
                 dataIndex: 'name',
                 header: _t('Name'),
-            },{                
+            },{  
+                id: 'version',
+                dataIndex: 'version',
+                header: _t('Version'),
+            },{               
                 id: 'percent_full_table_scans',
                 dataIndex: 'percent_full_table_scans',
                 header: _t('Percentage of full table scans'),
@@ -77,19 +82,23 @@ ZC.MySQLServerPanel = Ext.extend(ZC.ComponentGridPanel, {
                 id: 'size',
                 dataIndex: 'size',
                 header: _t('Size'),
+                width: 65
             },{ 
                 id: 'data_size',
                 dataIndex: 'data_size',
                 header: _t('Data size'),
+                width: 65
             },{ 
                 id: 'index_size',
                 dataIndex: 'index_size',
                 header: _t('Index size'),
+                width: 65
             },{
                 id: 'status',
                 dataIndex: 'status',
                 header: _t('Status'),
                 renderer: Zenoss.render.pingStatus,
+                width: 65
             },{
                 id: 'monitored',
                 dataIndex: 'monitored',
@@ -167,19 +176,23 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 id: 'size',
                 dataIndex: 'size',
                 header: _t('Size'),
+                width: 65
             },{      
                 id: 'data_size',
                 dataIndex: 'data_size',
                 header: _t('Data size'),
+                width: 65
             },{      
                 id: 'index_size',
                 dataIndex: 'index_size',
                 header: _t('Index size'),
+                width: 65
             },{
                 id: 'status',
                 dataIndex: 'status',
                 header: _t('Status'),
                 renderer: Zenoss.render.pingStatus,
+                width: 65
             },{
                 id: 'monitored',
                 dataIndex: 'monitored',
