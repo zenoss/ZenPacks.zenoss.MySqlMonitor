@@ -34,6 +34,7 @@ class MySQLServer(MySQLComponent):
     percent_full_table_scans = None
     slave_status = None
     master_status = None
+    version = None
 
     _properties = MySQLComponent._properties + (
         {'id': 'size', 'type': 'string'},
@@ -42,6 +43,7 @@ class MySQLServer(MySQLComponent):
         {'id': 'percent_full_table_scans', 'type': 'string'},
         {'id': 'slave_status', 'type': 'string'},
         {'id': 'master_status', 'type': 'string'},
+        {'id': 'version', 'type': 'string'},
     )
 
     _relations = MySQLComponent._relations + (
@@ -70,6 +72,7 @@ class IMySQLServerInfo(IComponentInfo):
         title=_t(u'Percentage of full table scans'))
     slave_status = schema.TextLine(title=_t(u'Slave status'))
     master_status = schema.TextLine(title=_t(u'Master status'))
+    version = schema.TextLine(title=_t(u'Version'))
 
 
 class MySQLServerInfo(ComponentInfo):
@@ -84,3 +87,4 @@ class MySQLServerInfo(ComponentInfo):
     percent_full_table_scans = ProxyProperty('percent_full_table_scans')
     slave_status = ProxyProperty('slave_status')
     master_status = ProxyProperty('master_status')
+    version = ProxyProperty('version')

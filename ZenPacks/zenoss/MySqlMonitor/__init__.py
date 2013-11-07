@@ -84,6 +84,7 @@ def setErrorNotification(self, msg):
 
     return
 
+
 def getErrorNotification(self):
     return
 

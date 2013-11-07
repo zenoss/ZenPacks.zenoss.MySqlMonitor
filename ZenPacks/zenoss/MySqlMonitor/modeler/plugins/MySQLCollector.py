@@ -43,7 +43,8 @@ class MySQLCollector(PythonPlugin):
         'server_size': queries.SERVER_SIZE_QUERY,
         'master': queries.MASTER_QUERY,
         'slave': queries.SLAVE_QUERY,
-        'db': queries.DB_QUERY
+        'db': queries.DB_QUERY,
+        'version': queries.VERSION_QUERY
     }
 
     @defer.inlineCallbacks
@@ -125,6 +126,7 @@ class MySQLCollector(PythonPlugin):
                 server.get('server', ''))
             s_om.master_status = self._master_status(server.get('master', ''))
             s_om.slave_status = self._slave_status(server.get('slave', ''))
+            s_om.version = self._version(server.get('version', ''))
             server_oms.append(s_om)
 
             # List of databases
@@ -183,9 +185,28 @@ class MySQLCollector(PythonPlugin):
 
         return msg, severity
 
+    def _version(self, version_result):
+        """
+        Return the version of MySQL server.
+
+        @param version_result: result of VERSION_QUERY
+        @type version_result: string
+        @return: the server version with machine version
+        @rtype: str
+        """
+
+        result = dict((el['Variable_name'], el['Value'])
+                      for el in version_result)
+
+        return "{0} {1} ({2})".format(
+            result['version'],
+            result['version_comment'],
+            result['version_compile_machine']
+        )
+
     def _table_scans(self, server_result):
         """
-        Calculates the percent of full table scans for server.
+        Calculate the percent of full table scans for server.
 
         @param server_result: result of SERVER_QUERY
         @type server_result: string
@@ -193,14 +214,14 @@ class MySQLCollector(PythonPlugin):
         @rtype: str
         """
 
-        result = dict((el['variable_name'], el['variable_value'])
+        result = dict((el['Variable_name'], el['Value'])
                       for el in server_result)
 
-        if int(result['HANDLER_READ_KEY']) == 0:
+        if int(result['Handler_read_key']) == 0:
             return "N/A"
 
-        percent = float(result['HANDLER_READ_FIRST']) /\
-            float(result['HANDLER_READ_KEY'])
+        percent = float(result['Handler_read_first']) /\
+            float(result['Handler_read_key'])
 
         return str(round(percent, 3)*100)+'%'
 

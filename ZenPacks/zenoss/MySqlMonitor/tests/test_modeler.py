@@ -62,6 +62,7 @@ class TestMySQLCollector(BaseTestCase):
             'size': 57566833,
             'slave_status': 'IO running: No; SQL running: '
                             'No; Seconds behind: None',
+            'version': '5.5.28 MySQL Community Server (GPL) (i686)',
             'title': 'root_3306'}, server_map.maps[0].asUnitTest())
 
         self.assertEquals({
@@ -122,6 +123,12 @@ class TestMySQLCollector(BaseTestCase):
         self.assertEquals(
             self.collector._slave_status(modeling_data.SLAVE_STATUS2),
             "OFF"
+        )
+
+    def test_version(self):
+        self.assertEquals(
+            self.collector._version(modeling_data.VERSION1),
+            '5.5.28 MySQL Community Server (GPL) (i686)'
         )
 
 
