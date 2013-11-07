@@ -30,7 +30,7 @@ def datasource_to_dbpool(ds, ip, dbpool_cache={}):
 
     connection_key = (ip, server['user'], server['port'], server['passwd'])
 
-    if connection_key not in dbpool_cache:
+    if not((connection_key in dbpool_cache) and dbpool_cache[connection_key].running):
         dbpool_cache[connection_key] = adbapi.ConnectionPool(
             "MySQLdb",
             host=ip,
@@ -39,7 +39,6 @@ def datasource_to_dbpool(ds, ip, dbpool_cache={}):
             passwd=server['passwd']
         )
     return dbpool_cache[connection_key]
-
 
 class MysqlBasePlugin(PythonDataSourcePlugin):
     proxy_attributes = ('zMySQLConnectionString',)
@@ -62,7 +61,6 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
             try:
                 dbpool = datasource_to_dbpool(ds, config.manageIp)
                 res = yield dbpool.runQuery(self.get_query(ds.component))
-                # dbpool.close()
                 values[ds.component] = self.query_results_to_values(res)
                 events.extend(self.query_results_to_events(res, ds.component))
             except Exception, e:
