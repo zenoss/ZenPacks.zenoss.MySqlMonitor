@@ -63,7 +63,8 @@ RESULT1 = [{
     },),
     'version': (
         {'Value': '5.5.28', 'Variable_name': 'version'},
-        {'Value': 'MySQL Community Server (GPL)', 'Variable_name': 'version_comment'},
+        {'Value': 'MySQL Community Server (GPL)',
+            'Variable_name': 'version_comment'},
         {'Value': 'i686', 'Variable_name': 'version_compile_machine'},
         {'Value': 'Linux', 'Variable_name': 'version_compile_os'}
     ),
@@ -141,7 +142,8 @@ SLAVE_STATUS2 = ()
 # Version results
 VERSION1 = (
     {'Value': '5.5.28', 'Variable_name': 'version'},
-    {'Value': 'MySQL Community Server (GPL)', 'Variable_name': 'version_comment'},
+    {'Value': 'MySQL Community Server (GPL)',
+        'Variable_name': 'version_comment'},
     {'Value': 'i686', 'Variable_name': 'version_compile_machine'},
     {'Value': 'Linux', 'Variable_name': 'version_compile_os'}
 )

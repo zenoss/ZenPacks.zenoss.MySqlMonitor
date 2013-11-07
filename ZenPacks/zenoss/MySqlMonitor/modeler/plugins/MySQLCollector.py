@@ -191,15 +191,18 @@ class MySQLCollector(PythonPlugin):
 
         @param version_result: result of VERSION_QUERY
         @type version_result: string
-        @return: the server version with 
+        @return: the server version with machine version
         @rtype: str
         """
 
         result = dict((el['Variable_name'], el['Value'])
-            for el in version_result)
+                      for el in version_result)
 
-        return "{0} {1} ({2})".format(result['version'],
-            result['version_comment'], result['version_compile_machine'])
+        return "{0} {1} ({2})".format(
+            result['version'],
+            result['version_comment'],
+            result['version_compile_machine']
+        )
 
     def _table_scans(self, server_result):
         """
@@ -212,7 +215,7 @@ class MySQLCollector(PythonPlugin):
         """
 
         result = dict((el['Variable_name'], el['Value'])
-            for el in server_result)
+                      for el in server_result)
 
         if int(result['Handler_read_key']) == 0:
             return "N/A"

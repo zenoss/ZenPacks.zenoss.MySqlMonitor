@@ -62,33 +62,33 @@ ZC.MySQLServerPanel = Ext.extend(ZC.ComponentGridPanel, {
                 id: 'name',
                 dataIndex: 'name',
                 header: _t('Name'),
-            },{  
+            },{
                 id: 'version',
                 dataIndex: 'version',
                 header: _t('Version'),
-            },{               
+            },{
                 id: 'percent_full_table_scans',
                 dataIndex: 'percent_full_table_scans',
                 header: _t('Percentage of full table scans'),
-            },{ 
+            },{
                 id: 'slave_status',
                 dataIndex: 'slave_status',
                 header: _t('Slave status'),
-            },{ 
+            },{
                 id: 'master_status',
                 dataIndex: 'master_status',
                 header: _t('Master status'),
-            },{      
+            },{
                 id: 'size',
                 dataIndex: 'size',
                 header: _t('Size'),
                 width: 65
-            },{ 
+            },{
                 id: 'data_size',
                 dataIndex: 'data_size',
                 header: _t('Data size'),
                 width: 65
-            },{ 
+            },{
                 id: 'index_size',
                 dataIndex: 'index_size',
                 header: _t('Index size'),
@@ -155,34 +155,34 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 dataIndex: 'name',
                 header: _t('Name'),
                 renderer: Zenoss.render.linkFromSubgrid,
-            },{ 
+            },{
                 id: 'server',
                 dataIndex: 'server',
                 header: _t('Server'),
                 renderer: Zenoss.render.linkFromGrid,
-            },{ 
+            },{
                 id: 'table_count',
                 dataIndex: 'table_count',
                 header: _t('Number of tables'),
-            },{ 
+            },{
                 id: 'default_character_set_name',
                 dataIndex: 'default_character_set_name',
                 header: _t('Default character set'),
-            },{ 
+            },{
                 id: 'default_collation_name',
                 dataIndex: 'default_collation_name',
                 header: _t('Default collation'),
-            },{      
+            },{
                 id: 'size',
                 dataIndex: 'size',
                 header: _t('Size'),
                 width: 65
-            },{      
+            },{
                 id: 'data_size',
                 dataIndex: 'data_size',
                 header: _t('Data size'),
                 width: 65
-            },{      
+            },{
                 id: 'index_size',
                 dataIndex: 'index_size',
                 header: _t('Index size'),

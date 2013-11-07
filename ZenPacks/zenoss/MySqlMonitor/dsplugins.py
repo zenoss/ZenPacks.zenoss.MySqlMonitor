@@ -209,7 +209,7 @@ class MySqlReplicationPlugin(MysqlBasePlugin):
             events.append(self._event(0, "Slave SQL Running", c, "sql"))
         else:
             events.append(self._event(4, "Slave SQL NOT Running", c, "sql"))
-        
+
         if last_err_str:
             events.append(self._event(4, last_err_str, c, "err"))
         else:
