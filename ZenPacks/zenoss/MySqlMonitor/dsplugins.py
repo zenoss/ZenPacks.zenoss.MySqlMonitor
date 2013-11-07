@@ -24,16 +24,21 @@ from ZenPacks.zenoss.MySqlMonitor.utils import parse_mysql_connection_string
 from ZenPacks.zenoss.MySqlMonitor import NAME_SPLITTER
 
 
-def datasource_to_dbpool(ds, ip):
+def datasource_to_dbpool(ds, ip, dbpool_cache={}):
     servers = parse_mysql_connection_string(ds.zMySQLConnectionString)
     server = servers[ds.component.split(NAME_SPLITTER)[0]]
-    return adbapi.ConnectionPool(
-        "MySQLdb",
-        host=ip,
-        user=server['user'],
-        port=server['port'],
-        passwd=server['passwd']
-    )
+
+    connection_key = (ip, server['user'], server['port'], server['passwd'])
+
+    if connection_key not in dbpool_cache:
+        dbpool_cache[connection_key] = adbapi.ConnectionPool(
+            "MySQLdb",
+            host=ip,
+            user=server['user'],
+            port=server['port'],
+            passwd=server['passwd']
+        )
+    return dbpool_cache[connection_key]
 
 
 class MysqlBasePlugin(PythonDataSourcePlugin):
@@ -57,7 +62,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
             try:
                 dbpool = datasource_to_dbpool(ds, config.manageIp)
                 res = yield dbpool.runQuery(self.get_query(ds.component))
-                dbpool.close()
+                # dbpool.close()
                 values[ds.component] = self.query_results_to_values(res)
                 events.extend(self.query_results_to_events(res, ds.component))
             except Exception, e:
@@ -136,6 +141,91 @@ class MySqlDeadlockPlugin(MysqlBasePlugin):
             'summary': summary,
             'component': component,
         }]
+
+
+class MySqlReplicationPlugin(MysqlBasePlugin):
+    def get_query(self, component):
+        return 'show slave status'
+
+    def _event(self, severity, summary, component, suffix):
+        return {
+            'severity': severity,
+            'eventKey': 'replication_status_' + suffix,
+            'eventClass': '/Status',
+            'summary': summary,
+            'component': component,
+        }
+
+    def query_results_to_events(self, results, component):
+        if not results:
+            # Not a slave MySQL
+            return []
+
+        # Slave_IO_Running: Yes
+        # Slave_SQL_Running: Yes
+        slave_io = results[0][10]
+        slave_sql = results[0][11]
+        # Last_Errno: 0
+        # Last_Error:
+        last_err_no = results[0][18]
+        last_err_str = results[0][19]
+        # Last_IO_Errno: 0
+        # Last_IO_Error:
+        last_io_err_no = results[0][34]
+        last_io_err_str = results[0][35]
+        # Last_SQL_Errno: 0
+        # Last_SQL_Error:
+        last_sql_err_no = results[0][36]
+        last_sql_err_str = results[0][37]
+
+        # print "=============="
+        # print "# Slave_IO_Running:"
+        # print "# Slave_SQL_Running:"
+        # print slave_io
+        # print slave_sql
+        # print "# Last_Errno:"
+        # print "# Last_Error:"
+        # print last_err_no
+        # print last_err_str
+        # print "# Last_IO_Errno:"
+        # print "# Last_IO_Error:"
+        # print last_io_err_no
+        # print last_io_err_str
+        # print "# Last_SQL_Errno:"
+        # print "# Last_SQL_Error:"
+        # print last_sql_err_no
+        # print last_sql_err_str
+        # print "=============="
+
+        c = component
+        events = []
+
+        if slave_io == "Yes":
+            events.append(self._event(0, "Slave IO Running", c, "io"))
+        else:
+            events.append(self._event(4, "Slave IO NOT Running", c, "io"))
+
+        if slave_sql == "Yes":
+            events.append(self._event(0, "Slave SQL Running", c, "sql"))
+        else:
+            events.append(self._event(4, "Slave SQL NOT Running", c, "sql"))
+        
+        if last_err_str:
+            events.append(self._event(4, last_err_str, c, "err"))
+        else:
+            events.append(self._event(0, "No replication error", c, "err"))
+
+        if last_io_err_str:
+            events.append(self._event(4, last_io_err_str, c, "ioe"))
+        else:
+            events.append(self._event(0, "No replication IO error", c, "ioe"))
+
+        if last_sql_err_str:
+            events.append(self._event(4, last_sql_err_str, c, "se"))
+        else:
+            events.append(self._event(0, "No replication SQL error", c, "se"))
+
+        return events
 
 
 class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
