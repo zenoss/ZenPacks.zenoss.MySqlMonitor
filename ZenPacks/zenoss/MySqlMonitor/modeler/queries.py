@@ -22,10 +22,7 @@ DB_QUERY = """
 """
 
 SERVER_QUERY = """
-    SELECT variable_name, variable_value
-    FROM information_schema.SESSION_STATUS
-    WHERE variable_name IN ("Handler_read_first", "Handler_read_key",
-        "Slave_running");
+    SHOW GLOBAL STATUS LIKE "Handler_read%";
 """
 
 SERVER_SIZE_QUERY = """
@@ -40,4 +37,8 @@ MASTER_QUERY = """
 
 SLAVE_QUERY = """
     SHOW SLAVE STATUS;
+"""
+
+VERSION_QUERY = """
+    SHOW VARIABLES LIKE "version%";
 """
