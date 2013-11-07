@@ -24,16 +24,21 @@ from ZenPacks.zenoss.MySqlMonitor.utils import parse_mysql_connection_string
 from ZenPacks.zenoss.MySqlMonitor import NAME_SPLITTER
 
 
-def datasource_to_dbpool(ds, ip):
+def datasource_to_dbpool(ds, ip, dbpool_cache={}):
     servers = parse_mysql_connection_string(ds.zMySQLConnectionString)
     server = servers[ds.component.split(NAME_SPLITTER)[0]]
-    return adbapi.ConnectionPool(
-        "MySQLdb",
-        host=ip,
-        user=server['user'],
-        port=server['port'],
-        passwd=server['passwd']
-    )
+
+    connection_key = (ip, server['user'], server['port'], server['passwd'])
+
+    if connection_key not in dbpool_cache:
+        dbpool_cache[connection_key] = adbapi.ConnectionPool(
+            "MySQLdb",
+            host=ip,
+            user=server['user'],
+            port=server['port'],
+            passwd=server['passwd']
+        )
+    return dbpool_cache[connection_key]
 
 
 class MysqlBasePlugin(PythonDataSourcePlugin):
@@ -57,7 +62,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
             try:
                 dbpool = datasource_to_dbpool(ds, config.manageIp)
                 res = yield dbpool.runQuery(self.get_query(ds.component))
-                dbpool.close()
+                # dbpool.close()
                 values[ds.component] = self.query_results_to_values(res)
                 events.extend(self.query_results_to_events(res, ds.component))
             except Exception, e:

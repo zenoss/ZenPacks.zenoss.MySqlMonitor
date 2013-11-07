@@ -63,12 +63,14 @@ class TestMysqlBasePlugin(BaseTestCase):
         self.assertEquals(event['severity'], 0)
         self.assertEquals(event['eventKey'], 'mysql_result')
 
-    def test_onError_event(self):
+    @patch.object(dsplugins, 'log')
+    def test_onError_event(self, log):
         result = self.plugin.onError(sentinel.some_result, sentinel.any_value)
 
         event = result['events'][0]
         self.assertEquals(event['severity'], 4)
         self.assertEquals(event['eventKey'], 'mysql_result')
+        log.error.assertCalledWith(sentinel.some_result)
 
 
 class TestMySqlMonitorPlugin(BaseTestCase):
