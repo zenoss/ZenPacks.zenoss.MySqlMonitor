@@ -19,6 +19,8 @@ from twisted.internet import defer
 
 from ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource \
     import PythonDataSourcePlugin
+from Products.DataCollector.plugins.DataMaps import ObjectMap
+#from ZenPacks.zenoss.PythonCollector import patches
 
 from ZenPacks.zenoss.MySqlMonitor.utils import parse_mysql_connection_string
 from ZenPacks.zenoss.MySqlMonitor import NAME_SPLITTER
@@ -52,6 +54,9 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
     def query_results_to_events(self, results, component):
         return []
 
+    def query_results_to_maps(self, results, component):
+        return []
+
     @defer.inlineCallbacks
     def collect(self, config):
         values = {}
@@ -63,6 +68,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                 res = yield dbpool.runQuery(self.get_query(ds.component))
                 values[ds.component] = self.query_results_to_values(res)
                 events.extend(self.query_results_to_events(res, ds.component))
+                maps.extend(self.query_results_to_maps(res, ds.component))
             except Exception, e:
                 events.append({
                     'component': ds.component,
@@ -176,25 +182,6 @@ class MySqlReplicationPlugin(MysqlBasePlugin):
         last_sql_err_no = results[0][36]
         last_sql_err_str = results[0][37]
 
-        # print "=============="
-        # print "# Slave_IO_Running:"
-        # print "# Slave_SQL_Running:"
-        # print slave_io
-        # print slave_sql
-        # print "# Last_Errno:"
-        # print "# Last_Error:"
-        # print last_err_no
-        # print last_err_str
-        # print "# Last_IO_Errno:"
-        # print "# Last_IO_Error:"
-        # print last_io_err_no
-        # print last_io_err_str
-        # print "# Last_SQL_Errno:"
-        # print "# Last_SQL_Error:"
-        # print last_sql_err_no
-        # print last_sql_err_str
-        # print "=============="
-
         c = component
         events = []
 
@@ -263,6 +250,21 @@ class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
         fields = enumerate(('table_count', 'size', 'data_size', 'index_size'))
         return dict((f, (results[0][i] or 0, t)) for i, f in fields)
 
+    def query_results_to_maps(self, results, component):
+        if results[0][0]:
+            table_count = results[0][0]
+            return [ObjectMap(
+                compname="/mysql_servers/%s/databases/%s" % (
+                    component.split(NAME_SPLITTER)[0],
+                    component
+                    ),
+                modname="Tables count",
+                data = {
+                    "table_count": table_count
+                }
+            )]
+        return []
+
 
 class MySQLDatabaseExistencePlugin(MysqlBasePlugin):
     def get_query(self, component):
@@ -274,17 +276,31 @@ class MySQLDatabaseExistencePlugin(MysqlBasePlugin):
         )
 
     def query_results_to_events(self, results, component):
-        if results[0][0]:
-            severity = 0
-            summary = 'Database exists'
-        else:
-            severity = 3
-            summary = 'Database does not exist'
+        if not results[0][0]:
+            # Database does not exist, will be deleted
+            return [{
+                'severity': 2,
+                'eventKey': 'db_deleted',
+                'eventClass': '/Status',
+                'summary': 'Database "%s" was deleted on server' %
+                    component.split(NAME_SPLITTER)[-1],
+                'component': component,
+            }]
+        return []
 
-        return [{
-            'severity': severity,
-            'eventKey': 'db_existence',
-            'eventClass': '/Status',
-            'summary': summary,
-            'component': component,
-        }]
+    def query_results_to_maps(self, results, component):
+        if not results[0][0]:
+            # Database does not exist
+            server = component.split(NAME_SPLITTER)[0]
+            full_path = "/mysql_servers/%s/databases/%s" % (
+                server, component)
+
+            om = ObjectMap()
+            om.updateFromDict({
+                "id": component,
+                "compname": "/mysql_servers/%s" % server,
+                "relname": "databases",
+                "remove": True
+            })
+            return [om]
+        return []

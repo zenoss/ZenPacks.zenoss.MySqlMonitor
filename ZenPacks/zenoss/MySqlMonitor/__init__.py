@@ -23,6 +23,8 @@ from Products.ZenRelations.RelSchema import ToManyCont, ToOne
 from Products.ZenUtils.Utils import unused
 from Products.Zuul.interfaces import ICatalogTool
 
+#from ZenPacks.zenoss.PythonCollector import patches
+
 unused(Globals)
 
 
