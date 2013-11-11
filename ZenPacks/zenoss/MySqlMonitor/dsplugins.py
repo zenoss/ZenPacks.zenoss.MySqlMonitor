@@ -226,6 +226,24 @@ class MySqlReplicationPlugin(MysqlBasePlugin):
         return events
 
 
+class MySQLMonitorServersPlugin(MysqlBasePlugin):
+    def get_query(self, component):
+        return '''
+        SELECT
+            count(table_name) table_count,
+            sum(data_length + index_length) size,
+            sum(data_length) data_size,
+            sum(index_length) index_size
+        FROM
+            information_schema.TABLES
+        '''
+
+    def query_results_to_values(self, results):
+        t = time.time()
+        fields = enumerate(('table_count', 'size', 'data_size', 'index_size'))
+        return dict((f, (results[0][i] or 0, t)) for i, f in fields)
+
+
 class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
     def get_query(self, component):
         return '''
