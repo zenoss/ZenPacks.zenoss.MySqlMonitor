@@ -857,7 +857,7 @@
           </object>
         </tomanycont>
       </object>
-      
+
       <object class="GraphDefinition" id="Aborted" module="Products.ZenModel.GraphDefinition">
         <property id="height" mode="w" type="int">
           100
@@ -1082,7 +1082,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com alter db
+              Alter DB
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1111,7 +1111,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com alter table
+              Alter table
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1140,7 +1140,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com call procedure
+              Call procedure
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1169,7 +1169,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com check
+              Check
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1198,7 +1198,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com commit
+              Commit
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1227,7 +1227,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com create db
+              Create DB
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1256,7 +1256,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com create table
+              Create table
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1285,7 +1285,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com create user
+              Create user
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1314,7 +1314,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com delete
+              Delete
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1343,7 +1343,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com delete multi
+              Delete multi
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1372,7 +1372,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com drop db
+              Drop DB
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1401,7 +1401,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com drop table
+              Drop table
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1430,7 +1430,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com drop user
+              Drop user
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1459,7 +1459,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com execute sql
+              Execute SQL
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1488,7 +1488,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com flush
+              Flush
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1517,7 +1517,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com insert
+              Insert
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1546,7 +1546,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com insert select
+              Insert select
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1575,7 +1575,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com purge
+              Purge
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1604,7 +1604,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com repair
+              Repair
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1633,7 +1633,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com replace
+              Replace
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1662,7 +1662,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com rollback
+              Rollback
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1691,7 +1691,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com select
+              Select
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1720,7 +1720,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com update
+              Update
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1749,7 +1749,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com update multi
+              Update multi
             </property>
             <property id="limit" mode="w" type="long">
               -1
