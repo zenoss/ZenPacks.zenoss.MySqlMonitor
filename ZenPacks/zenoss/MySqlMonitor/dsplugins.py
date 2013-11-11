@@ -253,16 +253,19 @@ class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
     def query_results_to_maps(self, results, component):
         if results[0][0]:
             table_count = results[0][0]
-            return [ObjectMap(
-                compname="/mysql_servers/%s/databases/%s" % (
-                    component.split(NAME_SPLITTER)[0],
-                    component
-                    ),
-                modname="Tables count",
-                data = {
+            server = component.split(NAME_SPLITTER)[0]
+
+            om = ObjectMap()
+            om.updateFromDict({
+                "id": component,
+                "compname": "/mysql_servers/%s" % server,
+                "relname": "databases",
+                "modname": "Tables count",
+                "data": {
                     "table_count": table_count
                 }
-            )]
+            })
+            return [om]
         return []
 
 
