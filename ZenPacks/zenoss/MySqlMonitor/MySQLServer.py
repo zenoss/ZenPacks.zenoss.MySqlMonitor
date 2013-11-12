@@ -65,9 +65,9 @@ class IMySQLServerInfo(IComponentInfo):
     API Info interface for MySQLServer.
     '''
 
-    size = schema.TextLine(title=_t(u'Size'))
-    data_size = schema.TextLine(title=_t(u'Data Size'))
-    index_size = schema.TextLine(title=_t(u'Index Size'))
+    # size = schema.TextLine(title=_t(u'Size'))
+    # data_size = schema.TextLine(title=_t(u'Data Size'))
+    # index_size = schema.TextLine(title=_t(u'Index Size'))
     percent_full_table_scans = schema.TextLine(
         title=_t(u'Percentage of full table scans'))
     slave_status = schema.TextLine(title=_t(u'Slave status'))
