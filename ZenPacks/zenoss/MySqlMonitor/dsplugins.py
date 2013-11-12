@@ -265,6 +265,14 @@ class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
                     "table_count": table_count
                 }
             })
+            # om = ObjectMap(
+            #     compname="/mysql_servers/%s/databases/%s" % (
+            #         server, component),
+            #     modname="Tables count",
+            #     data = {
+            #         "table_count": table_count
+            #     }
+            # )
             return [om]
         return []
 
@@ -285,25 +293,25 @@ class MySQLDatabaseExistencePlugin(MysqlBasePlugin):
                 'severity': 2,
                 'eventKey': 'db_deleted',
                 'eventClass': '/Status',
-                'summary': 'Database "%s" was deleted on server' %
+                'summary': 'Database deleted: "%s" was deleted on server' %
                     component.split(NAME_SPLITTER)[-1],
                 'component': component,
             }]
         return []
 
-    def query_results_to_maps(self, results, component):
-        if not results[0][0]:
-            # Database does not exist
-            server = component.split(NAME_SPLITTER)[0]
-            full_path = "/mysql_servers/%s/databases/%s" % (
-                server, component)
+    # def query_results_to_maps(self, results, component):
+    #     if not results[0][0]:
+    #         # Database does not exist
+    #         server = component.split(NAME_SPLITTER)[0]
+    #         full_path = "/mysql_servers/%s/databases/%s" % (
+    #             server, component)
 
-            om = ObjectMap()
-            om.updateFromDict({
-                "id": component,
-                "compname": "/mysql_servers/%s" % server,
-                "relname": "databases",
-                "remove": True
-            })
-            return [om]
-        return []
+    #         om = ObjectMap()
+    #         om.updateFromDict({
+    #             "id": component,
+    #             "compname": "/mysql_servers/%s" % server,
+    #             "relname": "databases",
+    #             "remove": True
+    #         })
+    #         return [om]
+    #     return []
