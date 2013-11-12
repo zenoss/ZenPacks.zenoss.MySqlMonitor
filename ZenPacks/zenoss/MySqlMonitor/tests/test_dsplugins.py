@@ -480,14 +480,15 @@ class TestMySQLMonitorDatabasesPlugin(BaseTestCase):
 class TestMySQLDatabaseExistencePlugin(BaseTestCase):
     def test_db_not_exists(self):
         results = ((0,),)
+        component = "test" + NAME_SPLITTER + "test"
 
         plugin = dsplugins.MySQLDatabaseExistencePlugin()
-        events = plugin.query_results_to_events(results, sentinel.component)
+        events = plugin.query_results_to_events(results, component)
 
         self.assertEquals(len(events), 1)
-        self.assertEquals(events[0]['eventKey'], 'db_existence')
-        self.assertEquals(events[0]['component'], sentinel.component)
-        self.assertEquals(events[0]['severity'], 3)
+        self.assertEquals(events[0]['eventKey'], 'db_deleted')
+        self.assertEquals(events[0]['component'], component)
+        self.assertEquals(events[0]['severity'], 2)
 
     def test_db_exists(self):
         results = ((1,),)
@@ -495,10 +496,10 @@ class TestMySQLDatabaseExistencePlugin(BaseTestCase):
         plugin = dsplugins.MySQLDatabaseExistencePlugin()
         events = plugin.query_results_to_events(results, sentinel.component)
 
-        self.assertEquals(len(events), 1)
-        self.assertEquals(events[0]['eventKey'], 'db_existence')
-        self.assertEquals(events[0]['component'], sentinel.component)
-        self.assertEquals(events[0]['severity'], 0)
+        self.assertEquals(len(events), 0)
+        # self.assertEquals(events[0]['eventKey'], 'db_existence')
+        # self.assertEquals(events[0]['component'], sentinel.component)
+        # self.assertEquals(events[0]['severity'], 0)
 
 
 def test_suite():
