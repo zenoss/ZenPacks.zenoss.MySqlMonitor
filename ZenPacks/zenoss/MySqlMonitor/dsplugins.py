@@ -250,31 +250,31 @@ class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
         fields = enumerate(('table_count', 'size', 'data_size', 'index_size'))
         return dict((f, (results[0][i] or 0, t)) for i, f in fields)
 
-    def query_results_to_maps(self, results, component):
-        if results[0][0]:
-            table_count = results[0][0]
-            server = component.split(NAME_SPLITTER)[0]
+    # def query_results_to_maps(self, results, component):
+    #     if results[0][0]:
+    #         table_count = results[0][0]
+    #         server = component.split(NAME_SPLITTER)[0]
 
-            om = ObjectMap()
-            om.updateFromDict({
-                "id": component,
-                "compname": "/mysql_servers/%s" % server,
-                "relname": "databases",
-                "modname": "Tables count",
-                "data": {
-                    "table_count": table_count
-                }
-            })
-            # om = ObjectMap(
-            #     compname="/mysql_servers/%s/databases/%s" % (
-            #         server, component),
-            #     modname="Tables count",
-            #     data = {
-            #         "table_count": table_count
-            #     }
-            # )
-            return [om]
-        return []
+    #         om = ObjectMap()
+    #         om.updateFromDict({
+    #             "id": component,
+    #             "compname": "/mysql_servers/%s" % server,
+    #             "relname": "databases",
+    #             "modname": "Tables count",
+    #             "data": {
+    #                 "table_count": table_count
+    #             }
+    #         })
+    #         # om = ObjectMap(
+    #         #     compname="/mysql_servers/%s/databases/%s" % (
+    #         #         server, component),
+    #         #     modname="Tables count",
+    #         #     data = {
+    #         #         "table_count": table_count
+    #         #     }
+    #         # )
+    #         return [om]
+    #     return []
 
 
 class MySQLDatabaseExistencePlugin(MysqlBasePlugin):

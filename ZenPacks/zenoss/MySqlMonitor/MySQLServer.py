@@ -57,16 +57,15 @@ class MySQLServer(MySQLComponent):
         return self.mysql_host()
 
     def getStatus(self):
-        zep = getFacade('zep')
-        event_filter = zep.createEventFilter(tags=[self.getUUID()],
-                                             severity=[2],
-                                             status=[STATUS_NEW,STATUS_ACKNOWLEDGED],
-                                             event_class=filter(None, ["/Status"]))
-        events = zep.getEventSummaries(0, filter=event_filter)
-        for e in events:
-            if "Database deleted: " in e.summary:
-                self.databases._delObj(dbid)
-
+        # zep = getFacade('zep')
+        # event_filter = zep.createEventFilter(tags=[self.getUUID()],
+        #                                      severity=[2],
+        #                                      status=[STATUS_NEW,STATUS_ACKNOWLEDGED],
+        #                                      event_class=filter(None, ["/Status"]))
+        # events = zep.getEventSummaries(0, filter=event_filter)
+        # for e in events:
+        #     if "Database deleted: " in e.summary:
+        #         self.databases._delObj(dbid)
         return super(MySQLServer, self).getStatus("/Status")
 
 
