@@ -26,21 +26,29 @@ from ZenPacks.zenoss.MySqlMonitor.utils import parse_mysql_connection_string
 from ZenPacks.zenoss.MySqlMonitor import NAME_SPLITTER
 
 
+def connection_pool(ds, ip):
+    servers = parse_mysql_connection_string(ds.zMySQLConnectionString)
+    server = servers[ds.component.split(NAME_SPLITTER)[0]]
+    return adbapi.ConnectionPool(
+        "MySQLdb",
+        cp_reconnect=True,
+        host=ip,
+        user=server['user'],
+        port=server['port'],
+        passwd=server['passwd']
+    )
+
+
 def datasource_to_dbpool(ds, ip, dbpool_cache={}):
     servers = parse_mysql_connection_string(ds.zMySQLConnectionString)
     server = servers[ds.component.split(NAME_SPLITTER)[0]]
 
     connection_key = (ip, server['user'], server['port'], server['passwd'])
-
-    if not((connection_key in dbpool_cache) and dbpool_cache[connection_key].running):
-        dbpool_cache[connection_key] = adbapi.ConnectionPool(
-            "MySQLdb",
-            host=ip,
-            user=server['user'],
-            port=server['port'],
-            passwd=server['passwd']
-        )
+    if not((connection_key in dbpool_cache)
+            and dbpool_cache[connection_key].running):
+        dbpool_cache[connection_key] = connection_pool(ds, ip)
     return dbpool_cache[connection_key]
+
 
 class MysqlBasePlugin(PythonDataSourcePlugin):
     proxy_attributes = ('zMySQLConnectionString',)
@@ -64,8 +72,16 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         maps = []
         for ds in config.datasources:
             try:
-                dbpool = datasource_to_dbpool(ds, config.manageIp)
-                res = yield dbpool.runQuery(self.get_query(ds.component))
+                try:
+                    dbpool = datasource_to_dbpool(ds, config.manageIp)
+                    res = yield dbpool.runQuery(self.get_query(ds.component))
+                except Exception, e:
+                    if 'MySQL server has gone away' in str(e) or\
+                            "Can't connect to MySQL server" in str(e):
+                        dbpool = connection_pool(ds, config.manageIp)
+                        res = yield dbpool.runQuery(
+                            self.get_query(ds.component)
+                        )
                 values[ds.component] = self.query_results_to_values(res)
                 events.extend(self.query_results_to_events(res, ds.component))
                 maps.extend(self.query_results_to_maps(res, ds.component))
