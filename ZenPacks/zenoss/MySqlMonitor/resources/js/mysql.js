@@ -12,7 +12,7 @@
 var ZC = Ext.ns('Zenoss.component');
 
 ZC.registerName('MySQLServer', _t('MySQL Server'), _t('MySQL Servers'));
-ZC.registerName('MySQLDatabase', _t('Database'), _t('Databases'));
+ZC.registerName('MySQLDatabase', _t('MySQL Database'), _t('MySQL Databases'));
 
 /* helper function to get the number of stars returned for password */
 String.prototype.repeat = function(num) {

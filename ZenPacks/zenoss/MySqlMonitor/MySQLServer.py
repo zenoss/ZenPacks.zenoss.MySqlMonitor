@@ -57,6 +57,15 @@ class MySQLServer(MySQLComponent):
         return self.mysql_host()
 
     def getStatus(self):
+        # zep = getFacade('zep')
+        # event_filter = zep.createEventFilter(tags=[self.getUUID()],
+        #                                      severity=[2],
+        #                                      status=[STATUS_NEW,STATUS_ACKNOWLEDGED],
+        #                                      event_class=filter(None, ["/Status"]))
+        # events = zep.getEventSummaries(0, filter=event_filter)
+        # for e in events:
+        #     if "Database deleted: " in e.summary:
+        #         self.databases._delObj(dbid)
         return super(MySQLServer, self).getStatus("/Status")
 
 
@@ -65,9 +74,9 @@ class IMySQLServerInfo(IComponentInfo):
     API Info interface for MySQLServer.
     '''
 
-    size = schema.TextLine(title=_t(u'Size'))
-    data_size = schema.TextLine(title=_t(u'Data Size'))
-    index_size = schema.TextLine(title=_t(u'Index Size'))
+    # size = schema.TextLine(title=_t(u'Size'))
+    # data_size = schema.TextLine(title=_t(u'Data Size'))
+    # index_size = schema.TextLine(title=_t(u'Index Size'))
     percent_full_table_scans = schema.TextLine(
         title=_t(u'Percentage of full table scans'))
     slave_status = schema.TextLine(title=_t(u'Slave status'))

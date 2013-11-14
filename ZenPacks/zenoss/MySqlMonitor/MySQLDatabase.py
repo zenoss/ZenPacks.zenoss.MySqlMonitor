@@ -62,9 +62,9 @@ class IMySQLDatabaseInfo(IComponentInfo):
 
     device = schema.Entity(title=_t(u'Device'))
     server = schema.Entity(title=_t(u'Server'))
-    size = schema.TextLine(title=_t(u'Size'))
-    data_size = schema.TextLine(title=_t(u'Data size'))
-    index_size = schema.TextLine(title=_t(u'Index size'))
+    # size = schema.TextLine(title=_t(u'Size'))
+    # data_size = schema.TextLine(title=_t(u'Data size'))
+    # index_size = schema.TextLine(title=_t(u'Index size'))
     default_character_set_name = \
         schema.TextLine(title=_t(u'Default character set'))
     default_collation_name = schema.TextLine(title=_t(u'Default collation'))

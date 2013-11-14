@@ -54,6 +54,14 @@
               True
             </property>
           </object>
+          <object class="RRDDataPoint" id="index_size" module="Products.ZenModel.RRDDataPoint">
+            <property id="rrdtype" mode="w" select_variable="rrdtypes" type="selection">
+              GAUGE
+            </property>
+            <property id="isrow" mode="w" type="boolean">
+              True
+            </property>
+          </object>
           <object class="RRDDataPoint" id="size" module="Products.ZenModel.RRDDataPoint">
             <property id="rrdtype" mode="w" select_variable="rrdtypes" type="selection">
               GAUGE
@@ -72,6 +80,9 @@
         </property>
         <property id="width" mode="w" type="int">
           500
+        </property>
+        <property type="string" id="units" mode="w" >
+          Bytes
         </property>
         <property id="log" mode="w" type="boolean">
           False
@@ -109,13 +120,42 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              ${graphPoint/id}
+              Data size
             </property>
             <property id="limit" mode="w" type="long">
               -1
             </property>
             <property id="dpName" mode="w" type="string">
               DbStats_data_size
+            </property>
+            <property id="cFunc" mode="w" type="string">
+              AVERAGE
+            </property>
+          </object>
+          <object class="DataPointGraphPoint" id="index_size" module="Products.ZenModel.DataPointGraphPoint">
+            <property id="sequence" mode="w" type="long">
+              0
+            </property>
+            <property id="lineType" mode="w" select_variable="lineTypes" type="selection">
+              LINE
+            </property>
+            <property id="lineWidth" mode="w" type="long">
+              1
+            </property>
+            <property id="stacked" mode="w" type="boolean">
+              False
+            </property>
+            <property id="format" mode="w" type="string">
+              %5.2lf%s
+            </property>
+            <property id="legend" mode="w" type="string">
+              Index size
+            </property>
+            <property id="limit" mode="w" type="long">
+              -1
+            </property>
+            <property id="dpName" mode="w" type="string">
+              DbStats_index_size
             </property>
             <property id="cFunc" mode="w" type="string">
               AVERAGE
@@ -138,7 +178,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              ${graphPoint/id}
+              Size
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -179,6 +219,53 @@
         <property id="plugin_classname" mode="w" type="string">
           ZenPacks.zenoss.MySqlMonitor.dsplugins.MySqlReplicationPlugin
         </property>
+      </object>
+
+      <object class="PythonDataSource" id="DbStats" module="ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource">
+        <property id="sourcetype" mode="w" select_variable="sourcetypes" type="selection">
+          Python
+        </property>
+        <property id="enabled" mode="w" type="boolean">
+          True
+        </property>
+        <property id="component" mode="w" type="string">
+          ${here/id}
+        </property>
+        <property id="severity" mode="w" type="int">
+          3
+        </property>
+        <property id="cycletime" mode="w" type="string">
+          300
+        </property>
+        <property id="plugin_classname" mode="w" type="string">
+          ZenPacks.zenoss.MySqlMonitor.dsplugins.MySQLMonitorServersPlugin
+        </property>
+        <tomanycont id="datapoints">
+          <object class="RRDDataPoint" id="data_size" module="Products.ZenModel.RRDDataPoint">
+            <property id="rrdtype" mode="w" select_variable="rrdtypes" type="selection">
+              GAUGE
+            </property>
+            <property id="isrow" mode="w" type="boolean">
+              True
+            </property>
+          </object>
+          <object class="RRDDataPoint" id="index_size" module="Products.ZenModel.RRDDataPoint">
+            <property id="rrdtype" mode="w" select_variable="rrdtypes" type="selection">
+              GAUGE
+            </property>
+            <property id="isrow" mode="w" type="boolean">
+              True
+            </property>
+          </object>
+          <object class="RRDDataPoint" id="size" module="Products.ZenModel.RRDDataPoint">
+            <property id="rrdtype" mode="w" select_variable="rrdtypes" type="selection">
+              GAUGE
+            </property>
+            <property id="isrow" mode="w" type="boolean">
+              True
+            </property>
+          </object>
+        </tomanycont>
       </object>
 
       <object class="PythonDataSource" id="InnoDB" module="ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource">
@@ -652,12 +739,134 @@
       </object>
     </tomanycont>
     <tomanycont id="graphDefs">
+      <object class="GraphDefinition" id="Size" module="Products.ZenModel.GraphDefinition">
+        <property id="height" mode="w" type="int">
+          100
+        </property>
+        <property id="width" mode="w" type="int">
+          500
+        </property>
+        <property type="string" id="units" mode="w" >
+          Bytes
+        </property>
+        <property id="log" mode="w" type="boolean">
+          False
+        </property>
+        <property id="base" mode="w" type="boolean">
+          False
+        </property>
+        <property id="miny" mode="w" type="int">
+          -1
+        </property>
+        <property id="maxy" mode="w" type="int">
+          -1
+        </property>
+        <property id="hasSummary" mode="w" type="boolean">
+          True
+        </property>
+        <property id="sequence" mode="w" type="long">
+          0
+        </property>
+        <tomanycont id="graphPoints">
+          <object class="DataPointGraphPoint" id="data_size" module="Products.ZenModel.DataPointGraphPoint">
+            <property id="sequence" mode="w" type="long">
+              0
+            </property>
+            <property id="lineType" mode="w" select_variable="lineTypes" type="selection">
+              LINE
+            </property>
+            <property id="lineWidth" mode="w" type="long">
+              1
+            </property>
+            <property id="stacked" mode="w" type="boolean">
+              False
+            </property>
+            <property id="format" mode="w" type="string">
+              %5.2lf%s
+            </property>
+            <property id="legend" mode="w" type="string">
+              Data size
+            </property>
+            <property id="limit" mode="w" type="long">
+              -1
+            </property>
+            <property id="dpName" mode="w" type="string">
+              DbStats_data_size
+            </property>
+            <property id="cFunc" mode="w" type="string">
+              AVERAGE
+            </property>
+          </object>
+          <object class="DataPointGraphPoint" id="index_size" module="Products.ZenModel.DataPointGraphPoint">
+            <property id="sequence" mode="w" type="long">
+              0
+            </property>
+            <property id="lineType" mode="w" select_variable="lineTypes" type="selection">
+              LINE
+            </property>
+            <property id="lineWidth" mode="w" type="long">
+              1
+            </property>
+            <property id="stacked" mode="w" type="boolean">
+              False
+            </property>
+            <property id="format" mode="w" type="string">
+              %5.2lf%s
+            </property>
+            <property id="legend" mode="w" type="string">
+              Index size
+            </property>
+            <property id="limit" mode="w" type="long">
+              -1
+            </property>
+            <property id="dpName" mode="w" type="string">
+              DbStats_index_size
+            </property>
+            <property id="cFunc" mode="w" type="string">
+              AVERAGE
+            </property>
+          </object>
+          <object class="DataPointGraphPoint" id="size" module="Products.ZenModel.DataPointGraphPoint">
+            <property id="sequence" mode="w" type="long">
+              1
+            </property>
+            <property id="lineType" mode="w" select_variable="lineTypes" type="selection">
+              LINE
+            </property>
+            <property id="lineWidth" mode="w" type="long">
+              1
+            </property>
+            <property id="stacked" mode="w" type="boolean">
+              False
+            </property>
+            <property id="format" mode="w" type="string">
+              %5.2lf%s
+            </property>
+            <property id="legend" mode="w" type="string">
+              Size
+            </property>
+            <property id="limit" mode="w" type="long">
+              -1
+            </property>
+            <property id="dpName" mode="w" type="string">
+              DbStats_size
+            </property>
+            <property id="cFunc" mode="w" type="string">
+              AVERAGE
+            </property>
+          </object>
+        </tomanycont>
+      </object>
+
       <object class="GraphDefinition" id="Aborted" module="Products.ZenModel.GraphDefinition">
         <property id="height" mode="w" type="int">
           100
         </property>
         <property id="width" mode="w" type="int">
           500
+        </property>
+        <property type="string" id="units" mode="w" >
+          Count
         </property>
         <property id="log" mode="w" type="boolean">
           False
@@ -745,6 +954,9 @@
         <property id="width" mode="w" type="int">
           500
         </property>
+        <property type="string" id="units" mode="w" >
+          Bytes
+        </property>
         <property id="log" mode="w" type="boolean">
           False
         </property>
@@ -831,6 +1043,9 @@
         <property id="width" mode="w" type="int">
           500
         </property>
+        <property type="string" id="units" mode="w" >
+          Count
+        </property>
         <property id="log" mode="w" type="boolean">
           False
         </property>
@@ -867,7 +1082,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com alter db
+              Alter DB
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -896,7 +1111,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com alter table
+              Alter table
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -925,7 +1140,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com call procedure
+              Call procedure
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -954,7 +1169,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com check
+              Check
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -983,7 +1198,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com commit
+              Commit
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1012,7 +1227,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com create db
+              Create DB
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1041,7 +1256,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com create table
+              Create table
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1070,7 +1285,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com create user
+              Create user
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1099,7 +1314,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com delete
+              Delete
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1128,7 +1343,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com delete multi
+              Delete multi
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1157,7 +1372,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com drop db
+              Drop DB
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1186,7 +1401,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com drop table
+              Drop table
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1215,7 +1430,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com drop user
+              Drop user
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1244,7 +1459,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com execute sql
+              Execute SQL
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1273,7 +1488,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com flush
+              Flush
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1302,7 +1517,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com insert
+              Insert
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1331,7 +1546,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com insert select
+              Insert select
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1360,7 +1575,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com purge
+              Purge
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1389,7 +1604,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com repair
+              Repair
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1418,7 +1633,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com replace
+              Replace
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1447,7 +1662,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com rollback
+              Rollback
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1476,7 +1691,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com select
+              Select
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1505,7 +1720,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com update
+              Update
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1534,7 +1749,7 @@
               %5.2lf%s
             </property>
             <property id="legend" mode="w" type="string">
-              Com update multi
+              Update multi
             </property>
             <property id="limit" mode="w" type="long">
               -1
@@ -1554,6 +1769,9 @@
         </property>
         <property id="width" mode="w" type="int">
           500
+        </property>
+        <property type="string" id="units" mode="w" >
+          Count
         </property>
         <property id="log" mode="w" type="boolean">
           False
@@ -1611,6 +1829,9 @@
         </property>
         <property id="width" mode="w" type="int">
           500
+        </property>
+        <property type="string" id="units" mode="w" >
+          Count
         </property>
         <property id="log" mode="w" type="boolean">
           False
@@ -2017,6 +2238,9 @@
         <property id="width" mode="w" type="int">
           500
         </property>
+        <property type="string" id="units" mode="w" >
+          Count
+        </property>
         <property id="log" mode="w" type="boolean">
           False
         </property>
@@ -2190,6 +2414,9 @@
         <property id="width" mode="w" type="int">
           500
         </property>
+        <property type="string" id="units" mode="w" >
+          Count
+        </property>
         <property id="log" mode="w" type="boolean">
           False
         </property>
@@ -2304,6 +2531,9 @@
         </property>
         <property id="width" mode="w" type="int">
           500
+        </property>
+        <property type="string" id="units" mode="w" >
+          Count
         </property>
         <property id="log" mode="w" type="boolean">
           False

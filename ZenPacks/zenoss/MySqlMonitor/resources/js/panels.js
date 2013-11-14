@@ -78,21 +78,21 @@ ZC.MySQLServerPanel = Ext.extend(ZC.ComponentGridPanel, {
                 id: 'master_status',
                 dataIndex: 'master_status',
                 header: _t('Master status'),
-            },{
-                id: 'size',
-                dataIndex: 'size',
-                header: _t('Size'),
-                width: 65
-            },{
-                id: 'data_size',
-                dataIndex: 'data_size',
-                header: _t('Data size'),
-                width: 65
-            },{
-                id: 'index_size',
-                dataIndex: 'index_size',
-                header: _t('Index size'),
-                width: 65
+            // },{
+            //     id: 'size',
+            //     dataIndex: 'size',
+            //     header: _t('Size'),
+            //     width: 65
+            // },{
+            //     id: 'data_size',
+            //     dataIndex: 'data_size',
+            //     header: _t('Data size'),
+            //     width: 65
+            // },{
+            //     id: 'index_size',
+            //     dataIndex: 'index_size',
+            //     header: _t('Index size'),
+            //     width: 65
             },{
                 id: 'status',
                 dataIndex: 'status',
@@ -172,21 +172,21 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 id: 'default_collation_name',
                 dataIndex: 'default_collation_name',
                 header: _t('Default collation'),
-            },{
-                id: 'size',
-                dataIndex: 'size',
-                header: _t('Size'),
-                width: 65
-            },{
-                id: 'data_size',
-                dataIndex: 'data_size',
-                header: _t('Data size'),
-                width: 65
-            },{
-                id: 'index_size',
-                dataIndex: 'index_size',
-                header: _t('Index size'),
-                width: 65
+            // },{
+            //     id: 'size',
+            //     dataIndex: 'size',
+            //     header: _t('Size'),
+            //     width: 65
+            // },{
+            //     id: 'data_size',
+            //     dataIndex: 'data_size',
+            //     header: _t('Data size'),
+            //     width: 65
+            // },{
+            //     id: 'index_size',
+            //     dataIndex: 'index_size',
+            //     header: _t('Index size'),
+            //     width: 65
             },{
                 id: 'status',
                 dataIndex: 'status',
