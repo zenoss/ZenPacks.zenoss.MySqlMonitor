@@ -36,22 +36,41 @@ class CleaningMigration(ZenPackMigration):
         for obj in OLD_OBJECTS.splitlines():
             remove_object(dmd, obj)
 
+        for obj in OLD_ZPROPERTIES.splitlines():
+            remove_property(dmd, obj)
+
+
 remove_old = CleaningMigration
 
 CleaningMigration()
 
-def remove_object(dmd, path):
+def remove_property(dmd, path):
+    remove_object(dmd, path, method='_delProperty')
+
+def remove_object(dmd, path, method='_delObject'):
     try:
         path, id = path.rsplit('/', 1)
     except ValueError:
         return
+    if not (path and id): return
+    path = '/zport/dmd' + path
     try:
         obj = dmd.getObjByPath(path)
     except (KeyError, NotFound) as e:
         log.info(path + ' not found')
         return
     log.info('Removing from %s %s' % (path, id))
-    obj._delObject(id)
+    try:
+        getattr(obj, method)(id)
+    except Exception as e:
+        log.error(e)
+
+OLD_ZPROPERTIES = '''
+/Devices/zMySqlRootPassword
+/Devices/zMySqlPassword
+/Devices/zMySqlPort
+/Devices/zMySqlUsername
+'''
 
 OLD_OBJECTS = '''
 /Devices/Server/rrdTemplates/MySQL
