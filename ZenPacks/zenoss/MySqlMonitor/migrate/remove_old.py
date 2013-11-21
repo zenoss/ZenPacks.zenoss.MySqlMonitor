@@ -1,3 +1,10 @@
+'''
+    Migration script.
+
+    Written with the help of following examples:
+        https://github.com/zenoss/Community-Zenpacks/blob/master/ZenPacks.community.DellMon/ZenPacks/community/DellMon/migrate/removeOldDellReports.py
+        https://github.com/zenoss/ZenPackTemplate/blob/master/CONTENT/migrate/ExampleMigration.py
+'''
 import logging
 log = logging.getLogger('zen.migrate')
 
@@ -7,12 +14,11 @@ from Products.ZenModel.ZenPack import ZenPackMigration
 from Products.ZenModel.migrate.Migrate import Version
 from Products.ZenUtils.Utils import unused
 
+from zExceptions import NotFound
+
 unused(Globals)
 
-
-# Your migration class must subclass ZenPackMigration.
-class ExampleMigration(ZenPackMigration):
-
+class CleaningMigration(ZenPackMigration):
     # There are two scenarios under which this migrate script will execute.
     # 1. Fresh Install - If this ZenPack is being installed for the first
     # time and the migrate script version is greater than or equal to the
@@ -23,26 +29,31 @@ class ExampleMigration(ZenPackMigration):
     # is already installed, it will execute.
     version = Version(3, 0, 1)
 
-    def migrate(self, dmd):
+    def migrate(self, pack):
         log.info("Running ExampleMigration")
+        dmd = pack.getDmd()
 
+        for obj in OLD_OBJECTS.splitlines():
+            remove_object(dmd, obj)
 
-        '''
-https://github.com/zenoss/Community-Zenpacks/commits/ec73644ce128dea2899390c4e29d35b64dfd5e42/ZenPacks.community.DellMon/ZenPacks/community/DellMon/migrate/removeOldDellReports.py
-         if hasattr(pack.dmd.Reports, 'Device Reports'):
-            devReports = pack.dmd.Reports['Device Reports']
+remove_old = CleaningMigration
 
-            if hasattr(devReports, 'Dell DRAC Controllers'):
-                devReports._delObject('Dell DRAC Controllers')
-        '''
+CleaningMigration()
 
+def remove_object(dmd, path):
+    try:
+        path, id = path.rsplit('/', 1)
+    except ValueError:
+        return
+    try:
+        obj = dmd.getObjByPath(path)
+    except (KeyError, NotFound) as e:
+        log.info(path + ' not found')
+        return
+    log.info('Removing from %s %s' % (path, id))
+    obj._delObject(id)
 
-        # Do the migration work. No commit is needed.
-        pass
-
-ExampleMigration()
-
-'''
+OLD_OBJECTS = '''
 /Devices/Server/rrdTemplates/MySQL
 /Devices/Server/rrdTemplates/MySQL/datasources/mysql
 /Devices/Server/rrdTemplates/MySQL/datasources/mysql/datapoints/Bytes_received
