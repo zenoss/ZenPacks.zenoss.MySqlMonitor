@@ -40,10 +40,11 @@ class Test_datasource_to_dbpool(BaseTestCase):
 
         adbapi.ConnectionPool.assert_called_with(
             'MySQLdb',
-            user=sentinel.user,
-            port=sentinel.port,
             passwd=sentinel.passwd,
             host='127.0.0.1',
+            cp_reconnect=True,
+            user=sentinel.user,
+            port=sentinel.port
         )
         parse_mysql_connection_string.assert_called_with(
             sentinel.zMySQLConnectionString
@@ -487,7 +488,7 @@ class TestMySQLDatabaseExistencePlugin(BaseTestCase):
 
         self.assertEquals(len(events), 1)
         self.assertEquals(events[0]['eventKey'], 'db_deleted')
-        self.assertEquals(events[0]['component'], component)
+        self.assertEquals(events[0]['component'], 'test')
         self.assertEquals(events[0]['severity'], 2)
 
     def test_db_exists(self):
