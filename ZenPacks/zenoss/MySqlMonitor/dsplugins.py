@@ -266,31 +266,19 @@ class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
         fields = enumerate(('table_count', 'size', 'data_size', 'index_size'))
         return dict((f, (results[0][i] or 0, t)) for i, f in fields)
 
-    # def query_results_to_maps(self, results, component):
-    #     if results[0][0]:
-    #         table_count = results[0][0]
-    #         server = component.split(NAME_SPLITTER)[0]
+    def query_results_to_maps(self, results, component):
+        if results[0][0]:
+            table_count = results[0][0]
+            server = component.split(NAME_SPLITTER)[0]
 
-    #         om = ObjectMap()
-    #         om.updateFromDict({
-    #             "id": component,
-    #             "compname": "/mysql_servers/%s" % server,
-    #             "relname": "databases",
-    #             "modname": "Tables count",
-    #             "data": {
-    #                 "table_count": table_count
-    #             }
-    #         })
-    #         # om = ObjectMap(
-    #         #     compname="/mysql_servers/%s/databases/%s" % (
-    #         #         server, component),
-    #         #     modname="Tables count",
-    #         #     data = {
-    #         #         "table_count": table_count
-    #         #     }
-    #         # )
-    #         return [om]
-    #     return []
+            om = ObjectMap({
+                "compname": "mysql_servers/%s/databases/%s" % (
+                    server, component),
+                "modname": "Tables count",
+                "table_count": table_count
+            })
+            return [om]
+        return []
 
 
 class MySQLDatabaseExistencePlugin(MysqlBasePlugin):
@@ -311,23 +299,18 @@ class MySQLDatabaseExistencePlugin(MysqlBasePlugin):
                 'eventClass': '/Status',
                 'summary': 'Database deleted: "%s" was deleted on server' %
                     component.split(NAME_SPLITTER)[-1],
-                'component': component,
+                'component': component.split(NAME_SPLITTER)[0],
             }]
         return []
 
-    # def query_results_to_maps(self, results, component):
-    #     if not results[0][0]:
-    #         # Database does not exist
-    #         server = component.split(NAME_SPLITTER)[0]
-    #         full_path = "/mysql_servers/%s/databases/%s" % (
-    #             server, component)
-
-    #         om = ObjectMap()
-    #         om.updateFromDict({
-    #             "id": component,
-    #             "compname": "/mysql_servers/%s" % server,
-    #             "relname": "databases",
-    #             "remove": True
-    #         })
-    #         return [om]
-    #     return []
+    def query_results_to_maps(self, results, component):
+        if not results[0][0]:
+            # Database does not exist, will be deleted
+            server = component.split(NAME_SPLITTER)[0]
+            om = ObjectMap({
+                "compname": "mysql_servers/%s" % server,
+                "modname": "Remove/add",
+                "remove": component
+            })
+            return [om]
+        return []
