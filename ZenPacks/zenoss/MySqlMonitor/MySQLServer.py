@@ -53,6 +53,10 @@ class MySQLServer(MySQLComponent):
             ToOne, MODULE_NAME['MySQLDatabase'], 'server')),
     )
 
+    def remove(self, object_id=None):
+        if object_id:
+            self.databases._delObject(object_id)
+
     def device(self):
         return self.mysql_host()
 
