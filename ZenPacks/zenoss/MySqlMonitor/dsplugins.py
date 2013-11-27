@@ -70,6 +70,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         values = {}
         events = []
         maps = []
+        res= None
         for ds in config.datasources:
             try:
                 try:
@@ -82,9 +83,10 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                         res = yield dbpool.runQuery(
                             self.get_query(ds.component)
                         )
-                values[ds.component] = self.query_results_to_values(res)
-                events.extend(self.query_results_to_events(res, ds.component))
-                maps.extend(self.query_results_to_maps(res, ds.component))
+                if res:
+                    values[ds.component] = self.query_results_to_values(res)
+                    events.extend(self.query_results_to_events(res, ds.component))
+                    maps.extend(self.query_results_to_maps(res, ds.component))
             except Exception, e:
                 events.append({
                     'component': ds.component,
