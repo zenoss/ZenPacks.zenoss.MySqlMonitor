@@ -487,7 +487,7 @@ class TestMySQLDatabaseExistencePlugin(BaseTestCase):
         events = plugin.query_results_to_events(results, component)
 
         self.assertEquals(len(events), 1)
-        self.assertEquals(events[0]['eventKey'], 'db_deleted')
+        self.assertEquals(events[0]['eventKey'], 'db_test_dropped')
         self.assertEquals(events[0]['component'], 'test')
         self.assertEquals(events[0]['severity'], 2)
 

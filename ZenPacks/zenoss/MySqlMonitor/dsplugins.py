@@ -293,12 +293,12 @@ class MySQLDatabaseExistencePlugin(MysqlBasePlugin):
     def query_results_to_events(self, results, component):
         if not results[0][0]:
             # Database does not exist, will be deleted
+            db_name = component.split(NAME_SPLITTER)[-1]
             return [{
                 'severity': 2,
-                'eventKey': 'db_deleted',
+                'eventKey': 'db_%s_dropped' % db_name,
                 'eventClass': '/Status',
-                'summary': 'Database deleted: "%s" was deleted on server' %
-                    component.split(NAME_SPLITTER)[-1],
+                'summary': 'Database "%s" was dropped.' % db_name,
                 'component': component.split(NAME_SPLITTER)[0],
             }]
         return []
