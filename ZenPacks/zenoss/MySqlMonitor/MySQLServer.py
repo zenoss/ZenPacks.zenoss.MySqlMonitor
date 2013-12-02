@@ -86,6 +86,7 @@ class IMySQLServerInfo(IComponentInfo):
     slave_status = schema.TextLine(title=_t(u'Slave status'))
     master_status = schema.TextLine(title=_t(u'Master status'))
     version = schema.TextLine(title=_t(u'Version'))
+    db_count = schema.TextLine(title=_t(u'Number of databases'))
 
 
 class MySQLServerInfo(ComponentInfo):
@@ -101,3 +102,7 @@ class MySQLServerInfo(ComponentInfo):
     slave_status = ProxyProperty('slave_status')
     master_status = ProxyProperty('master_status')
     version = ProxyProperty('version')
+
+    @property
+    def db_count(self):
+        return self._object.databases.countObjects()
