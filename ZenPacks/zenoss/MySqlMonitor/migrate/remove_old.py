@@ -57,13 +57,14 @@ def remove_object(dmd, path, method='_delObject'):
     try:
         obj = dmd.getObjByPath(path)
     except (KeyError, NotFound) as e:
-        log.info(path + ' not found')
+        # log.info(path + ' not found')
         return
-    log.info('Removing from %s %s' % (path, id))
+    # log.info('Removing from %s %s' % (path, id))
     try:
         getattr(obj, method)(id)
     except Exception as e:
-        log.error(e)
+        pass
+        # log.error(e)
 
 OLD_ZPROPERTIES = '''
 /Devices/zMySqlRootPassword

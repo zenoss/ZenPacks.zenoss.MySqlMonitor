@@ -70,6 +70,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         values = {}
         events = []
         maps = []
+        res= None
         for ds in config.datasources:
             try:
                 try:
@@ -82,9 +83,10 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                         res = yield dbpool.runQuery(
                             self.get_query(ds.component)
                         )
-                values[ds.component] = self.query_results_to_values(res)
-                events.extend(self.query_results_to_events(res, ds.component))
-                maps.extend(self.query_results_to_maps(res, ds.component))
+                if res:
+                    values[ds.component] = self.query_results_to_values(res)
+                    events.extend(self.query_results_to_events(res, ds.component))
+                    maps.extend(self.query_results_to_maps(res, ds.component))
             except Exception, e:
                 events.append({
                     'component': ds.component,
@@ -293,12 +295,12 @@ class MySQLDatabaseExistencePlugin(MysqlBasePlugin):
     def query_results_to_events(self, results, component):
         if not results[0][0]:
             # Database does not exist, will be deleted
+            db_name = component.split(NAME_SPLITTER)[-1]
             return [{
                 'severity': 2,
-                'eventKey': 'db_deleted',
+                'eventKey': 'db_%s_dropped' % db_name,
                 'eventClass': '/Status',
-                'summary': 'Database deleted: "%s" was deleted on server' %
-                    component.split(NAME_SPLITTER)[-1],
+                'summary': 'Database "%s" was dropped.' % db_name,
                 'component': component.split(NAME_SPLITTER)[0],
             }]
         return []
