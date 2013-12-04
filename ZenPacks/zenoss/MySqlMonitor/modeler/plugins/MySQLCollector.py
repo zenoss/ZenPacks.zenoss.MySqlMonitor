@@ -214,14 +214,23 @@ class MySQLCollector(PythonPlugin):
         @rtype: str
         """
 
-        result = dict((el['Variable_name'], el['Value'])
+        r = dict((el['Variable_name'], el['Value'])
                       for el in server_result)
 
-        if int(result['Handler_read_key']) == 0:
+        if int(r['Handler_read_key']) == 0:
             return "N/A"
 
-        percent = float(result['Handler_read_first']) /\
-            float(result['Handler_read_key'])
+        # percent = float(result['Handler_read_first']) /\
+        #    float(result['Handler_read_key'])
+        # 1 - (handler_read_rnd_next + handler_read_rnd) /
+        # (handler_read_rnd_next + handler_read_rnd + handler_read_first +
+        # handler_read_next + handler_read_key + handler_read_prev )
+        percent = 1 - (float(r['Handler_read_rnd_next']) +
+            float(r['Handler_read_rnd'])) / (
+            float(r['Handler_read_rnd_next']) + float(r['Handler_read_rnd']) +
+            float(r['Handler_read_first']) + float(r['Handler_read_next']) +
+            float(r['Handler_read_key']) + float(r['Handler_read_prev'])
+        )
 
         return str(round(percent, 3)*100)+'%'
 
