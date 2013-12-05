@@ -60,17 +60,8 @@ class MySQLServer(MySQLComponent):
     def device(self):
         return self.mysql_host()
 
-    def getStatus(self):
-        # zep = getFacade('zep')
-        # event_filter = zep.createEventFilter(tags=[self.getUUID()],
-        #                                      severity=[2],
-        #                                      status=[STATUS_NEW,STATUS_ACKNOWLEDGED],
-        #                                      event_class=filter(None, ["/Status"]))
-        # events = zep.getEventSummaries(0, filter=event_filter)
-        # for e in events:
-        #     if "Database deleted: " in e.summary:
-        #         self.databases._delObj(dbid)
-        return super(MySQLServer, self).getStatus("/Status")
+    # def getStatus(self):
+        # return super(MySQLServer, self).getStatus("/Status")
 
 
 class IMySQLServerInfo(IComponentInfo):
@@ -86,6 +77,7 @@ class IMySQLServerInfo(IComponentInfo):
     slave_status = schema.TextLine(title=_t(u'Slave status'))
     master_status = schema.TextLine(title=_t(u'Master status'))
     version = schema.TextLine(title=_t(u'Version'))
+    db_count = schema.TextLine(title=_t(u'Number of databases'))
 
 
 class MySQLServerInfo(ComponentInfo):
@@ -101,3 +93,7 @@ class MySQLServerInfo(ComponentInfo):
     slave_status = ProxyProperty('slave_status')
     master_status = ProxyProperty('master_status')
     version = ProxyProperty('version')
+
+    @property
+    def db_count(self):
+        return self._object.databases.countObjects()

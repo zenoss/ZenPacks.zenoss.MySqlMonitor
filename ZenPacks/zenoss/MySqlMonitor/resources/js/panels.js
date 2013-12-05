@@ -44,6 +44,7 @@ ZC.MySQLServerPanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'monitored'},
                 {name: 'status'},
                 {name: 'locking'},
+                {name: 'db_count'},
                 {name: 'size'},
                 {name: 'data_size'},
                 {name: 'index_size'},
@@ -66,6 +67,10 @@ ZC.MySQLServerPanel = Ext.extend(ZC.ComponentGridPanel, {
                 id: 'version',
                 dataIndex: 'version',
                 header: _t('Version'),
+            },{
+                id: 'db_count',
+                dataIndex: 'db_count',
+                header: _t('Number of databases'),
             },{
                 id: 'percent_full_table_scans',
                 dataIndex: 'percent_full_table_scans',

@@ -281,7 +281,9 @@ END OF INNODB MONITOR OUTPUT
 '''), )
 
         plugin = dsplugins.MySqlDeadlockPlugin()
-        events = plugin.query_results_to_events(results, sentinel.component)
+        ds = Mock()
+        ds.component = sentinel.component
+        events = plugin.query_results_to_events(results, ds)
 
         self.assertEquals(len(events), 1)
         self.assertEquals(events[0]['eventKey'], 'innodb_deadlock')
@@ -435,7 +437,9 @@ END OF INNODB MONITOR OUTPUT
 '''), )
 
         plugin = dsplugins.MySqlDeadlockPlugin()
-        events = plugin.query_results_to_events(results, sentinel.component)
+        ds = Mock()
+        ds.component = sentinel.component
+        events = plugin.query_results_to_events(results, ds)
 
         self.assertEquals(len(events), 1)
         self.assertEquals(events[0]['eventKey'], 'innodb_deadlock')
@@ -477,17 +481,40 @@ class TestMySQLMonitorDatabasesPlugin(BaseTestCase):
             index_size=(sentinel.index_size, sentinel.current_time),
         ))
 
+    def test_tables_number_event(self):
+        results = ((4, 1, 1, 1),)
+        plugin = dsplugins.MySQLMonitorDatabasesPlugin()
+
+        ds = Mock()
+        ds.component = "test" + NAME_SPLITTER + "test"
+        ds.table_count = None
+        events = plugin.query_results_to_events(results, ds)
+        self.assertEquals(len(events), 1)
+        self.assertEquals(events[0]['summary'], '4 tables were added.')
+        self.assertEquals(events[0]['severity'], 2)
+
+        ds.table_count = 3
+        events = plugin.query_results_to_events(results, ds)
+        self.assertEquals(events[0]['summary'], '1 table was added.')
+        self.assertEquals(events[0]['severity'], 2)
+
+        ds.table_count = 5
+        events = plugin.query_results_to_events(results, ds)
+        self.assertEquals(events[0]['summary'], '1 table was dropped.')
+        self.assertEquals(events[0]['severity'], 3)
+
 
 class TestMySQLDatabaseExistencePlugin(BaseTestCase):
     def test_db_not_exists(self):
         results = ((0,),)
-        component = "test" + NAME_SPLITTER + "test"
+        ds = Mock()
+        ds.component = "test" + NAME_SPLITTER + "test"
 
         plugin = dsplugins.MySQLDatabaseExistencePlugin()
-        events = plugin.query_results_to_events(results, component)
+        events = plugin.query_results_to_events(results, ds)
 
         self.assertEquals(len(events), 1)
-        self.assertEquals(events[0]['eventKey'], 'db_deleted')
+        self.assertEquals(events[0]['eventKey'], 'db_test_dropped')
         self.assertEquals(events[0]['component'], 'test')
         self.assertEquals(events[0]['severity'], 2)
 
@@ -495,7 +522,7 @@ class TestMySQLDatabaseExistencePlugin(BaseTestCase):
         results = ((1,),)
 
         plugin = dsplugins.MySQLDatabaseExistencePlugin()
-        events = plugin.query_results_to_events(results, sentinel.component)
+        events = plugin.query_results_to_events(results, Mock())
 
         self.assertEquals(len(events), 0)
         # self.assertEquals(events[0]['eventKey'], 'db_existence')

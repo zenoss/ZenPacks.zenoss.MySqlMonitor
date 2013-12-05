@@ -58,7 +58,7 @@ class TestMySQLCollector(BaseTestCase):
             'id': 'root_3306',
             'index_size': 4143104,
             'master_status': 'OFF',
-            'percent_full_table_scans': '0.0%',
+            'percent_full_table_scans': '71.2%',
             'size': 57566833,
             'slave_status': 'IO running: No; SQL running: '
                             'No; Seconds behind: None',
@@ -94,15 +94,11 @@ class TestMySQLCollector(BaseTestCase):
     def test_table_scans(self):
         self.assertEquals(
             self.collector._table_scans(modeling_data.SERVER_STATUS1),
-            '0.0%'
+            '71.2%'
         )
         self.assertEquals(
             self.collector._table_scans(modeling_data.SERVER_STATUS2),
             'N/A'
-        )
-        self.assertEquals(
-            self.collector._table_scans(modeling_data.SERVER_STATUS3),
-            '50.0%'
         )
 
     def test_master_status(self):
