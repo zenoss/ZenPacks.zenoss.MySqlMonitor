@@ -52,8 +52,13 @@ RESULT1 = [{
         'size': 9216
     },),
     'server': (
-        {'Value': '0', 'Variable_name': 'Handler_read_first'},
-        {'Value': '127', 'Variable_name': 'Handler_read_key'}
+        {'Value': '7789', 'Variable_name': 'Handler_read_first'},
+        {'Value': '52902', 'Variable_name': 'Handler_read_key'},
+        {'Value': '27003', 'Variable_name': 'Handler_read_last'},
+        {'Value': '4666', 'Variable_name': 'Handler_read_next'},
+        {'Value': '0', 'Variable_name': 'Handler_read_prev'},
+        {'Value': '545', 'Variable_name': 'Handler_read_rnd'},
+        {'Value': '25922', 'Variable_name': 'Handler_read_rnd_next'}
     ),
     'master': (),
     'server_size': ({
@@ -73,16 +78,22 @@ RESULT1 = [{
 # -------------------------------------------------------------------------
 # Server results
 SERVER_STATUS1 = (
-    {'Value': '0', 'Variable_name': 'Handler_read_first'},
-    {'Value': '127', 'Variable_name': 'Handler_read_key'},
+    {'Value': '7789', 'Variable_name': 'Handler_read_first'},
+    {'Value': '52902', 'Variable_name': 'Handler_read_key'},
+    {'Value': '27003', 'Variable_name': 'Handler_read_last'},
+    {'Value': '4666', 'Variable_name': 'Handler_read_next'},
+    {'Value': '0', 'Variable_name': 'Handler_read_prev'},
+    {'Value': '545', 'Variable_name': 'Handler_read_rnd'},
+    {'Value': '25922', 'Variable_name': 'Handler_read_rnd_next'}
 )
 SERVER_STATUS2 = (
-    {'Value': '127', 'Variable_name': 'Handler_read_first'},
+    {'Value': '0', 'Variable_name': 'Handler_read_first'},
     {'Value': '0', 'Variable_name': 'Handler_read_key'},
-)
-SERVER_STATUS3 = (
-    {'Value': '10', 'Variable_name': 'Handler_read_first'},
-    {'Value': '20', 'Variable_name': 'Handler_read_key'},
+    {'Value': '0', 'Variable_name': 'Handler_read_last'},
+    {'Value': '0', 'Variable_name': 'Handler_read_next'},
+    {'Value': '0', 'Variable_name': 'Handler_read_prev'},
+    {'Value': '0', 'Variable_name': 'Handler_read_rnd'},
+    {'Value': '0', 'Variable_name': 'Handler_read_rnd_next'}
 )
 # -------------------------------------------------------------------------
 # Master results
