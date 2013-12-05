@@ -88,7 +88,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                     events.extend(self.query_results_to_events(res, ds))
                     maps.extend(self.query_results_to_maps(res, ds.component))
             except Exception, e:
-                if '(.)' not in ds.component:
+                if NAME_SPLITTER not in ds.component:
                     events.append({
                         'component': ds.component,
                         'summary': str(e),
