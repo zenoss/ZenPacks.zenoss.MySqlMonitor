@@ -70,7 +70,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         values = {}
         events = []
         maps = []
-        res= None
+        res = None
         for ds in config.datasources:
             try:
                 try:
@@ -88,13 +88,14 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                     events.extend(self.query_results_to_events(res, ds.component))
                     maps.extend(self.query_results_to_maps(res, ds.component))
             except Exception, e:
-                events.append({
-                    'component': ds.component,
-                    'summary': str(e),
-                    'eventClass': '/Status',
-                    'eventKey': 'mysql_result',
-                    'severity': 4,
-                })
+                if '(.)' not in ds.component:
+                    events.append({
+                        'component': ds.component,
+                        'summary': str(e),
+                        'eventClass': '/Status',
+                        'eventKey': 'mysql_result',
+                        'severity': 4,
+                    })
 
         defer.returnValue(dict(
             events=events,
