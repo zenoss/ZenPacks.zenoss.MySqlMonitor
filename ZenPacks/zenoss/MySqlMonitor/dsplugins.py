@@ -51,7 +51,7 @@ def datasource_to_dbpool(ds, ip, dbpool_cache={}):
 
 
 class MysqlBasePlugin(PythonDataSourcePlugin):
-    proxy_attributes = ('zMySQLConnectionString',)
+    proxy_attributes = ('zMySQLConnectionString', 'table_count')
 
     def get_query(self, component):
         raise NotImplemented
@@ -59,7 +59,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
     def query_results_to_values(self, results):
         return {}
 
-    def query_results_to_events(self, results, component):
+    def query_results_to_events(self, results, ds):
         return []
 
     def query_results_to_maps(self, results, component):
@@ -70,7 +70,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         values = {}
         events = []
         maps = []
-        res= None
+        res = None
         for ds in config.datasources:
             try:
                 try:
@@ -85,16 +85,17 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                         )
                 if res:
                     values[ds.component] = self.query_results_to_values(res)
-                    events.extend(self.query_results_to_events(res, ds.component))
+                    events.extend(self.query_results_to_events(res, ds))
                     maps.extend(self.query_results_to_maps(res, ds.component))
             except Exception, e:
-                events.append({
-                    'component': ds.component,
-                    'summary': str(e),
-                    'eventClass': '/Status',
-                    'eventKey': 'mysql_result',
-                    'severity': 4,
-                })
+                if NAME_SPLITTER not in ds.component:
+                    events.append({
+                        'component': ds.component,
+                        'summary': str(e),
+                        'eventClass': '/Status',
+                        'eventKey': 'mysql_result',
+                        'severity': 4,
+                    })
 
         defer.returnValue(dict(
             events=events,
@@ -146,7 +147,7 @@ class MySqlDeadlockPlugin(MysqlBasePlugin):
     def get_query(self, component):
         return 'show engine innodb status'
 
-    def query_results_to_events(self, results, component):
+    def query_results_to_events(self, results, ds):
         text = results[0][2]
         deadlock_match = self.deadlock_re.search(text)
         if deadlock_match:
@@ -161,7 +162,7 @@ class MySqlDeadlockPlugin(MysqlBasePlugin):
             'eventKey': 'innodb_deadlock',
             'eventClass': '/Status',
             'summary': summary,
-            'component': component,
+            'component': ds.component,
         }]
 
 
@@ -178,7 +179,7 @@ class MySqlReplicationPlugin(MysqlBasePlugin):
             'component': component,
         }
 
-    def query_results_to_events(self, results, component):
+    def query_results_to_events(self, results, ds):
         if not results:
             # Not a slave MySQL
             return []
@@ -200,7 +201,7 @@ class MySqlReplicationPlugin(MysqlBasePlugin):
         last_sql_err_no = results[0][36]
         last_sql_err_str = results[0][37]
 
-        c = component
+        c = ds.component
         events = []
 
         if slave_io == "Yes":
@@ -269,18 +270,33 @@ class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
         return dict((f, (results[0][i] or 0, t)) for i, f in fields)
 
     def query_results_to_maps(self, results, component):
-        if results[0][0]:
-            table_count = results[0][0]
-            server = component.split(NAME_SPLITTER)[0]
+        table_count = results[0][0]
+        server = component.split(NAME_SPLITTER)[0]
+        om = ObjectMap({
+            "compname": "mysql_servers/%s/databases/%s" % (
+                server, component),
+            "modname": "Tables count",
+            "table_count": table_count
+        })
+        return [om]
 
-            om = ObjectMap({
-                "compname": "mysql_servers/%s/databases/%s" % (
-                    server, component),
-                "modname": "Tables count",
-                "table_count": table_count
-            })
-            return [om]
-        return []
+    def query_results_to_events(self, results, ds):
+        if not ds.table_count:
+            ds.table_count = 0
+
+        diff = results[0][0] - ds.table_count
+        if diff == 0:
+            return []
+
+        grammar = 'table was' if abs(diff) == 1 else 'tables were'
+        key, severity = ('added', 2) if diff > 0 else ('dropped', 3)
+        return [{
+            'severity': severity,
+            'eventKey': 'table_count%s' % str(time.time()),
+            'eventClass': '/Status',
+            'summary': '{0} {1} {2}.'.format(abs(diff), grammar, key),
+            'component': ds.component.split(NAME_SPLITTER)[-1],
+        }]
 
 
 class MySQLDatabaseExistencePlugin(MysqlBasePlugin):
@@ -292,16 +308,16 @@ class MySQLDatabaseExistencePlugin(MysqlBasePlugin):
             component.split(NAME_SPLITTER)[-1]
         )
 
-    def query_results_to_events(self, results, component):
+    def query_results_to_events(self, results, ds):
         if not results[0][0]:
             # Database does not exist, will be deleted
-            db_name = component.split(NAME_SPLITTER)[-1]
+            db_name = ds.component.split(NAME_SPLITTER)[-1]
             return [{
                 'severity': 2,
                 'eventKey': 'db_%s_dropped' % db_name,
                 'eventClass': '/Status',
                 'summary': 'Database "%s" was dropped.' % db_name,
-                'component': component.split(NAME_SPLITTER)[0],
+                'component': ds.component.split(NAME_SPLITTER)[0],
             }]
         return []
 
