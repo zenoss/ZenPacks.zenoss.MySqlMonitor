@@ -27,6 +27,11 @@
         />
     -->
 
+    <adapter factory=".datasources.MySqlMonitorDataSource.MySqlMonitorDataSourceInfo"
+        for=".datasources.MySqlMonitorDataSource.MySqlMonitorDataSource"
+        provides=".datasources.MySqlMonitorDataSource.IMySqlMonitorDataSourceInfo"
+        />
+
     <!-- Impact -->
     <configure zcml:condition="installed ZenPacks.zenoss.Impact">
         <include package="ZenPacks.zenoss.Impact" file="meta.zcml"/>
