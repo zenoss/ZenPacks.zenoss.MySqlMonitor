@@ -158,20 +158,3 @@ VERSION1 = (
     {'Value': 'i686', 'Variable_name': 'version_compile_machine'},
     {'Value': 'Linux', 'Variable_name': 'version_compile_os'}
 )
-
-MYSQL_STATS = (
-    ('Aborted_clients', '441'),
-    ('Aborted_connects', '0'),
-    ('Binlog_cache_disk_use', '0'),
-    ('Binlog_cache_use', '0'),
-    ('Binlog_stmt_cache_disk_use', '0'),
-    ('Binlog_stmt_cache_use', '0'),
-    ('Bytes_received', '54835800'),
-    ('Bytes_sent', '243214939'),
-    ('Com_admin_commands', '0'),
-    ('Com_assign_to_keycache', '0'),
-    ('Com_alter_db', '0'),
-    ('Com_alter_db_upgrade', '0'),
-    ('Com_alter_event', '0'),
-    ('Com_alter_function', '0'),
-)
