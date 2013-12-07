@@ -99,11 +99,11 @@ class ZenPack(ZenPackBase):
     ZenPack loader that handles custom installation and removal tasks.
     """
 
-    packZProperties = [
-        ('zMySQLConnectionString', '', 'multilinecredentials'),
-        ('zMySqlUsername', 'zenoss', 'string'),
+    packZProperties = [    
+        ('zMySqlUsername', '', 'string'),
         ('zMySqlPassword', '', 'password'),
-        ('zMySqlPort', '3306', 'string'),
+        ('zMySqlPort', '', 'string'),
+        ('zMySQLConnectionString', '', 'multilinecredentials'),
     ]
 
     def install(self, app):
