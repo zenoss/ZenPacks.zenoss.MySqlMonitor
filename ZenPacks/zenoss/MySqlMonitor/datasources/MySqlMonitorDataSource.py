@@ -1,14 +1,14 @@
 ##############################################################################
-# 
+#
 # Copyright (C) Zenoss, Inc. 2008, all rights reserved.
-# 
+#
 # This content is made available according to terms specified in
 # License.zenoss under the directory where your Zenoss product is installed.
-# 
+#
 ##############################################################################
 
 
-__doc__='''MySqlMonitorDataSource.py
+__doc__ = '''MySqlMonitorDataSource.py
 
 Defines datasource for MySqlMonitor
 '''
@@ -30,8 +30,8 @@ import os
 
 
 class MySqlMonitorDataSource(ZenPackPersistence,
-                                BasicDataSource.BasicDataSource):
-    
+                             BasicDataSource.BasicDataSource):
+
     MYSQL_MONITOR = 'MySqlMonitor'
 
     ZENPACKID = 'ZenPacks.zenoss.MySqlMonitor'
@@ -49,49 +49,40 @@ class MySqlMonitorDataSource(ZenPackPersistence,
     password = '${here/zMySqlPassword}'
 
     _properties = BasicDataSource.BasicDataSource._properties + (
-        {'id':'versionFivePlus', 'type':'boolean', 'mode':'w'},
-        {'id':'hostname', 'type':'string', 'mode':'w'},
-        {'id':'port', 'type':'string', 'mode':'w'},
-        {'id':'username', 'type':'string', 'mode':'w'},
-        {'id':'password', 'type':'string', 'mode':'w'},
-        {'id':'timeout', 'type':'int', 'mode':'w'},
-        )
-        
-    _relations = BasicDataSource.BasicDataSource._relations + (
-        )
-
-
-    factory_type_information = ( 
-    { 
-        'immediate_view' : 'editMySqlMonitorDataSource',
-        'actions'        :
-        ( 
-            { 'id'            : 'edit',
-              'name'          : 'Data Source',
-              'action'        : 'editMySqlMonitorDataSource',
-              'permissions'   : ( Permissions.view, ),
-            },
-        )
-    },
+        {'id': 'versionFivePlus', 'type': 'boolean', 'mode': 'w'},
+        {'id': 'hostname', 'type': 'string', 'mode': 'w'},
+        {'id': 'port', 'type': 'string', 'mode': 'w'},
+        {'id': 'username', 'type': 'string', 'mode': 'w'},
+        {'id': 'password', 'type': 'string', 'mode': 'w'},
+        {'id': 'timeout', 'type': 'int', 'mode': 'w'},
     )
+
+    _relations = BasicDataSource.BasicDataSource._relations + (
+    )
+
+    factory_type_information = ({
+        'immediate_view': 'editMySqlMonitorDataSource',
+        'actions': ({
+            'id': 'edit',
+            'name': 'Data Source',
+            'action': 'editMySqlMonitorDataSource',
+            'permissions': (Permissions.view,),
+        },)
+    },)
 
     security = ClassSecurityInfo()
 
-
     def __init__(self, id, title=None, buildRelations=True):
         BasicDataSource.BasicDataSource.__init__(self, id, title,
-                buildRelations)
-
+                                                 buildRelations)
 
     def getDescription(self):
         if self.sourcetype == self.MYSQL_MONITOR:
             return self.hostname
         return BasicDataSource.BasicDataSource.getDescription(self)
 
-
     def useZenCommand(self):
         return True
-
 
     def getCommand(self, context):
         parts = ['check_mysql_stats.py']
@@ -109,13 +100,11 @@ class MySqlMonitorDataSource(ZenPackPersistence,
         cmd = BasicDataSource.BasicDataSource.getCommand(self, context, cmd)
         return cmd
 
-
     def checkCommandPrefix(self, context, cmd):
         if self.usessh:
             return os.path.join(context.zCommandPath, cmd)
         zp = self.getZenPack(context)
         return zp.path('libexec', cmd)
-
 
     def addDataPoints(self):
         dps = (
@@ -153,7 +142,6 @@ class MySqlMonitorDataSource(ZenPackPersistence,
             dp.rrdtype = dpd[1]
             dp.rrdmin = 0
 
-
     def zmanage_editProperties(self, REQUEST=None):
         '''validation, etc'''
         if REQUEST:
@@ -162,8 +150,10 @@ class MySqlMonitorDataSource(ZenPackPersistence,
             # and eventClass
             if not REQUEST.form.get('eventClass', None):
                 REQUEST.form['eventClass'] = self.__class__.eventClass
-        return BasicDataSource.BasicDataSource.zmanage_editProperties(self,
-                REQUEST)
+        return BasicDataSource.BasicDataSource.zmanage_editProperties(
+            self,
+            REQUEST
+        )
 
 InitializeClass(MySqlMonitorDataSource)
 
@@ -176,7 +166,10 @@ class IMySqlMonitorDataSourceInfo(IBasicDataSourceInfo):
     username = schema.TextLine(title=_t(u'MySQL Username'), group=_t(u'MySQL'))
     port = schema.TextLine(title=_t(u'MySQL Port'), group=_t(u'MySQL'))
     password = schema.Password(title=_t(u'MySQL Password'), group=_t(u'MySQL'))
-    versionFivePlus = schema.Bool(title=_t(u'MySQL Version 5+'), group=_t(u'MySQL'))
+    versionFivePlus = schema.Bool(
+        title=_t(u'MySQL Version 5+'),
+        group=_t(u'MySQL')
+    )
 
 
 class MySqlMonitorDataSourceInfo(BasicDataSourceInfo):
@@ -188,7 +181,7 @@ class MySqlMonitorDataSourceInfo(BasicDataSourceInfo):
     port = ProxyProperty('port')
     username = ProxyProperty('username')
     password = ProxyProperty('password')
-        
+
     @property
     def testable(self):
         """
