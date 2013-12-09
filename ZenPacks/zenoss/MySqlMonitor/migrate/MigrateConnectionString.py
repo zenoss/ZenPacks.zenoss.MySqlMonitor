@@ -73,17 +73,18 @@ class MigrateConnectionString(ZenPackMigration):
         if thing.zMySQLConnectionString:
             return
 
-        connection_string = '{"user":"%s","passwd":"%s","port":"%s"}' % \
-            (thing.zMySqlUsername, thing.zMySqlPassword, thing.zMySqlPort)
+        if thing.zMySqlUsername:
+            connection_string = '{"user":"%s","passwd":"%s","port":"%s"}' % \
+                (thing.zMySqlUsername, thing.zMySqlPassword, thing.zMySqlPort)
 
-        log.info(
-            "Setting zMySQLConnectionString for %s",
-            name_for_thing(thing))
+            log.info(
+                "Setting zMySQLConnectionString for %s",
+                name_for_thing(thing))
 
-        thing.setZenProperty('zMySQLConnectionString', [connection_string])
-        thing.setZenProperty('zMySqlUsername', '')
-        thing.setZenProperty('zMySqlPassword', '')
-        thing.setZenProperty('zMySqlPort', '')
+            thing.setZenProperty('zMySQLConnectionString', [connection_string])
+            thing.setZenProperty('zMySqlUsername', '')
+            thing.setZenProperty('zMySqlPassword', '')
+            thing.setZenProperty('zMySqlPort', '')
 
 
 MigrateConnectionString()
