@@ -54,14 +54,16 @@ class TestZenossMySqlStatsPlugin(BaseTestCase):
             sys.stdout = saved_stdout
 
         mysqldb.connect.assert_called_with(
-                passwd=sentinel.passwd,
-                host=sentinel.host,
-                db='',
-                user=sentinel.user,
-                port=sentinel.port
-            )
-        self.assertEquals(output, 'STATUS OK|Aborted_clients=1 Aborted_connects=2')
-        
+            passwd=sentinel.passwd,
+            host=sentinel.host,
+            db='',
+            user=sentinel.user,
+            port=sentinel.port
+        )
+        self.assertEquals(
+            output,
+            'STATUS OK|Aborted_clients=1 Aborted_connects=2'
+        )
 
     @patch.object(check_mysql_stats, 'MySQLdb')
     def test_error_statistics_run(self, mysqldb):
@@ -86,7 +88,10 @@ class TestZenossMySqlStatsPlugin(BaseTestCase):
             sys.exit = saved_exit
 
         connect.cursor.return_value.close.assert_called()
-        self.assertEquals(output, 'Error getting MySQL statistics\nSTATUS OK|')
+        self.assertEquals(
+            output,
+            'Error getting MySQL statistics\nSTATUS OK|'
+        )
 
 
 def test_suite():

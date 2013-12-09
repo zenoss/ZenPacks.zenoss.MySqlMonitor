@@ -29,7 +29,8 @@ def name_for_thing(widget):
 
 
 class MigrateConnectionString(ZenPackMigration):
-    ''' Main class that contains the migrate() method. Note version setting. '''
+    ''' Main class that contains the migrate() method.
+    Note version setting. '''
     version = Version(3, 0, 0)
 
     def migrate(self, dmd):
@@ -72,16 +73,13 @@ class MigrateConnectionString(ZenPackMigration):
         if thing.zMySQLConnectionString:
             return
 
-        if thing.zMySQLConnectionString:
-            connection_string = thing.zMySQLConnectionString
-        else:
-            connection_string = '{"user":"%s","passwd":"%s","port":"%s"}' % \
-                (thing.zMySqlUsername, thing.zMySqlPassword, thing.zMySqlPort)
+        connection_string = '{"user":"%s","passwd":"%s","port":"%s"}' % \
+            (thing.zMySqlUsername, thing.zMySqlPassword, thing.zMySqlPort)
 
         log.info(
             "Setting zMySQLConnectionString for %s",
             name_for_thing(thing))
-        log.info(connection_string)
+
         thing.setZenProperty('zMySQLConnectionString', [connection_string])
         thing.setZenProperty('zMySqlUsername', '')
         thing.setZenProperty('zMySqlPassword', '')

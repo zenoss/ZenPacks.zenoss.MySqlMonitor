@@ -99,7 +99,7 @@ class ZenPack(ZenPackBase):
     ZenPack loader that handles custom installation and removal tasks.
     """
 
-    packZProperties = [    
+    packZProperties = [
         ('zMySqlUsername', '', 'string'),
         ('zMySqlPassword', '', 'password'),
         ('zMySqlPort', '', 'string'),
