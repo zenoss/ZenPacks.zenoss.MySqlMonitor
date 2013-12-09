@@ -88,7 +88,10 @@ class TestZenossMySqlStatsPlugin(BaseTestCase):
             sys.exit = saved_exit
 
         connect.cursor.return_value.close.assert_called()
-        self.assertEquals(output, 'Error getting MySQL statistics\nSTATUS OK|')
+        self.assertEquals(
+            output,
+            'Error getting MySQL statistics\nSTATUS OK|'
+        )
 
 
 class TestZenossMySqlMonitorDataSource(BaseTestCase):
