@@ -100,6 +100,9 @@ class ZenPack(ZenPackBase):
     """
 
     packZProperties = [
+        ('zMySqlUsername', '', 'string'),
+        ('zMySqlPassword', '', 'password'),
+        ('zMySqlPort', '', 'string'),
         ('zMySQLConnectionString', '', 'multilinecredentials'),
     ]
 

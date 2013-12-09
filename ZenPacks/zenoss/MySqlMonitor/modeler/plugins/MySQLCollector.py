@@ -215,7 +215,7 @@ class MySQLCollector(PythonPlugin):
         """
 
         r = dict((el['Variable_name'], el['Value'])
-                      for el in server_result)
+                 for el in server_result)
 
         if int(r['Handler_read_key']) == 0:
             return "N/A"
@@ -225,7 +225,8 @@ class MySQLCollector(PythonPlugin):
         # 1 - (handler_read_rnd_next + handler_read_rnd) /
         # (handler_read_rnd_next + handler_read_rnd + handler_read_first +
         # handler_read_next + handler_read_key + handler_read_prev )
-        percent = 1 - (float(r['Handler_read_rnd_next']) +
+        percent = 1 - (
+            float(r['Handler_read_rnd_next']) +
             float(r['Handler_read_rnd'])) / (
             float(r['Handler_read_rnd_next']) + float(r['Handler_read_rnd']) +
             float(r['Handler_read_first']) + float(r['Handler_read_next']) +
