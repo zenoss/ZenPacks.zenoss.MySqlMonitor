@@ -9,13 +9,13 @@
 ######################################################################
 
 import sys
-import unittest
 
 from mock import Mock, patch, sentinel
 from StringIO import StringIO
 
 from Products.ZenTestCase.BaseTestCase import BaseTestCase
 
+from ZenPacks.zenoss.MySqlMonitor.datasources import MySqlMonitorDataSource
 from ZenPacks.zenoss.MySqlMonitor.libexec import check_mysql_stats
 
 
@@ -94,8 +94,45 @@ class TestZenossMySqlStatsPlugin(BaseTestCase):
         )
 
 
+class TestZenossMySqlMonitorDataSource(BaseTestCase):
+
+    def get_data(*args):
+            return args
+
+    def afterSetUp(self):
+        super(TestZenossMySqlMonitorDataSource, self).afterSetUp()
+        self.test_obj = MySqlMonitorDataSource.MySqlMonitorDataSource('test')
+
+    def test_addDataPoints(self):
+        self.test_obj.addDataPoints()
+        self.assertEquals(
+            str(self.test_obj.datapoints()[0].getId()),
+            'Bytes_received'
+        )
+        self.assertEquals(
+            str(self.test_obj.datapoints()[0].getPrimaryPath()[0]),
+            'test'
+        )
+
+    @patch.object(MySqlMonitorDataSource, 'BasicDataSource')
+    def test_getCommand(self, bds):
+        bds.BasicDataSource.getCommand = self.get_data
+        context = sentinel.context
+
+        self.assertEquals(
+            self.test_obj.getCommand(context)[2],
+            sentinel.context
+        )
+
+        self.assertIn(
+            self.test_obj.hostname,
+            self.test_obj.getCommand(context)[-1]
+        )
+
+
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(TestZenossMySqlStatsPlugin))
+    suite.addTest(makeSuite(TestZenossMySqlMonitorDataSource))
     return suite
