@@ -19,14 +19,6 @@
         factory=".MySQLDatabase.MySQLDatabaseInfo"
         />
 
-    <!--
-    <adapter
-        provides=".datasources.AzureMonitoringDataSource.IAzureMonitoringDataSourceInfo"
-        for=".datasources.AzureMonitoringDataSource.AzureMonitoringDataSource"
-        factory=".datasources.AzureMonitoringDataSource.AzureMonitoringDataSourceInfo"
-        />
-    -->
-
     <adapter factory=".datasources.MySqlMonitorDataSource.MySqlMonitorDataSourceInfo"
         for=".datasources.MySqlMonitorDataSource.MySqlMonitorDataSource"
         provides=".datasources.MySqlMonitorDataSource.IMySqlMonitorDataSourceInfo"
