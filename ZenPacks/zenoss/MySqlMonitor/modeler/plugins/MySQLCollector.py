@@ -83,7 +83,6 @@ class MySQLCollector(PythonPlugin):
                         str(e), el.get("user"), el.get("port"))
 
                     log.error(msg)
-                    self._send_event("clear", device.id, 0)
                     self._send_event(msg, device.id, severity)
 
                     if severity == 5:
