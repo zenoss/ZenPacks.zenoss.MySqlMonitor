@@ -2,12 +2,12 @@
 # or saved.  Do not modify them directly here.
 # NB: PACKAGES is deprecated
 NAME = "ZenPacks.zenoss.MySqlMonitor"
-VERSION = "3.0.0dev"
+VERSION = "3.0.0"
 AUTHOR = "Zenoss"
 LICENSE = "GPLv2"
 NAMESPACE_PACKAGES = ['ZenPacks', 'ZenPacks.zenoss']
 PACKAGES = ['ZenPacks', 'ZenPacks.zenoss', 'ZenPacks.zenoss.MySqlMonitor']
-INSTALL_REQUIRES = ['ZenPacks.zenoss.PythonCollector']
+INSTALL_REQUIRES = ['ZenPacks.zenoss.PythonCollector>=1.1']
 COMPAT_ZENOSS_VERS = ">=4.1"
 PREV_ZENPACK_NAME = ""
 # STOP_REPLACEMENTS
