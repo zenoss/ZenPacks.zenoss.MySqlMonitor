@@ -1,67 +1,59 @@
-##############################################################################
-# 
-# Copyright (C) Zenoss, Inc. 2008, all rights reserved.
-# 
-# This content is made available according to terms specified in
-# License.zenoss under the directory where your Zenoss product is installed.
-# 
-##############################################################################
-
-
-################################
 # These variables are overwritten by Zenoss when the ZenPack is exported
 # or saved.  Do not modify them directly here.
-NAME = 'ZenPacks.zenoss.MySqlMonitor'
-VERSION = '2.2.0'
-AUTHOR = 'Zenoss'
-LICENSE = ''
+# NB: PACKAGES is deprecated
+NAME = "ZenPacks.zenoss.MySqlMonitor"
+VERSION = "3.0.0"
+AUTHOR = "Zenoss"
+LICENSE = "GPLv2"
 NAMESPACE_PACKAGES = ['ZenPacks', 'ZenPacks.zenoss']
 PACKAGES = ['ZenPacks', 'ZenPacks.zenoss', 'ZenPacks.zenoss.MySqlMonitor']
-INSTALL_REQUIRES = []
-COMPAT_ZENOSS_VERS = '>=2.5.70'
-PREV_ZENPACK_NAME = 'MySqlMonitor'
+INSTALL_REQUIRES = ['ZenPacks.zenoss.PythonCollector>=1.1']
+COMPAT_ZENOSS_VERS = ">=4.1"
+PREV_ZENPACK_NAME = ""
 # STOP_REPLACEMENTS
-################################
 # Zenoss will not overwrite any changes you make below here.
 
+from os.path import dirname
 from setuptools import setup, find_packages
 
 setup(
     # This ZenPack metadata should usually be edited with the Zenoss
     # ZenPack edit page.  Whenever the edit page is submitted it will
     # overwrite the values below (the ones it knows about) with new values.
-    name = NAME,
-    version = VERSION,
-    author = AUTHOR,
-    license = LICENSE,
-    
+    name=NAME,
+    version=VERSION,
+    author=AUTHOR,
+    license=LICENSE,
+    description='MySQL Database Monitor (Core) ZenPack',
+    long_description=(open(
+        dirname(__file__) + 'README.md').read().split('\n'))[0],
+    url='http://wiki.zenoss.org/ZenPack:MySQL_Database_Monitor_%28Core%29',
+
     # This is the version spec which indicates what versions of Zenoss
     # this ZenPack is compatible with
-    compatZenossVers = COMPAT_ZENOSS_VERS,
-    
+    compatZenossVers=COMPAT_ZENOSS_VERS,
+
     # previousZenPackName is a facility for telling Zenoss that the name
     # of this ZenPack has changed.  If no ZenPack with the current name is
     # installed then a zenpack of this name if installed will be upgraded.
-    prevZenPackName = PREV_ZENPACK_NAME, 
-    
+    prevZenPackName=PREV_ZENPACK_NAME,
+
     # Indicate to setuptools which namespace packages the zenpack
     # participates in
-    namespace_packages = NAMESPACE_PACKAGES,
-    
+    namespace_packages=NAMESPACE_PACKAGES,
+
     # Tell setuptools what packages this zenpack provides.
-    packages = find_packages(),
-    
+    packages=find_packages(),
+
     # Tell setuptools to figure out for itself which files to include
     # in the binary egg when it is built.
-    include_package_data = True,
-    
+    include_package_data=True,
+
     # Tell setuptools what non-python files should also be included
     # with the binary egg.
-    package_data = { 
-         '': ['*.txt'],
-         NAME: ['objects/*','skins/*/*','services/*', 'reports/*/*',
-                'modeler/*/*', 'daemons/*', 'lib/*', 'libexec/*'],
-         },  
+    package_data={
+        '': ['*.txt'],
+        },
 
     # Indicate dependencies on other python modules or ZenPacks.  This line
     # is modified by zenoss when the ZenPack edit page is submitted.  Zenoss
@@ -69,14 +61,13 @@ setup(
     # list, so any manual additions should be added to the end.  Things will
     # go poorly if this line is broken into multiple lines or modified to
     # dramatically.
-    install_requires = INSTALL_REQUIRES,
+    install_requires=INSTALL_REQUIRES,
 
     # Every ZenPack egg must define exactly one zenoss.zenpacks entry point
     # of this form.
-    entry_points = {
+    entry_points={
         'zenoss.zenpacks': '%s = %s' % (NAME, NAME),
     },
-
     # All ZenPack eggs must be installed in unzipped form.
-    zip_safe = False,    
+    zip_safe=False,
 )
