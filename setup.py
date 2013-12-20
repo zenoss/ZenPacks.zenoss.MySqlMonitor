@@ -1,39 +1,15 @@
-##############################################################################
-#
-# Copyright (C) Zenoss, Inc. 2008-2013, all rights reserved.
-#
-# This content is made available according to terms specified in
-# License.zenoss under the directory where your Zenoss product is installed.
-#
-##############################################################################
-
 # These variables are overwritten by Zenoss when the ZenPack is exported
 # or saved.  Do not modify them directly here.
 # NB: PACKAGES is deprecated
-
 NAME = "ZenPacks.zenoss.MySqlMonitor"
-
-VERSION = "3.0.0dev9"
-
+VERSION = "3.0.0dev"
 AUTHOR = "Zenoss"
-
-LICENSE = "GPL"
-
-NAMESPACE_PACKAGES = [
-    u'ZenPacks',
-    u'ZenPacks.zenoss'
-]
-
-PACKAGES = [
-    u'ZenPacks',
-    u'ZenPacks.zenoss',
-    u'ZenPacks.zenoss.MySqlMonitor',
-]
+LICENSE = "GPLv2"
+NAMESPACE_PACKAGES = ['ZenPacks', 'ZenPacks.zenoss']
+PACKAGES = ['ZenPacks', 'ZenPacks.zenoss', 'ZenPacks.zenoss.MySqlMonitor']
 INSTALL_REQUIRES = ['ZenPacks.zenoss.PythonCollector']
-
-COMPAT_ZENOSS_VERS = ">=4.2"
+COMPAT_ZENOSS_VERS = ">=4.1"
 PREV_ZENPACK_NAME = ""
-
 # STOP_REPLACEMENTS
 # Zenoss will not overwrite any changes you make below here.
 
