@@ -13,7 +13,7 @@
 
 NAME = "ZenPacks.zenoss.MySqlMonitor"
 
-VERSION = "3.0.0dev8"
+VERSION = "3.0.0dev9"
 
 AUTHOR = "Zenoss"
 
