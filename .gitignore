@@ -1,0 +1,10 @@
+*.pyc
+ZenPacks.zenoss.MySqlMonitor.egg-info
+.DS_Store
+*.db
+*.swp
+tags
+build/
+dist/
+COVERAGE/
+.idea/
