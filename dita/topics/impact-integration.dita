@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "urn:pubid:zenoss.com:doctypes:dita:dtd:reference" "reference.dtd">
+<reference id="referenceid">
+  <title>Integration with <ph conkeyref="names/impact"/></title>
+  <refbody>
+    <section>
+      <p>This ZenPack includes custom state providers for services running on MySQL hosts. Custom state providers enable
+        specialized options for defining state triggers in <ph conkeyref="names/impact-long"/> (<ph conkeyref="names/impact"/>).</p>
+      
+      <p>The following relationships are automatically included in any <ph conkeyref="names/impact"/> services that contain one or more of the
+        explicitly mentioned components.</p>
+      <ul>
+        <li>Server failure affects related device</li>
+        <li>Database failure affects related server</li>
+      </ul>
+      <p>The preceding relationships follow the default policy, in which a node inherits the worst state of the ancestor
+        nodes to which it is related. For example, a server failure implies that all related databases are also failed.</p>
+    </section>
+  </refbody>
+</reference>

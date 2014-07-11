@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "urn:pubid:zenoss.com:doctypes:dita:dtd:reference" "reference.dtd">
+<reference id="referenceid">
+  <title>Installed items</title>
+  <refbody>
+    <section>
+      <p>This ZenPack adds the following items to <ph conkeyref="names/platform"/>.</p>
+      <dl>
+        <dlentry>
+          <dt>Modeler Plugins</dt>
+          <dd>MySQLCollector</dd>
+        </dlentry>
+        <dlentry>
+          <dt>Monitoring Templates</dt>
+          <dd>MySQLServer(in /Server)</dd>
+          <dd>MySQLDatabase (in /Server)</dd>
+        </dlentry>
+        <dlentry>
+          <dt>Component Types</dt>
+          <dd>MySQLServer (on related device)</dd>
+          <dd>MySQLDatabase (on MySQLServer)</dd>
+        </dlentry>
+      </dl>
+    </section>
+  </refbody>
+</reference>

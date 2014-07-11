@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task PUBLIC "urn:pubid:zenoss.com:doctypes:dita:dtd:task" "task.dtd">
+<task id="taskid">
+  <title>Migrating from version 2.x to 3.x</title>
+  <taskbody>
+    <context>
+      <p>Perform this procedure if one of the following statements is true.</p>
+      <ul>
+        <li>You have upgraded <ph conkeyref="names/platform"/> to release 4.2.5, or to a more recent release.</li>
+        <li>You have manually updated this ZenPack from version 2.x to version 3.x, or to a more recent version.</li>
+      </ul>
+      <note>Version 3.x uses a customized modeler plugin to collect data, and data collected through version 2.x of this
+        ZenPack is incompatible. The version 2.x data is preserved. New RRD files are created for the new data.</note>
+    </context>
+    <steps>
+      <step>
+        <cmd>Log in to <ph conkeyref="names/platform"/> browser interface <ph conkeyref="login-as/zm-or-m"/>.</cmd>
+      </step>
+      <step>
+        <cmd>Navigate to the <uicontrol>INFRASTRUCTURE &#62; Devices</uicontrol> page.</cmd>
+      </step>
+      <step>
+        <cmd>From the device list, select the MySQL Server host.</cmd>
+      </step>
+      <step>
+        <cmd>From the action menu at the bottom of the left column, select <uicontrol>Bind Templates</uicontrol>.</cmd>
+      </step>
+      <step>
+        <cmd>In the <uicontrol>Bind Templates</uicontrol> dialog, select 
+          <uicontrol>MySQL (/Server)</uicontrol> from the <uicontrol>Selected</uicontrol> column.</cmd>
+      </step>
+      <step>
+        <cmd>Click the left arrow button to move the template to the <uicontrol>Available</uicontrol> column.</cmd>
+      </step>
+      <step>
+        <cmd>Click <uicontrol>SAVE</uicontrol>.</cmd>
+      </step>
+      <step>
+        <cmd>From the action menu at the bottom of the left column, select <uicontrol>Model Device...</uicontrol>.</cmd>
+      </step>
+    </steps>
+  </taskbody>
+</task>

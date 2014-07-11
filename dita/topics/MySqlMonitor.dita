@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "urn:pubid:zenoss.com:doctypes:dita:dtd:reference" "reference.dtd">
+<reference id="referenceid">
+  <title>(MySqlMonitor) MySQL Database Monitor</title>
+  <shortdesc>The <zenpack>ZenPacks.zenoss.MySqlMonitor</zenpack> ZenPack monitors MySQL database servers through the Python
+  <codeph>twisted.enterprise.adbapi</codeph> asynchronous framework.</shortdesc>
+  <refbody>
+    <section>
+      <!-- Need to remove this at some point...erf -->
+      <note>Release 4.2.5 of <ph conkeyref="names/platform"/> 
+        includes version 3.x of this ZenPack,
+        which collects data through a customized modeler plugin. 
+        If you have upgraded <ph conkeyref="names/platform"/> from
+        an earlier release, see <xref keyref="reference-ZenPacks.zenoss.MySqlMonitor-migrating"/>.</note>
+      <p>This ZenPack provides the following features.</p>
+      <ul>
+        <li>Discovery of MySQL entities</li>
+        <li>Monitoring of MySQL Server and Database components</li>
+        <li>Event management and monitoring for certain MySQL states</li>
+        <li>Integration with <ph conkeyref="names/impact-long"/> (<ph conkeyref="names/impact"/>)</li>
+      </ul>
+    </section>
+  </refbody>
+</reference>
