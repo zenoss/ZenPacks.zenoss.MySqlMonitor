@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task PUBLIC "urn:pubid:zenoss.com:doctypes:dita:dtd:task" "task.dtd">
+<task id="taskid">
+  <title>Enabling <ph conkeyref="names/zends"/> monitoring</title>
+  <taskbody>
+    <context>Follow these steps to enable this ZenPack to monitor a <ph conkeyref="names/zends"/>
+      instance that is not located on the <ph conkeyref="names/platform"/> master host.</context>
+    <steps>
+      <step>
+        <cmd>Log in to the remote <ph conkeyref="names/zends"/> host <ph conkeyref="login-as/zenoss"
+          />.</cmd>
+      </step>
+      <step>
+        <cmd>Create a symbolic link to the <ph conkeyref="names/zends"/> socket file.</cmd>
+        <stepxmp><userinput>ln -s /var/lib/zends/zends.sock /tmp/mysql.sock</userinput></stepxmp>
+      </step>
+    </steps>
+  </taskbody>
+</task>

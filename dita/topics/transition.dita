@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task PUBLIC "urn:pubid:zenoss.com:doctypes:dita:dtd:task" "task.dtd">
+<task id="taskid">
+  <title>Transitioning to this version</title>
+  <taskbody>
+    <context>Version 3.0.x is a major upgrade of this ZenPack, and a few steps are required to transition to it.</context>
+    <steps>
+      <step>
+        <cmd></cmd>
+      </step>
+    </steps>
+  </taskbody>
+</task>

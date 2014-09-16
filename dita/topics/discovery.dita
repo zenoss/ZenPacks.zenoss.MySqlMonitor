@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "urn:pubid:zenoss.com:doctypes:dita:dtd:reference" "reference.dtd">
+<reference id="referenceid">
+  <title>Discovery</title>
+  <refbody>
+    <section>
+      <p>The following entities are discovered through the zMySQLConnectionString property you
+        provide. The attributes, tags and collections are updated during remodeling, which defaults
+        to every 12 hours.</p>
+        <dl>
+          <dlentry>
+            <dt>Servers</dt>
+            <dd>Attributes: Percentage of full table scans, Slave status, Master status, Number of databases</dd>
+            <dd>Tags: Name</dd>
+            <dd>Collections: Databases</dd>
+          </dlentry>
+          <dlentry>
+            <dt>Databases</dt>
+            <dd>Attributes: Number of tables, Default character set, Default collation</dd>
+            <dd>Tags: Name</dd>
+          </dlentry>
+        </dl>
+        <p>All discovered values are valid as of the most recent modeling time.</p>
+    </section>
+  </refbody>
+</reference>

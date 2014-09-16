@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map PUBLIC "urn:pubid:zenoss.com:doctypes:dita:dtd:map" "map.dtd">
+<map>
+   <title>MySqlMonitor</title>
+   <topicref href="topics/MySqlMonitor.dita">
+      <topicref href="topics/discovery.dita"/>
+	   <topicref href="topics/monitoring.dita"/>
+      <topicref href="topics/events.dita"/>
+      <topicref href="topics/impact-integration.dita"/>
+	   <topicref href="topics/prerequisites.dita"/>
+      <topicref href="topics/adding.dita">
+        <topicref href="topics/enable-zends.dita"/>
+      </topicref>
+     <topicref href="topics/migrating.dita"/>
+      <topicref href="topics/installed.dita"/>
+   </topicref>
+</map>

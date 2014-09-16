@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "urn:pubid:zenoss.com:doctypes:dita:dtd:reference" "reference.dtd">
+<reference id="referenceid">
+  <title>Event monitoring</title>
+  <refbody>
+    <section>
+      <p>The following table associates the MySQL components and states with the severity levels of
+        events that are triggered in <ph conkeyref="names/platform"/>.</p>
+    </section>
+    <table>
+      <tgroup cols="3">
+        <colspec colname="c1" colwidth="1*"/>
+        <colspec colname="c2" colwidth="4*"/>
+        <colspec colname="c3" colwidth="3*"/>
+        <thead>
+          <row>
+            <entry>Component</entry>
+            <entry>Component state</entry>
+            <entry>Event severity</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry morerows="1">Device</entry>
+            <entry>Invalid zMySQLConnectionString property</entry>
+            <entry>Critical</entry>
+          </row>
+          <row>
+            <entry>Access denied for user with credentials provided in zMySQLConnectionString property</entry>
+            <entry>Critical</entry>
+          </row>
+          
+          <row>
+            <entry morerows="3">Service</entry>
+            <entry>Slave error</entry>
+            <entry>Error</entry>
+          </row>
+          <row>
+            <entry>MySQL server is not accessible</entry>
+            <entry>Error</entry>
+          </row>
+          <row>
+            <entry>InnoDB deadlock</entry>
+            <entry>Warning</entry>
+          </row>
+          <row>
+            <entry>A database was dropped</entry>
+            <entry>Info</entry>
+          </row>
+          
+         <row>
+           <entry morerows="1">Database</entry>
+           <entry>A table was dropped</entry>
+           <entry>Warning</entry>
+         </row>
+          <row>
+            <entry>A table was added</entry>
+            <entry>Info</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </refbody>
+</reference>

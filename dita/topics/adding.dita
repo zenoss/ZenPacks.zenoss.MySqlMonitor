@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task PUBLIC "urn:pubid:zenoss.com:doctypes:dita:dtd:task" "task.dtd">
+<task id="taskid">
+  <title>Adding a MySQL Server instance</title>
+  <taskbody>
+    <prereq>To monitor a MySQL Server instance through a user account other than
+        <codeph>root</codeph>, grant SELECT privileges to the account, before adding
+      the instance to <ph conkeyref="names/platform"/>. For more information, refer 
+      to <xref keyref="mysql-grant-syntax">MySQL GRANT syntax</xref>. 
+    </prereq>
+    <context>Follow these steps to monitor a MySQL Server instance with <ph conkeyref="names/platform"/>.</context>
+    <steps>
+      <step>
+        <cmd>Log in to <ph conkeyref="names/platform"/> browser interface <ph conkeyref="login-as/zm-or-m"/>.</cmd>
+      </step>
+      <step>
+        <cmd>Navigate to the <uicontrol>INFRASTRUCTURE &#62; Devices</uicontrol> page.</cmd>
+      </step>
+      <step>
+        <cmd>In the left column, select the device class of the MySQL Server host.</cmd>
+      </step>
+      <step>
+        <cmd>In the device list, click the host's entry, to display its details page.</cmd>
+      </step>
+      
+      <step>
+        <cmd>Configure the zMySQLConnectionString property.</cmd>
+        <substeps>
+          <substep>
+            <cmd>In the left column, select <uicontrol>Configuration Properties</uicontrol>.</cmd>
+          </substep>
+          <substep>
+            <cmd>In the properties list, double-click the zMySQLConnectionString property.</cmd>
+            <info>
+              <image href="../images/edit-prop-dialog.png" scale="60"></image>
+            </info>
+          </substep>
+          <substep>
+            <cmd>In the <uicontrol>Edit Config Property</uicontrol> dialog, enter a valid 
+              MySQL Server user account and password, and the port on which the 
+              MySQL Server instance listens for connection requests.</cmd>
+            <info>
+              <note><ph conkeyref="names/platform"/> version 4.1.x does not support the
+              customized dialog for MySQL Server credentials. Create a JSON list instead.</note>
+            </info>
+          </substep>
+          <substep>
+            <cmd>Click <uicontrol>SUBMIT</uicontrol>.</cmd>
+          </substep>
+        </substeps>
+      </step>
+      
+      <step>
+        <cmd>Add the MySQL plugin.</cmd>
+        <substeps>
+          <substep>
+            <cmd>In the left column, select <uicontrol>Modeler Plugins</uicontrol>.</cmd>
+          </substep>
+          <substep>
+            <cmd>In the list of available plugins, select <uicontrol>MySQL Collector</uicontrol>.</cmd>
+          </substep>
+          <substep>
+            <cmd>Click the right arrow button.</cmd>
+          </substep>
+          <substep>
+            <cmd>At the bottom of the page, click <uicontrol>Save</uicontrol>.</cmd>
+          </substep>
+        </substeps>
+      </step>
+     
+    </steps>
+  </taskbody>
+</task>

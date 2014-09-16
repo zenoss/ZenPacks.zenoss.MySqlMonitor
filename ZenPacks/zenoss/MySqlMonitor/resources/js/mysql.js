@@ -27,8 +27,7 @@ Ext.define("MySQL.ConfigProperty.Grid", {
     constructor: function(config) {
         Ext.applyIf(config, {
             columns: [{
-                header: _t("Is Local"),
-                id: 'islocal',
+                header: _t("Is Local"),    
                 dataIndex: 'islocal',
                 width: 60,
                 sortable: true,
@@ -39,19 +38,16 @@ Ext.define("MySQL.ConfigProperty.Grid", {
                     }
                     return '';
                 }
-            },{
-                id: 'category',
+            },{                
                 dataIndex: 'category',
                 header: _t('Category'),
                 sortable: true
-            },{
-                id: 'id',
+            },{               
                 dataIndex: 'id',
                 header: _t('Name'),
                 width: 200,
                 sortable: true
-            },{
-                id: 'value',
+            },{               
                 dataIndex: 'valueAsString',
                 header: _t('Value'),
                 flex: 1,
@@ -145,7 +141,7 @@ Ext.define("Zenoss.form.MultilineCredentials", {
                 xtype: "textfield",
                 scope: this,
                 width: 70,
-                emptyText:'User',
+                emptyText:'User'
             },{
                 itemId: 'password',
                 xtype: "password",
@@ -252,19 +248,19 @@ Ext.define("Zenoss.form.MultilineCredentials", {
 
     getSubmitValue: function() {
         return this.getValue();
-    },
+    }
 });
 
 /* workaround for zenoss 4.1.1 */
 } catch (err) {
 
 function renderMySQLConnectionString(value) {
-    result = [];
+    var result = [];
     try {
         var v = JSON.parse(value);
         Ext.each(v, function (val) {
             result.push(val.user + ":" + "*".repeat(val.passwd.length) + ":" + val.port);
-        })
+        });
     } catch (err) {
         result.push("ERROR: Invalid connection string!");
     }

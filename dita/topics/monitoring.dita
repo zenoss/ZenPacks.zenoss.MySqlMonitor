@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "urn:pubid:zenoss.com:doctypes:dita:dtd:reference" "reference.dtd">
+<reference id="referenceid">
+  <title>Performance Monitoring</title>
+  <refbody>
+    <section>
+      <p>Server and database metrics are collected every 5 minutes by default. The Average statistic
+        is collected, and the graphed value is per second for anything that resembles a rate.</p>
+    </section>
+    <section>
+      <title>Server metrics</title>
+      <table>
+        <tgroup cols="4">
+          <colspec colname="c1" colwidth="1*"/>
+          <colspec colname="c2" colwidth="1*"/>
+          <colspec colname="c3" colwidth="1*"/>
+          <colspec colname="c4" colwidth="1*"/>
+          <tbody>
+            <row>
+              <entry>Aborted clients</entry>
+              <entry>Aborted connects</entry>
+              <entry>Bytes received</entry>
+              <entry>Bytes sent</entry>
+            </row>
+            <row>
+              <entry>Com alter db </entry>
+              <entry>Com alter table</entry>
+              <entry>Com call procedure</entry>
+              <entry>Com check</entry>
+            </row>
+            <row>
+              <entry>Com commit</entry>
+              <entry>Com create db</entry>
+              <entry>Com create table</entry>
+              <entry>Com create user</entry>
+            </row>
+            <row>
+              <entry>Com delete multi</entry>
+              <entry>Com delete</entry>
+              <entry>Com drop db</entry>
+              <entry>Com drop table</entry>
+            </row>
+            <row>
+              <entry>Com drop user</entry>
+              <entry>Com execute sql</entry>
+              <entry>Com flush</entry>
+              <entry>Com insert select</entry>
+            </row>
+            <row>
+              <entry>Com insert</entry>
+              <entry>Com purge </entry>
+              <entry>Com repair</entry>
+              <entry>Com replace</entry>
+            </row>
+            <row>
+              <entry>Com rollback</entry>
+              <entry>Com select</entry>
+              <entry>Com update multi</entry>
+              <entry>Com update</entry>
+            </row>
+            <row>
+              <entry>Connections</entry>
+              <entry>Data size</entry>
+              <entry>Handler commit</entry>
+              <entry>Handler delete</entry>
+            </row>
+            <row>
+              <entry>Handler read first</entry>
+              <entry>Handler read key</entry>
+              <entry>Handler read last</entry>
+              <entry>Handler read next </entry>
+            </row>
+            <row>
+              <entry>Handler read prev</entry>
+              <entry>Handler read rnd next</entry>
+              <entry>Handler read rnd</entry>
+              <entry>Handler rollback</entry>
+            </row>
+            <row>
+              <entry>Handler savepoint</entry>
+              <entry>Handler update</entry>
+              <entry>Handler write</entry>
+              <entry>Index size</entry>
+            </row>
+            <row>
+              <entry>Key read requests</entry>
+              <entry>Key reads</entry>
+              <entry>Key writes</entry>
+              <entry>Max used connections</entry>
+            </row>
+            <row>
+              <entry>Open files</entry>
+              <entry>Open streams</entry>
+              <entry>Open tables</entry>
+              <entry>Select full join</entry>
+            </row>
+            <row>
+              <entry>Select full range join</entry>
+              <entry>Select range check</entry>
+              <entry>Select range</entry>
+              <entry>Select scan </entry>
+            </row>
+            <row>
+              <entry>Size</entry>
+              <entry>Threads connected</entry>
+              <entry>Uptime</entry>
+              <entry></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </section>
+    <section>
+      <title>Database metrics</title>
+      <ul>
+        <li>Data size</li>
+        <li>Index size</li>
+        <li>Size</li>
+      </ul>
+    </section>
+  </refbody>
+</reference>
