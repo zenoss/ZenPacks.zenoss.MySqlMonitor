@@ -83,6 +83,9 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                         res = yield dbpool.runQuery(
                             self.get_query(ds.component)
                         )
+                finally:
+                    dbpool.close()
+
                 if res:
                     values[ds.component] = self.query_results_to_values(res)
                     events.extend(self.query_results_to_events(res, ds))
