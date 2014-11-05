@@ -139,8 +139,8 @@ According to the following MySQL states this ZenPack will trigger events with an
 === Service Impact ===
 When combined with the Zenoss Service Dynamics product, this ZenPack adds built-in service impact capability for MySQL. The following service impact relationships are automatically added. These will be included in any services that contain one or more of the explicitly mentioned entities.
 ;Service Impact Relationships
-* Server failure affects related device.
-* Database failure affects related server.
+* Device failure impacts the Server component.
+* MySQL Server component impacts Database components.
 
 == Usage ==
 To start monitoring your MySQL server you will need to setup connection to it as well as bind monitoring templates and modeler plugin to the device or device class containing your MySQL servers.
