@@ -193,3 +193,9 @@ Installing this ZenPack will add the following items to your Zenoss system.
 ;Component Types
 * MySQLServer (on related device)
 * MySQLDatabase (on MySQLServer)
+
+== Changes ==
+
+;3.0.3 (2014-11-05)
+* Fix graphpoint sequences to fix graphpoint colors.
+* Close connections pools when done to avoid leaking threads.
