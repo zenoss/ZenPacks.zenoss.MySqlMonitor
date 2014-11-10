@@ -76,9 +76,7 @@ class TestMysqlBasePlugin(BaseTestCase):
 
 class TestMySqlMonitorPlugin(BaseTestCase):
 
-    @patch.object(dsplugins, 'time')
-    def test_results_to_values(self, time):
-        time.time.return_value = sentinel.current_time
+    def test_results_to_values(self):
         results = (
             ('Value', sentinel.value),
         )
@@ -87,7 +85,7 @@ class TestMySqlMonitorPlugin(BaseTestCase):
         values = plugin.query_results_to_values(results)
 
         self.assertEquals(values, {
-            'value': (sentinel.value, sentinel.current_time)
+            'value': (sentinel.value, 'N')
         })
 
     def test_empty_results_to_values(self):
@@ -448,22 +446,19 @@ END OF INNODB MONITOR OUTPUT
 
 
 class TestMySQLMonitorDatabasesPlugin(BaseTestCase):
-    @patch.object(dsplugins, 'time')
-    def test_no_results_to_values(self, time):
-        time.time.return_value = sentinel.current_time
+
+    def test_no_results_to_values(self):
         results = ((0, None, None, None),)
 
         plugin = dsplugins.MySQLMonitorDatabasesPlugin()
         values = plugin.query_results_to_values(results)
 
         self.assertEquals(values, dict(
-            (k, (0, sentinel.current_time))
+            (k, (0, 'N'))
             for k in ('table_count', 'size', 'data_size', 'index_size')
         ))
 
-    @patch.object(dsplugins, 'time')
-    def test_results_to_values(self, time):
-        time.time.return_value = sentinel.current_time
+    def test_results_to_values(self):
         results = ((
             sentinel.table_count,
             sentinel.size,
@@ -475,10 +470,10 @@ class TestMySQLMonitorDatabasesPlugin(BaseTestCase):
         values = plugin.query_results_to_values(results)
 
         self.assertEquals(values, dict(
-            table_count=(sentinel.table_count, sentinel.current_time),
-            size=(sentinel.size, sentinel.current_time),
-            data_size=(sentinel.data_size, sentinel.current_time),
-            index_size=(sentinel.index_size, sentinel.current_time),
+            table_count=(sentinel.table_count, 'N'),
+            size=(sentinel.size, 'N'),
+            data_size=(sentinel.data_size, 'N'),
+            index_size=(sentinel.index_size, 'N'),
         ))
 
     def test_tables_number_event(self):
