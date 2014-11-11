@@ -22,7 +22,8 @@ from ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource \
 from Products.DataCollector.plugins.DataMaps import ObjectMap
 #from ZenPacks.zenoss.PythonCollector import patches
 
-from ZenPacks.zenoss.MySqlMonitor.utils import parse_mysql_connection_string
+from ZenPacks.zenoss.MySqlMonitor.utils import (
+    parse_mysql_connection_string, adbapi_safe)
 from ZenPacks.zenoss.MySqlMonitor import NAME_SPLITTER
 
 
@@ -263,7 +264,7 @@ class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
             information_schema.TABLES
         WHERE
             table_schema = "%s"
-        ''' % adbapi.safe(component.split(NAME_SPLITTER)[-1])
+        ''' % adbapi_safe(component.split(NAME_SPLITTER)[-1])
 
     def query_results_to_values(self, results):
         fields = enumerate(('table_count', 'size', 'data_size', 'index_size'))
@@ -304,7 +305,7 @@ class MySQLDatabaseExistencePlugin(MysqlBasePlugin):
         return ''' SELECT COUNT(*)
             FROM information_schema.SCHEMATA
             WHERE SCHEMA_NAME="%s"
-        ''' % adbapi.safe(
+        ''' % adbapi_safe(
             component.split(NAME_SPLITTER)[-1]
         )
 

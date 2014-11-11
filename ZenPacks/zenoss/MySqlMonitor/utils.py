@@ -147,3 +147,11 @@ def parse_mysql_connection_string(zMySQLConnectionString):
     except:
         raise ValueError('Bad formatted connection string')
     return result
+
+
+def adbapi_safe(text):
+    """
+    Something that replaces quotes with escaped quotes.
+    The method is missing in zenoss 5.
+    """
+    return text.replace("'", "''").replace("\\", "\\\\")
