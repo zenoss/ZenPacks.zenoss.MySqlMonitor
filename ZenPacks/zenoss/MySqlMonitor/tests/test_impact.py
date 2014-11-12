@@ -100,9 +100,8 @@ class TestImpact(BaseTestCase):
             'mysql_servers/server0')
 
         impacts, impacted_by = impacts_for(sr)
-
-        self.assertTrue('device' in impacts)
-        self.assertTrue('database0-0' in impacted_by)
+        self.assertTrue('device' in impacted_by)
+        self.assertTrue('database0-0' in impacts)
 
     @require_impact
     def test_MySqlMonitorDatabaseImpacts(self):
@@ -110,5 +109,4 @@ class TestImpact(BaseTestCase):
             'mysql_servers/server0/databases/database0-0')
 
         impacts, impacted_by = impacts_for(db)
-
-        self.assertTrue('server0' in impacts)
+        self.assertTrue('server0' in impacted_by)

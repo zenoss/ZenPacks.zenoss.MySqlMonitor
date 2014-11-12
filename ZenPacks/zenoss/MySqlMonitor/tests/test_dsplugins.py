@@ -454,7 +454,7 @@ class TestMySQLMonitorDatabasesPlugin(BaseTestCase):
         values = plugin.query_results_to_values(results)
 
         self.assertEquals(values, dict(
-            (k, (0, 'N'))
+            (k, (0))
             for k in ('table_count', 'size', 'data_size', 'index_size')
         ))
 
@@ -470,10 +470,10 @@ class TestMySQLMonitorDatabasesPlugin(BaseTestCase):
         values = plugin.query_results_to_values(results)
 
         self.assertEquals(values, dict(
-            table_count=(sentinel.table_count, 'N'),
-            size=(sentinel.size, 'N'),
-            data_size=(sentinel.data_size, 'N'),
-            index_size=(sentinel.index_size, 'N'),
+            table_count=(sentinel.table_count),
+            size=(sentinel.size),
+            data_size=(sentinel.data_size),
+            index_size=(sentinel.index_size),
         ))
 
     def test_tables_number_event(self):

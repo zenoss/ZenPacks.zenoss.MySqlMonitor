@@ -248,9 +248,8 @@ class MySQLMonitorServersPlugin(MysqlBasePlugin):
         '''
 
     def query_results_to_values(self, results):
-        t = time.time()
         fields = enumerate(('table_count', 'size', 'data_size', 'index_size'))
-        return dict((f, (results[0][i] or 0, t)) for i, f in fields)
+        return dict((f, (results[0][i] or 0)) for i, f in fields)
 
 
 class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
@@ -269,7 +268,7 @@ class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
 
     def query_results_to_values(self, results):
         fields = enumerate(('table_count', 'size', 'data_size', 'index_size'))
-        return dict((f, (results[0][i] or 0, 'N')) for i, f in fields)
+        return dict((f, (results[0][i] or 0)) for i, f in fields)
 
     def query_results_to_maps(self, results, component):
         table_count = results[0][0]
