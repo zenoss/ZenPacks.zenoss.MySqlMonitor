@@ -19,6 +19,7 @@ from twisted.internet import defer
 
 from ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource \
     import PythonDataSourcePlugin
+from Products.ZenEvents import ZenEventClasses
 from Products.DataCollector.plugins.DataMaps import ObjectMap
 #from ZenPacks.zenoss.PythonCollector import patches
 
@@ -142,6 +143,9 @@ class MySqlMonitorPlugin(MysqlBasePlugin):
 
 
 class MySqlDeadlockPlugin(MysqlBasePlugin):
+
+    proxy_attributes = MysqlBasePlugin.proxy_attributes + ('dedlock_time',)
+
     deadlock_re = re.compile(
         '\n-+\n(LATEST DETECTED DEADLOCK\n-+\n.*?\n)-+\n',
         re.M | re.DOTALL
@@ -151,22 +155,42 @@ class MySqlDeadlockPlugin(MysqlBasePlugin):
         return 'show engine innodb status'
 
     def query_results_to_events(self, results, ds):
+        pattern = re.compile("`([\w]*)`\.")
         text = results[0][2]
         deadlock_match = self.deadlock_re.search(text)
+        component = ds.component
         if deadlock_match:
             summary = deadlock_match.group(1)
-            severity = 3
-        else:
-            summary = 'No last deadlock data'
-            severity = 0
+            # Parse LATEST DETECTED DEADLOCK and find time identifier
+            dtime = re.match(
+                r'.+DEADLOCK\n-+\n(.+?)\n\*\*\*\s\(1\)\sTRANSACTION',
+                summary
+            )
+            # Parse LATEST DETECTED DEADLOCK and find database name
+            database = [''.join(pattern.findall(x)) for x in
+                        summary.split('\n\n') if '*** (1) TRANSACTION:' in x]
+            if database:
+                component = ds.component + NAME_SPLITTER + database[0]
+            if dtime:
+                self.deadlock_time = dtime.group(1)
+                # Create event only for new deadlock
+                if ds.dedlock_time != self.deadlock_time:
+                    return [{
+                        'severity': ZenEventClasses.Info,
+                        'eventKey': 'innodb_deadlock',
+                        'eventClass': '/Status',
+                        'summary': summary,
+                        'component': component,
+                    }]
+        return []
 
-        return [{
-            'severity': severity,
-            'eventKey': 'innodb_deadlock',
-            'eventClass': '/Status',
-            'summary': summary,
-            'component': ds.component,
-        }]
+    def query_results_to_maps(self, results, component):
+        om = ObjectMap({
+            "compname": "mysql_servers/%s" % (component),
+            "modname": "Deadlock time",
+            "dedlock_time": self.deadlock_time
+        })
+        return [om]
 
 
 class MySqlReplicationPlugin(MysqlBasePlugin):
