@@ -71,10 +71,12 @@ ZC.MySQLServerPanel = Ext.extend(ZC.ComponentGridPanel, {
                 id: 'db_count',
                 dataIndex: 'db_count',
                 header: _t('Number of databases'),
+                width: 120
             },{
                 id: 'percent_full_table_scans',
                 dataIndex: 'percent_full_table_scans',
                 header: _t('Percentage of full table scans'),
+                width: 150
             },{
                 id: 'slave_status',
                 dataIndex: 'slave_status',
@@ -173,6 +175,7 @@ ZC.MySQLDatabasePanel = Ext.extend(ZC.ComponentGridPanel, {
                 id: 'default_character_set_name',
                 dataIndex: 'default_character_set_name',
                 header: _t('Default character set'),
+                width: 120
             },{
                 id: 'default_collation_name',
                 dataIndex: 'default_collation_name',
