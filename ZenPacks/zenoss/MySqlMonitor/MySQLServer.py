@@ -35,6 +35,7 @@ class MySQLServer(MySQLComponent):
     slave_status = None
     master_status = None
     version = None
+    deadlock_time = None
 
     _properties = MySQLComponent._properties + (
         {'id': 'size', 'type': 'string'},
