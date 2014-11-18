@@ -83,9 +83,9 @@ class MySQLCollector(PythonPlugin):
                         str(e), el.get("user"), el.get("port"))
 
                     log.error(msg)
-                    self._send_event(msg, device.id, severity)
 
                     if severity == 5:
+                        self._send_event(msg, device.id, severity)
                         dbpool.close()
                         defer.returnValue('Error')
                         return
@@ -172,11 +172,12 @@ class MySQLCollector(PythonPlugin):
         """
 
         if "privilege" in error:
-            msg = "Access denied for user '%s', some queries failed.\
-                Please check permissions" % user
+            msg = ("The user '%s' needs (at least one of) the SUPER, "
+                   "REPLICATION CLIENT privilege(s) to retrieve MySQL "
+                   "Replication data" % user)
             severity = 4
         elif "Access denied" in error:
-            msg = "Access denied for user '%s:***:%s'. " % (user, port)
+            msg = "Access denied for user '%s:***:%s'" % (user, port)
             severity = 5
         else:
             msg = "Error modeling MySQL server for %s:***:%s" % (user, port)
