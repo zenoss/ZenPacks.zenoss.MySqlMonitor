@@ -159,13 +159,14 @@ If you are using the commercial zenoss version and ''zends'', please make sure t
 == Troubleshooting ==
 If you encounter any issues with Zenpack installation, please make sure that you have restarted zenoss after installation and your target disk has enough free memory and read permissions enabled. In case of any issues when uninstalling this Zenpack, please remove all components first. Note that device monitoring requires ''zenpython'' daemon to be constantly running. If you have just enabled monitoring, try pressing ''Zoom in'' to see the graphs. In case of any issues you can run zenpython daemon in foreground with <code>zenpython run -v10 -c</code> command and check if there are no exceptions. If zenpython runs without errors and prints monitoring data to stdout, then you should check if monitoring templates are bound to the components.
 
-If device modeling failed:
+;In case device modeling fails:
 * make sure, that you have specified a correct user, password and port to your MySQL user account;
-* grant select privileges (see <span class="plainlinks">[http://dev.mysql.com/doc/refman/5.1/en/grant.html MySQL GRANT Syntax]</span>) to non-root users to avoid access denied errors by executing the following command:
-<console>grant select on *.* to 'username'@'%' with grant option;</console>
+* grant privileges (see <span class="plainlinks">[http://dev.mysql.com/doc/refman/5.1/en/grant.html MySQL GRANT Syntax]</span>) to non-root users to avoid access denied errors by executing the following command. REPLICATION CLIENT privilege is needed to retrieve MySQL Replication data.
+<console>GRANT SELECT, REPLICATION CLIENT ON *.* TO 'username'@'%' WITH GRANT OPTION;</console>
+: Change '%' to 'localhost' in the statement above if you are modeling the local MySQL server.
 * check if firewall allows connections on mysql port;
 * ensure that you are able to connect from zenoss server to target MySQL server instance by executing the following from the command line:
-<console> mysql –h <host> -u <username> -p <password> -P <port> </console>
+<console> mysql -h<host> -u<username> -p<password> -P<port> </console>
 
 Note that the query <code> select host from mysql.user</code> should have an entry ‘%’ for ‘host’ field to ensure the remote connection.
 
