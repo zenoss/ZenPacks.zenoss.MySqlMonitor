@@ -66,7 +66,10 @@ class TestMysqlBasePlugin(BaseTestCase):
 
     @patch.object(dsplugins, 'log')
     def test_onError_event(self, log):
-        result = self.plugin.onError(sentinel.some_result, sentinel.any_value)
+        config = ds = Mock()
+        ds.severity = 4
+        config.datasources = [ds]
+        result = self.plugin.onError(sentinel.some_result, config)
 
         event = result['events'][0]
         self.assertEquals(event['severity'], 4)
