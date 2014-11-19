@@ -99,7 +99,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                         'summary': str(e),
                         'eventClass': '/Status',
                         'eventKey': 'mysql_result',
-                        'severity': 4,
+                        'severity': ds.severity,
                     })
 
         defer.returnValue(dict(
@@ -116,22 +116,21 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                 'summary': 'Monitoring ok',
                 'eventClass': '/Status',
                 'eventKey': 'mysql_result',
-                'severity': 0,
+                'severity': ZenEventClasses.Clear,
             })
         return result
 
     def onError(self, result, config):
         log.error(result)
-        return {
-            'vaues': {},
-            'events': [{
-                'summary': 'error: %s' % result,
-                'eventClass': '/Status',
-                'eventKey': 'mysql_result',
-                'severity': 4,
-            }],
-            'maps': [],
-        }
+        ds0 = config.datasources[0]
+        data = self.new_data()
+        data['events'].append({
+            'summary': 'error: %s' % result,
+            'eventClass': '/Status',
+            'eventKey': 'mysql_result',
+            'severity': ds0.severity,
+        })
+        return data
 
 
 class MySqlMonitorPlugin(MysqlBasePlugin):
@@ -338,7 +337,7 @@ class MySQLDatabaseExistencePlugin(MysqlBasePlugin):
             # Database does not exist, will be deleted
             db_name = ds.component.split(NAME_SPLITTER)[-1]
             return [{
-                'severity': 2,
+                'severity': ZenEventClasses.Info,
                 'eventKey': 'db_%s_dropped' % db_name,
                 'eventClass': '/Status',
                 'summary': 'Database "%s" was dropped.' % db_name,
