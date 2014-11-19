@@ -144,7 +144,7 @@ class MySqlMonitorPlugin(MysqlBasePlugin):
 
 class MySqlDeadlockPlugin(MysqlBasePlugin):
 
-    proxy_attributes = MysqlBasePlugin.proxy_attributes + ('dedlock_time',)
+    proxy_attributes = MysqlBasePlugin.proxy_attributes + ('deadlock_time',)
 
     deadlock_re = re.compile(
         '\n-+\n(LATEST DETECTED DEADLOCK\n-+\n.*?\n)-+\n',
