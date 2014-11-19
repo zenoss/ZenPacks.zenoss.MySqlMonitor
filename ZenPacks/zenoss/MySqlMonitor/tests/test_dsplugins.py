@@ -282,11 +282,7 @@ END OF INNODB MONITOR OUTPUT
         ds = Mock()
         ds.component = sentinel.component
         events = plugin.query_results_to_events(results, ds)
-
-        self.assertEquals(len(events), 1)
-        self.assertEquals(events[0]['eventKey'], 'innodb_deadlock')
-        self.assertEquals(events[0]['component'], sentinel.component)
-        self.assertEquals(events[0]['severity'], 0)
+        self.assertEquals(len(events), 0)
 
     def test_query_status_deadlock_to_events(self):
         results = (
@@ -436,13 +432,13 @@ END OF INNODB MONITOR OUTPUT
 
         plugin = dsplugins.MySqlDeadlockPlugin()
         ds = Mock()
-        ds.component = sentinel.component
+        ds.component = 'component'
         events = plugin.query_results_to_events(results, ds)
 
         self.assertEquals(len(events), 1)
         self.assertEquals(events[0]['eventKey'], 'innodb_deadlock')
-        self.assertEquals(events[0]['component'], sentinel.component)
-        self.assertEquals(events[0]['severity'], 3)
+        self.assertEquals(events[0]['component'], 'component(.)test')
+        self.assertEquals(events[0]['severity'], 2)
 
 
 class TestMySQLMonitorDatabasesPlugin(BaseTestCase):
