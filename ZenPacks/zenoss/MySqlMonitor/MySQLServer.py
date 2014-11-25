@@ -35,7 +35,7 @@ class MySQLServer(MySQLComponent):
     slave_status = None
     master_status = None
     version = None
-    deadlock_time = None
+    deadlock_info = None
 
     _properties = MySQLComponent._properties + (
         {'id': 'size', 'type': 'string'},
@@ -94,6 +94,7 @@ class MySQLServerInfo(ComponentInfo):
     slave_status = ProxyProperty('slave_status')
     master_status = ProxyProperty('master_status')
     version = ProxyProperty('version')
+    deadlock_info = ProxyProperty('deadlock_info')
 
     @property
     def db_count(self):
