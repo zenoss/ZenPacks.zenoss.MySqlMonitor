@@ -143,21 +143,47 @@ class MySqlMonitorPlugin(MysqlBasePlugin):
 
 class MySqlDeadlockPlugin(MysqlBasePlugin):
 
-    proxy_attributes = MysqlBasePlugin.proxy_attributes + ('deadlock_time',)
+    proxy_attributes = MysqlBasePlugin.proxy_attributes + ('deadlock_info',)
+
+    deadlock_time = None
+    deadlock_db = None
+    deadlock_evt_clear_time = None
 
     deadlock_re = re.compile(
         '\n-+\n(LATEST DETECTED DEADLOCK\n-+\n.*?\n)-+\n',
         re.M | re.DOTALL
     )
 
+    def _event(self, severity, summary, component):
+        return {
+            'severity': severity,
+            'eventKey': 'innodb_deadlock',
+            'eventClass': '/Status',
+            'summary': summary,
+            'component': component,
+        }
+
     def get_query(self, component):
         return 'show engine innodb status'
 
     def query_results_to_events(self, results, ds):
-        pattern = re.compile("`([\w]*)`\.")
+        events = []
+
         text = results[0][2]
         deadlock_match = self.deadlock_re.search(text)
         component = ds.component
+
+        # Clear a previous deadlock event after 30 mins.
+        # Might be changed to another X minutes.
+        if ds.deadlock_info and len(ds.deadlock_info) == 3:
+            dl_time, dl_db, evt_clear_time = ds.deadlock_info
+
+            if evt_clear_time and time.time() > evt_clear_time:
+                events.append(self._event(ZenEventClasses.Clear, 'Ok', dl_db))
+        else:
+            dl_time = dl_db = evt_clear_time = None
+
+        # Parse and process innodb status output.
         if deadlock_match:
             summary = deadlock_match.group(1)
             # Parse LATEST DETECTED DEADLOCK and find time identifier
@@ -166,30 +192,40 @@ class MySqlDeadlockPlugin(MysqlBasePlugin):
                 summary
             )
             # Parse LATEST DETECTED DEADLOCK and find database name
+            pattern = re.compile("`([\w]*)`\.")
             database = [''.join(pattern.findall(x)) for x in
                         summary.split('\n\n') if '*** (1) TRANSACTION:' in x]
             if database:
                 component = ds.component + NAME_SPLITTER + database[0]
+
             if dtime:
                 self.deadlock_time = dtime.group(1)
+
                 # Create event only for new deadlock
-                if ds.dedlock_time != self.deadlock_time:
-                    return [{
-                        'severity': ZenEventClasses.Info,
-                        'eventKey': 'innodb_deadlock',
-                        'eventClass': '/Status',
-                        'summary': summary,
-                        'component': component,
-                    }]
-        return []
+                if dl_time != self.deadlock_time:
+                    events = []
+                    self.deadlock_db = component
+                    # Set clear event after 30 mins.
+                    self.deadlock_evt_clear_time = time.time() + 60*30
+                    # Clear a previous event
+                    events.append(self._event(
+                        ZenEventClasses.Clear, 'Ok', dl_db))
+                    # Create a new event
+                    events.append(self._event(
+                        ZenEventClasses.Info, summary, component))
+
+        return events
 
     def query_results_to_maps(self, results, component):
-        om = ObjectMap({
+        if not self.deadlock_evt_clear_time:
+            return []
+
+        return [ObjectMap({
             "compname": "mysql_servers/%s" % (component),
             "modname": "Deadlock time",
-            "dedlock_time": self.deadlock_time
-        })
-        return [om]
+            "deadlock_info": (self.deadlock_time, self.deadlock_db,
+                self.deadlock_evt_clear_time)
+        })]
 
 
 class MySqlReplicationPlugin(MysqlBasePlugin):
