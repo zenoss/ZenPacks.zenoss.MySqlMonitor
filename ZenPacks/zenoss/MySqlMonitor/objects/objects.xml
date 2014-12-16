@@ -4162,9 +4162,6 @@ mysqld
 <property type="string" id="regex" mode="w" >
 sbin\/mysqld
 </property>
-<property type="string" id="excludeRegex" mode="w" >
-\b(vim|tail|grep|tar|cat|bash)\b
-</property>
 <property type="boolean" id="ignoreParametersWhenModeling" mode="w" >
 False
 </property>
