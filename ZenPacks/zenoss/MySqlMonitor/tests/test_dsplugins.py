@@ -66,7 +66,10 @@ class TestMysqlBasePlugin(BaseTestCase):
 
     @patch.object(dsplugins, 'log')
     def test_onError_event(self, log):
-        result = self.plugin.onError(sentinel.some_result, sentinel.any_value)
+        config = ds = Mock()
+        ds.severity = 4
+        config.datasources = [ds]
+        result = self.plugin.onError(sentinel.some_result, config)
 
         event = result['events'][0]
         self.assertEquals(event['severity'], 4)
@@ -76,9 +79,7 @@ class TestMysqlBasePlugin(BaseTestCase):
 
 class TestMySqlMonitorPlugin(BaseTestCase):
 
-    @patch.object(dsplugins, 'time')
-    def test_results_to_values(self, time):
-        time.time.return_value = sentinel.current_time
+    def test_results_to_values(self):
         results = (
             ('Value', sentinel.value),
         )
@@ -87,7 +88,7 @@ class TestMySqlMonitorPlugin(BaseTestCase):
         values = plugin.query_results_to_values(results)
 
         self.assertEquals(values, {
-            'value': (sentinel.value, sentinel.current_time)
+            'value': (sentinel.value, 'N')
         })
 
     def test_empty_results_to_values(self):
@@ -282,13 +283,10 @@ END OF INNODB MONITOR OUTPUT
 
         plugin = dsplugins.MySqlDeadlockPlugin()
         ds = Mock()
+        ds.deadlock_info = None
         ds.component = sentinel.component
         events = plugin.query_results_to_events(results, ds)
-
-        self.assertEquals(len(events), 1)
-        self.assertEquals(events[0]['eventKey'], 'innodb_deadlock')
-        self.assertEquals(events[0]['component'], sentinel.component)
-        self.assertEquals(events[0]['severity'], 0)
+        self.assertEquals(len(events), 0)
 
     def test_query_status_deadlock_to_events(self):
         results = (
@@ -438,32 +436,30 @@ END OF INNODB MONITOR OUTPUT
 
         plugin = dsplugins.MySqlDeadlockPlugin()
         ds = Mock()
-        ds.component = sentinel.component
+        ds.deadlock_info = None
+        ds.component = 'component'
         events = plugin.query_results_to_events(results, ds)
 
-        self.assertEquals(len(events), 1)
-        self.assertEquals(events[0]['eventKey'], 'innodb_deadlock')
-        self.assertEquals(events[0]['component'], sentinel.component)
-        self.assertEquals(events[0]['severity'], 3)
+        self.assertEquals(len(events), 2)
+        self.assertEquals(events[1]['eventKey'], 'innodb_deadlock')
+        self.assertEquals(events[1]['component'], 'component(.)test')
+        self.assertEquals(events[1]['severity'], 2)
 
 
 class TestMySQLMonitorDatabasesPlugin(BaseTestCase):
-    @patch.object(dsplugins, 'time')
-    def test_no_results_to_values(self, time):
-        time.time.return_value = sentinel.current_time
+
+    def test_no_results_to_values(self):
         results = ((0, None, None, None),)
 
         plugin = dsplugins.MySQLMonitorDatabasesPlugin()
         values = plugin.query_results_to_values(results)
 
         self.assertEquals(values, dict(
-            (k, (0, sentinel.current_time))
+            (k, (0))
             for k in ('table_count', 'size', 'data_size', 'index_size')
         ))
 
-    @patch.object(dsplugins, 'time')
-    def test_results_to_values(self, time):
-        time.time.return_value = sentinel.current_time
+    def test_results_to_values(self):
         results = ((
             sentinel.table_count,
             sentinel.size,
@@ -475,10 +471,10 @@ class TestMySQLMonitorDatabasesPlugin(BaseTestCase):
         values = plugin.query_results_to_values(results)
 
         self.assertEquals(values, dict(
-            table_count=(sentinel.table_count, sentinel.current_time),
-            size=(sentinel.size, sentinel.current_time),
-            data_size=(sentinel.data_size, sentinel.current_time),
-            index_size=(sentinel.index_size, sentinel.current_time),
+            table_count=(sentinel.table_count),
+            size=(sentinel.size),
+            data_size=(sentinel.data_size),
+            index_size=(sentinel.index_size),
         ))
 
     def test_tables_number_event(self):

@@ -19,10 +19,12 @@ from twisted.internet import defer
 
 from ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource \
     import PythonDataSourcePlugin
+from Products.ZenEvents import ZenEventClasses
 from Products.DataCollector.plugins.DataMaps import ObjectMap
 #from ZenPacks.zenoss.PythonCollector import patches
 
-from ZenPacks.zenoss.MySqlMonitor.utils import parse_mysql_connection_string
+from ZenPacks.zenoss.MySqlMonitor.utils import (
+    parse_mysql_connection_string, adbapi_safe)
 from ZenPacks.zenoss.MySqlMonitor import NAME_SPLITTER
 
 
@@ -97,7 +99,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                         'summary': str(e),
                         'eventClass': '/Status',
                         'eventKey': 'mysql_result',
-                        'severity': 4,
+                        'severity': ds.severity,
                     })
 
         defer.returnValue(dict(
@@ -114,22 +116,21 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                 'summary': 'Monitoring ok',
                 'eventClass': '/Status',
                 'eventKey': 'mysql_result',
-                'severity': 0,
+                'severity': ZenEventClasses.Clear,
             })
         return result
 
     def onError(self, result, config):
         log.error(result)
-        return {
-            'vaues': {},
-            'events': [{
-                'summary': 'error: %s' % result,
-                'eventClass': '/Status',
-                'eventKey': 'mysql_result',
-                'severity': 4,
-            }],
-            'maps': [],
-        }
+        ds0 = config.datasources[0]
+        data = self.new_data()
+        data['events'].append({
+            'summary': 'error: %s' % result,
+            'eventClass': '/Status',
+            'eventKey': 'mysql_result',
+            'severity': ds0.severity,
+        })
+        return data
 
 
 class MySqlMonitorPlugin(MysqlBasePlugin):
@@ -141,31 +142,90 @@ class MySqlMonitorPlugin(MysqlBasePlugin):
 
 
 class MySqlDeadlockPlugin(MysqlBasePlugin):
+
+    proxy_attributes = MysqlBasePlugin.proxy_attributes + ('deadlock_info',)
+
+    deadlock_time = None
+    deadlock_db = None
+    deadlock_evt_clear_time = None
+
     deadlock_re = re.compile(
         '\n-+\n(LATEST DETECTED DEADLOCK\n-+\n.*?\n)-+\n',
         re.M | re.DOTALL
     )
 
-    def get_query(self, component):
-        return 'show engine innodb status'
-
-    def query_results_to_events(self, results, ds):
-        text = results[0][2]
-        deadlock_match = self.deadlock_re.search(text)
-        if deadlock_match:
-            summary = deadlock_match.group(1)
-            severity = 3
-        else:
-            summary = 'No last deadlock data'
-            severity = 0
-
-        return [{
+    def _event(self, severity, summary, component):
+        return {
             'severity': severity,
             'eventKey': 'innodb_deadlock',
             'eventClass': '/Status',
             'summary': summary,
-            'component': ds.component,
-        }]
+            'component': component,
+        }
+
+    def get_query(self, component):
+        return 'show engine innodb status'
+
+    def query_results_to_events(self, results, ds):
+        events = []
+
+        text = results[0][2]
+        deadlock_match = self.deadlock_re.search(text)
+        component = ds.component
+
+        # Clear a previous deadlock event after 30 mins.
+        # Might be changed to another X minutes.
+        if ds.deadlock_info and len(ds.deadlock_info) == 3:
+            dl_time, dl_db, evt_clear_time = ds.deadlock_info
+
+            if evt_clear_time and time.time() > evt_clear_time:
+                events.append(self._event(ZenEventClasses.Clear, 'Ok', dl_db))
+        else:
+            dl_time = dl_db = evt_clear_time = None
+
+        # Parse and process innodb status output.
+        if deadlock_match:
+            summary = deadlock_match.group(1)
+            # Parse LATEST DETECTED DEADLOCK and find time identifier
+            dtime = re.match(
+                r'.+DEADLOCK\n-+\n(.+?)\n\*\*\*\s\(1\)\sTRANSACTION',
+                summary
+            )
+            # Parse LATEST DETECTED DEADLOCK and find database name
+            pattern = re.compile("`([\w]*)`\.")
+            database = [''.join(pattern.findall(x)) for x in
+                        summary.split('\n\n') if '*** (1) TRANSACTION:' in x]
+            if database:
+                component = ds.component + NAME_SPLITTER + database[0]
+
+            if dtime:
+                self.deadlock_time = dtime.group(1)
+
+                # Create event only for new deadlock
+                if dl_time != self.deadlock_time:
+                    events = []
+                    self.deadlock_db = component
+                    # Set clear event after 30 mins.
+                    self.deadlock_evt_clear_time = time.time() + 60*30
+                    # Clear a previous event
+                    events.append(self._event(
+                        ZenEventClasses.Clear, 'Ok', dl_db))
+                    # Create a new event
+                    events.append(self._event(
+                        ZenEventClasses.Info, summary, component))
+
+        return events
+
+    def query_results_to_maps(self, results, component):
+        if not self.deadlock_evt_clear_time:
+            return []
+
+        return [ObjectMap({
+            "compname": "mysql_servers/%s" % (component),
+            "modname": "Deadlock time",
+            "deadlock_info": (self.deadlock_time, self.deadlock_db,
+                self.deadlock_evt_clear_time)
+        })]
 
 
 class MySqlReplicationPlugin(MysqlBasePlugin):
@@ -247,9 +307,8 @@ class MySQLMonitorServersPlugin(MysqlBasePlugin):
         '''
 
     def query_results_to_values(self, results):
-        t = time.time()
         fields = enumerate(('table_count', 'size', 'data_size', 'index_size'))
-        return dict((f, (results[0][i] or 0, t)) for i, f in fields)
+        return dict((f, (results[0][i] or 0)) for i, f in fields)
 
 
 class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
@@ -264,11 +323,11 @@ class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
             information_schema.TABLES
         WHERE
             table_schema = "%s"
-        ''' % adbapi.safe(component.split(NAME_SPLITTER)[-1])
+        ''' % adbapi_safe(component.split(NAME_SPLITTER)[-1])
 
     def query_results_to_values(self, results):
         fields = enumerate(('table_count', 'size', 'data_size', 'index_size'))
-        return dict((f, (results[0][i] or 0, 'N')) for i, f in fields)
+        return dict((f, (results[0][i] or 0)) for i, f in fields)
 
     def query_results_to_maps(self, results, component):
         table_count = results[0][0]
@@ -305,7 +364,7 @@ class MySQLDatabaseExistencePlugin(MysqlBasePlugin):
         return ''' SELECT COUNT(*)
             FROM information_schema.SCHEMATA
             WHERE SCHEMA_NAME="%s"
-        ''' % adbapi.safe(
+        ''' % adbapi_safe(
             component.split(NAME_SPLITTER)[-1]
         )
 
@@ -314,7 +373,7 @@ class MySQLDatabaseExistencePlugin(MysqlBasePlugin):
             # Database does not exist, will be deleted
             db_name = ds.component.split(NAME_SPLITTER)[-1]
             return [{
-                'severity': 2,
+                'severity': ZenEventClasses.Info,
                 'eventKey': 'db_%s_dropped' % db_name,
                 'eventClass': '/Status',
                 'summary': 'Database "%s" was dropped.' % db_name,
