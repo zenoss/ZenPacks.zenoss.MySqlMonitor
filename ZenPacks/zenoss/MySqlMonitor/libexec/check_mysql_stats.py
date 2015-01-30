@@ -75,4 +75,4 @@ if __name__ == "__main__":
     cmd = ZenossMySqlStatsPlugin(options.host, options.port,
          options.user, options.passwd, options.gstatus)
 
-    # cmd.run()
+    cmd.run()
