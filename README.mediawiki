@@ -224,6 +224,9 @@ Installing this ZenPack will add the following items to your Zenoss system.
 
 == Changes ==
 
+;3.0.5 (2015-02-05)
+* Restore functionality of deprecated MySqlMonitor datasource. (ZEN-16452)
+
 ;3.0.4 (2014-12-18)
 * Add support for Zenoss 5x.
 * Move InnoDB Deadlock event to database component, and clear it in 30min.
