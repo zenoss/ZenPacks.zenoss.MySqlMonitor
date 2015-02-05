@@ -171,6 +171,13 @@ Use the following steps to start monitoring MySQL using the Zenoss web interface
 
 {{note}} As the custom widget for MySQL credentials is not compatible with Zenoss 4.1, the ''zMySQLConnectionString'' property in this version should be set as a valid JSON list (e.g. ''[{"user": "root", "passwd": "", "port": "3306"}] '')
 
+;Legacy method
+The latest version of ZenPack uses ''zenpython'' daemon for monitoring and automatically binds monitoring templates to MySQL components.
+However, if you are inclined to use the legacy method for MySQL monitoring (v2.2.0), you should:
+# Bind the device-level monitoring template ''MySQL /Server'' to the target device.
+# Set ''zMySqlUsername'', ''zMySqlPassword'' and ''zMySqlPort'' configuration properties (if the credentials are not valid or not set, you will receive the event with in 'App/MySQL' event class).
+# Make sure that ''zencommand'' daemon is running.
+
 == Prerequisites ==
 If you are using the commercial zenoss version and ''zends'', please make sure to create a symbolic link by executing the following command:
 <code>ln -s /var/lib/zends/zends.sock /tmp/mysql.sock</code>
@@ -191,7 +198,7 @@ Note that the query <code> select host from mysql.user</code> should have an ent
 
 == Migration ==
 
-When migrating from older version of MySqlMonitor ZenPack, you should:
+When migrating from MySqlMonitor ZenPack v2.2.0, you should:
 
 * Install the new version of the ZP;
 * Restart Zenoss Services;
@@ -201,7 +208,7 @@ When migrating from older version of MySqlMonitor ZenPack, you should:
 * Remove the old monitoring template (''MySQL /Server'') from the device.
 
 Due to different mechanisms of MySQL monitoring, it is not possible to migrate the old RRD data from the previous version of ZenPack. 
-The Graph data will remain, but will not be updated. After the migration is done, the old monitoring template should be manually removed by the user.
+The Graph data will remain and will be updated until the user manually removes the ''MySQL /Server'' monitoring template.
 
 == Installed Items ==
 Installing this ZenPack will add the following items to your Zenoss system.
@@ -210,6 +217,7 @@ Installing this ZenPack will add the following items to your Zenoss system.
 ;Monitoring Templates
 * MySQLServer(in /Server)
 * MySQLDatabase (in /Server)
+* MySQL (in /Server) (obsolete)
 ;Component Types
 * MySQLServer (on related device)
 * MySQLDatabase (on MySQLServer)
