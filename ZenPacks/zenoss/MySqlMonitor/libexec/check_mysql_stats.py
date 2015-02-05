@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 ##############################################################################
 #
-# Copyright (C) Zenoss, Inc. 2007, all rights reserved.
+# Copyright (C) Zenoss, Inc. 2007-2015, all rights reserved.
 #
 # This content is made available according to terms specified in
 # License.zenoss under the directory where your Zenoss product is installed.
@@ -54,25 +54,24 @@ class ZenossMySqlStatsPlugin:
 
 
 if __name__ == "__main__":
-    print "STATUS OK"
-    # parser = OptionParser()
-    # parser.add_option('-H', '--host', dest='host',
-    #         help='Hostname of MySQL server')
-    # parser.add_option('-p', '--port', dest='port', default=3306, type='int',
-    #         help='Port of MySQL server')
-    # parser.add_option('-u', '--user', dest='user', default='zenoss',
-    #         help='MySQL username')
-    # parser.add_option('-w', '--password', dest='passwd', default='',
-    #         help='MySQL password')
-    # parser.add_option('-g', '--global', dest='gstatus', default=False,
-    #         action='store_true', help="Get global stats (Version 5+)")
-    # options, args = parser.parse_args()
+    parser = OptionParser()
+    parser.add_option('-H', '--host', dest='host',
+            help='Hostname of MySQL server')
+    parser.add_option('-p', '--port', dest='port', default=3306, type='int',
+            help='Port of MySQL server')
+    parser.add_option('-u', '--user', dest='user', default='zenoss',
+            help='MySQL username')
+    parser.add_option('-w', '--password', dest='passwd', default='',
+            help='MySQL password')
+    parser.add_option('-g', '--global', dest='gstatus', default=False,
+            action='store_true', help="Get global stats (Version 5+)")
+    options, args = parser.parse_args()
 
-    # if not options.host:
-    #     print "You must specify the host parameter."
-    #     sys.exit(1)
+    if not options.host:
+        print "You must specify the host parameter."
+        sys.exit(1)
 
-    # cmd = ZenossMySqlStatsPlugin(options.host, options.port,
-    #         options.user, options.passwd, options.gstatus)
+    cmd = ZenossMySqlStatsPlugin(options.host, options.port,
+            options.user, options.passwd, options.gstatus)
 
-    # cmd.run()
+    cmd.run()
