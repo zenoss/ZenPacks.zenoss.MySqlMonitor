@@ -73,6 +73,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         events = []
         maps = []
         res = None
+        dbpool = None
         for ds in config.datasources:
             try:
                 try:
@@ -86,21 +87,26 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                             self.get_query(ds.component)
                         )
                 finally:
-                    dbpool.close()
+                    if dbpool:
+                        dbpool.close()
 
                 if res:
                     values[ds.component] = self.query_results_to_values(res)
                     events.extend(self.query_results_to_events(res, ds))
                     maps.extend(self.query_results_to_maps(res, ds.component))
             except Exception, e:
-                if NAME_SPLITTER not in ds.component:
-                    events.append({
-                        'component': ds.component,
-                        'summary': str(e),
-                        'eventClass': '/Status',
-                        'eventKey': 'mysql_result',
-                        'severity': ds.severity,
-                    })
+                # Make sure the event is sent only for MySQLServer component,
+                # and not for all databases.
+                if ds.component and NAME_SPLITTER in ds.component:
+                    continue
+
+                events.append({
+                    'component': ds.component,
+                    'summary': str(e),
+                    'eventClass': '/Status',
+                    'eventKey': 'mysql_result',
+                    'severity': ds.severity,
+                })
 
         defer.returnValue(dict(
             events=events,
