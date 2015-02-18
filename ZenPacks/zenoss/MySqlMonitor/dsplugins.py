@@ -69,17 +69,19 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
 
     @defer.inlineCallbacks
     def collect(self, config):
-        values = {}
-        events = []
-        maps = []
+        # Data structure with empty events, values and maps.
+        data = self.new_data()
+
+        # The query execution result.
         res = None
         dbpool = None
+
         for ds in config.datasources:
             try:
                 try:
                     dbpool = datasource_to_dbpool(ds, config.manageIp)
                     res = yield dbpool.runQuery(self.get_query(ds.component))
-                except Exception, e:
+                except Exception as e:
                     if 'MySQL server has gone away' in str(e) or\
                             "Can't connect to MySQL server" in str(e):
                         dbpool = connection_pool(ds, config.manageIp)
@@ -91,16 +93,20 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                         dbpool.close()
 
                 if res:
-                    values[ds.component] = self.query_results_to_values(res)
-                    events.extend(self.query_results_to_events(res, ds))
-                    maps.extend(self.query_results_to_maps(res, ds.component))
-            except Exception, e:
-                # Make sure the event is sent only for MySQLServer component,
-                # and not for all databases.
+                    data['values'][ds.component] = (
+                        self.query_results_to_values(res))
+                    data['events'].extend(
+                        self.query_results_to_events(res, ds))
+                    data['maps'].extend(
+                        self.query_results_to_maps(res, ds.component))
+
+            except Exception as e:
+                # Make sure the event is sent only for MySQLServer
+                # component, but not for all databases.
                 if ds.component and NAME_SPLITTER in ds.component:
                     continue
 
-                events.append({
+                data['events'].append({
                     'component': ds.component,
                     'summary': str(e),
                     'eventClass': '/Status',
@@ -108,11 +114,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                     'severity': ds.severity,
                 })
 
-        defer.returnValue(dict(
-            events=events,
-            values=values,
-            maps=maps,
-        ))
+        defer.returnValue(data)
 
     def onSuccess(self, result, config):
         for component in result["values"].keys():
