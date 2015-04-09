@@ -18,7 +18,7 @@
 |DataAudits=
 }}
 
-This ZenPack provides support for MySQL monitoring. Monitoring for the following MySQL entities is provided using <code>twisted.enterprise.adbapi</code> asynchronous framework. See the Usage section for details.
+This ZenPack provides monitoring for MySQL 5.5 and later. Monitoring for the following MySQL entities is provided using <code>twisted.enterprise.adbapi</code> asynchronous framework. See the Usage section for details.
 
 {{note}} Please restart zenoss after installing this ZenPack. Note that the commercial zenoss version requires ''ZenPacks.zenoss.Impact'', otherwise the ''DynamicServices'' panel will be missing.
 
