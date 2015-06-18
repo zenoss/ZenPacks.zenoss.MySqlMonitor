@@ -4,8 +4,8 @@
 |ZenPack name=ZenPacks.zenoss.MySqlMonitor
 |Source URI=https://github.com/zenoss/ZenPacks.zenoss.MySqlMonitor.git
 |Releases={{Release
-|Version=3.0.3
-|Tag=3.0.3
+|Version=3.0.6
+|Tag=3.0.6
 |Release date=2014/11/05
 |Compatible with=Zenoss Core 4.2.x, Zenoss Resource Manager 4.1.x, Zenoss Resource Manager 4.2.x
 |Requires=PythonCollector
@@ -44,7 +44,7 @@ The features added by this ZenPack can be summarized as follows. They are each d
 * Optional service impact with addition of Zenoss Service Dynamics product.
 
 === Discovery ===
-The following entities will be discovered through ''zMySQLConnectionString'' property you provide. 
+The following entities will be discovered through ''zMySQLConnectionString'' property you provide.
 The attributes, tags and collections will be updated on Zenoss' normal remodeling interval which defaults to every 12 hours.
 ;Servers
 : ''Attributes'': Percentage of full table scans, Slave status, Master status, Number of databases
@@ -134,7 +134,7 @@ The following metrics will be collected every 5 minutes by default. The ''Averag
 |}
 
 === Event monitoring ===
-According to the following MySQL states this ZenPack will trigger events with an appropriate summary message. 
+According to the following MySQL states this ZenPack will trigger events with an appropriate summary message.
 
 ;Device
 : Critical event:
@@ -170,6 +170,9 @@ Use the following steps to start monitoring MySQL using the Zenoss web interface
 # Navigate to the ''Modeler plugins'' page of the device containing your MySQL servers, add the ''MySQLCollector'' modeler plugin and remodel the device. This will automatically find the MySQL servers and databases and begin monitoring them immediately for the previously mentioned metrics.
 
 {{note}} As the custom widget for MySQL credentials is not compatible with Zenoss 4.1, the ''zMySQLConnectionString'' property in this version should be set as a valid JSON list (e.g. ''[{"user": "root", "passwd": "", "port": "3306"}] '')
+
+{{note}} Monitoring busy MySQL servers affects ''zenpython'' daemon. You may change ''zMySqlTimeout'' property to specify how long it should wait for response from MySQL server.
+
 
 ;Legacy method
 The latest version of ZenPack uses ''zenpython'' daemon for monitoring and automatically binds monitoring templates to MySQL components.
@@ -207,7 +210,7 @@ When migrating from MySqlMonitor ZenPack v2.2.0, you should:
 * Model the device components;
 * Remove the old monitoring template (''MySQL /Server'') from the device.
 
-Due to different mechanisms of MySQL monitoring, it is not possible to migrate the old RRD data from the previous version of ZenPack. 
+Due to different mechanisms of MySQL monitoring, it is not possible to migrate the old RRD data from the previous version of ZenPack.
 The Graph data will remain and will be updated until the user manually removes the ''MySQL /Server'' monitoring template.
 
 == Installed Items ==
@@ -223,6 +226,9 @@ Installing this ZenPack will add the following items to your Zenoss system.
 * MySQLDatabase (on MySQLServer)
 
 == Changes ==
+
+;3.0.6 (2015-06-18)
+* Added zMySQLTimeout property and timeout for datasource plugins.
 
 ;3.0.5 (2015-02-05)
 * Restore functionality of deprecated MySqlMonitor datasource. (ZEN-16452)
