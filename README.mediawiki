@@ -4,8 +4,8 @@
 |ZenPack name=ZenPacks.zenoss.MySqlMonitor
 |Source URI=https://github.com/zenoss/ZenPacks.zenoss.MySqlMonitor.git
 |Releases={{Release
-|Version=3.0.3
-|Tag=3.0.3
+|Version=3.0.6
+|Tag=3.0.6
 |Release date=2014/11/05
 |Compatible with=Zenoss Core 4.2.x, Zenoss Resource Manager 4.1.x, Zenoss Resource Manager 4.2.x
 |Requires=PythonCollector
@@ -226,6 +226,9 @@ Installing this ZenPack will add the following items to your Zenoss system.
 * MySQLDatabase (on MySQLServer)
 
 == Changes ==
+
+;3.0.6 (2015-06-18)
+* Added zMySQLTimeout property and timeout for datasource plugins.
 
 ;3.0.5 (2015-02-05)
 * Restore functionality of deprecated MySqlMonitor datasource. (ZEN-16452)
