@@ -37,7 +37,8 @@ def connection_pool(ds, ip):
         host=ip,
         user=server['user'],
         port=server['port'],
-        passwd=server['passwd']
+        passwd=server['passwd'],
+        connect_timeout=ds.zMySqlTimeout
     )
 
 
@@ -53,7 +54,13 @@ def datasource_to_dbpool(ds, ip, dbpool_cache={}):
 
 
 class MysqlBasePlugin(PythonDataSourcePlugin):
-    proxy_attributes = ('zMySQLConnectionString', 'table_count')
+    '''Base plugin for MySQL monitoring tasks'''
+
+    proxy_attributes = (
+        'zMySQLConnectionString',
+        'zMySqlTimeout',
+        'table_count'
+    )
 
     def get_query(self, component):
         raise NotImplemented

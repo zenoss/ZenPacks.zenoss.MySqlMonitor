@@ -104,6 +104,7 @@ class ZenPack(ZenPackBase):
         ('zMySqlPassword', '', 'password'),
         ('zMySqlPort', '', 'string'),
         ('zMySQLConnectionString', '', 'multilinecredentials'),
+        ('zMySqlTimeout', 30, 'int'),
     ]
 
     def install(self, app):
