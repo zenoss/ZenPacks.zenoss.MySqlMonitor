@@ -18,7 +18,7 @@ from twisted.enterprise import adbapi
 from twisted.internet import defer
 
 from ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource \
-    import PythonDataSourcePlugin
+    import PythonDataSourcePlugin, SynchronousTimeoutError
 from Products.ZenEvents import ZenEventClasses
 from Products.DataCollector.plugins.DataMaps import ObjectMap
 #from ZenPacks.zenoss.PythonCollector import patches
@@ -55,6 +55,8 @@ def datasource_to_dbpool(ds, ip, dbpool_cache={}):
 
 class MysqlBasePlugin(PythonDataSourcePlugin):
     '''Base plugin for MySQL monitoring tasks'''
+
+    timeout = 30
 
     proxy_attributes = (
         'zMySQLConnectionString',
@@ -106,6 +108,10 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                         self.query_results_to_events(res, ds))
                     data['maps'].extend(
                         self.query_results_to_maps(res, ds.component))
+
+            except SynchronousTimeoutError:
+                log.warning("Timeout running SQL query for template %s." %
+                    ds.template)
 
             except Exception as e:
                 # Make sure the event is sent only for MySQLServer
