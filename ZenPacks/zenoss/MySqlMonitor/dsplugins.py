@@ -13,9 +13,9 @@ log = getLogger('zen.python')
 
 import re
 import time
+import MySQLdb
 
-from twisted.enterprise import adbapi
-from twisted.internet import defer
+from twisted.internet import defer, reactor
 
 from ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource \
     import PythonDataSourcePlugin
@@ -28,11 +28,10 @@ from ZenPacks.zenoss.MySqlMonitor.utils import (
 from ZenPacks.zenoss.MySqlMonitor import NAME_SPLITTER
 
 
-def connection_pool(ds, ip):
+def connection_cursor(ds, ip):
     servers = parse_mysql_connection_string(ds.zMySQLConnectionString)
     server = servers[ds.component.split(NAME_SPLITTER)[0]]
-    return adbapi.ConnectionPool(
-        "MySQLdb",
+    db = MySQLdb.connect(
         cp_reconnect=True,
         host=ip,
         user=server['user'],
@@ -40,17 +39,11 @@ def connection_pool(ds, ip):
         passwd=server['passwd'],
         connect_timeout=ds.zMySqlTimeout
     )
+    return db.cursor()
 
 
-def datasource_to_dbpool(ds, ip, dbpool_cache={}):
-    servers = parse_mysql_connection_string(ds.zMySQLConnectionString)
-    server = servers[ds.component.split(NAME_SPLITTER)[0]]
-
-    connection_key = (ip, server['user'], server['port'], server['passwd'])
-    if not((connection_key in dbpool_cache)
-            and dbpool_cache[connection_key].running):
-        dbpool_cache[connection_key] = connection_pool(ds, ip)
-    return dbpool_cache[connection_key]
+class TimeoutError(Exception):
+    """Indicates that plugin ran out ot time"""
 
 
 class MysqlBasePlugin(PythonDataSourcePlugin):
@@ -74,30 +67,27 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
     def query_results_to_maps(self, results, component):
         return []
 
-    @defer.inlineCallbacks
-    def collect(self, config):
+    def inner(self, config):
         # Data structure with empty events, values and maps.
         data = self.new_data()
 
         # The query execution result.
         res = None
-        dbpool = None
+        curs = None
 
         for ds in config.datasources:
             try:
                 try:
-                    dbpool = datasource_to_dbpool(ds, config.manageIp)
-                    res = yield dbpool.runQuery(self.get_query(ds.component))
+                    curs = connection_cursor(ds, config.manageIp)
+                    res = curs.execute(self.get_query(ds.component))
                 except Exception as e:
                     if 'MySQL server has gone away' in str(e) or\
                             "Can't connect to MySQL server" in str(e):
-                        dbpool = connection_pool(ds, config.manageIp)
-                        res = yield dbpool.runQuery(
-                            self.get_query(ds.component)
-                        )
+                        curs = connection_cursor(ds, config.manageIp)
+                        res = curs.execute(self.get_query(ds.component))
                 finally:
-                    if dbpool:
-                        dbpool.close()
+                    if curs:
+                        curs.close()
 
                 if res:
                     data['values'][ds.component] = (
@@ -121,7 +111,40 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                     'severity': ds.severity,
                 })
 
-        defer.returnValue(data)
+        return data
+
+    @defer.inlineCallbacks
+    def collect(self, config):
+        secs = config.datasources[0].zMySqlTimeout
+
+        worker = defer.maybeDeferred(lambda: self.inner(config))
+
+        guard = defer.Deferred()
+        timep = reactor.callLater(secs, guard.callback, None)
+
+        try:
+            try:
+                res, timeout_res = yield defer.DeferredList(
+                    [worker, guard],
+                    fireOnOneCallback=True,
+                    fireOnOneErrback=True,
+                    consumeErrors=True
+                )
+            except defer.FirstError, e:
+                # Let worker function exceptions pass
+                assert e.index == 0
+                guard.cancel()
+                e.subFailure.raiseException()
+            else:
+                #Timeout
+                if guard.called:
+                    raise TimeoutError
+        except TimeoutError:
+            log.warning("MySQL query timeout")
+
+        #No timeout
+        guard.cancel()
+        defer.returnValue(res)
 
     def onSuccess(self, result, config):
         for component in result["values"].keys():
