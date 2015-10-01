@@ -179,6 +179,10 @@ class MySQLCollector(PythonPlugin):
         elif "Access denied" in error:
             msg = "Access denied for user '%s:***:%s'" % (user, port)
             severity = 5
+        elif "Can't connect" in error:
+            msg = ("Can't connect to MySQL server. Check permissions for "
+                "remote connections for %s:***:%s" % (user, port))
+            severity = 5
         else:
             msg = "Error modeling MySQL server for %s:***:%s" % (user, port)
             severity = 5
