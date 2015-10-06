@@ -13,8 +13,8 @@ log = getLogger('zen.python')
 
 import re
 import time
+import MySQLdb
 
-from twisted.enterprise import adbapi
 from twisted.internet import defer
 
 from ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource \
@@ -28,11 +28,10 @@ from ZenPacks.zenoss.MySqlMonitor.utils import (
 from ZenPacks.zenoss.MySqlMonitor import NAME_SPLITTER
 
 
-def connection_pool(ds, ip):
+def connection_cursor(ds, ip):
     servers = parse_mysql_connection_string(ds.zMySQLConnectionString)
     server = servers[ds.component.split(NAME_SPLITTER)[0]]
-    return adbapi.ConnectionPool(
-        "MySQLdb",
+    db = MySQLdb.connect(
         cp_reconnect=True,
         host=ip,
         user=server['user'],
@@ -40,17 +39,7 @@ def connection_pool(ds, ip):
         passwd=server['passwd'],
         connect_timeout=ds.zMySqlTimeout
     )
-
-
-def datasource_to_dbpool(ds, ip, dbpool_cache={}):
-    servers = parse_mysql_connection_string(ds.zMySQLConnectionString)
-    server = servers[ds.component.split(NAME_SPLITTER)[0]]
-
-    connection_key = (ip, server['user'], server['port'], server['passwd'])
-    if not((connection_key in dbpool_cache)
-            and dbpool_cache[connection_key].running):
-        dbpool_cache[connection_key] = connection_pool(ds, ip)
-    return dbpool_cache[connection_key]
+    return db.cursor()
 
 
 class MysqlBasePlugin(PythonDataSourcePlugin):
@@ -74,30 +63,27 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
     def query_results_to_maps(self, results, component):
         return []
 
-    @defer.inlineCallbacks
-    def collect(self, config):
+    def inner(self, config):
         # Data structure with empty events, values and maps.
         data = self.new_data()
 
         # The query execution result.
         res = None
-        dbpool = None
+        curs = None
 
         for ds in config.datasources:
             try:
                 try:
-                    dbpool = datasource_to_dbpool(ds, config.manageIp)
-                    res = yield dbpool.runQuery(self.get_query(ds.component))
+                    curs = connection_cursor(ds, config.manageIp)
+                    res = curs.execute(self.get_query(ds.component))
                 except Exception as e:
                     if 'MySQL server has gone away' in str(e) or\
                             "Can't connect to MySQL server" in str(e):
-                        dbpool = connection_pool(ds, config.manageIp)
-                        res = yield dbpool.runQuery(
-                            self.get_query(ds.component)
-                        )
+                        curs = connection_cursor(ds, config.manageIp)
+                        res = curs.execute(self.get_query(ds.component))
                 finally:
-                    if dbpool:
-                        dbpool.close()
+                    if curs:
+                        curs.close()
 
                 if res:
                     data['values'][ds.component] = (
@@ -121,7 +107,10 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                     'severity': ds.severity,
                 })
 
-        defer.returnValue(data)
+        return data
+
+    def collect(self, config):
+        return defer.maybeDeferred(lambda: self.inner(config))
 
     def onSuccess(self, result, config):
         for component in result["values"].keys():
