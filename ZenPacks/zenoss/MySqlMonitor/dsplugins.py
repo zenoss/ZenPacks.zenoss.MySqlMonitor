@@ -13,9 +13,9 @@ log = getLogger('zen.python')
 
 import re
 import time
+import MySQLdb
 
-from twisted.enterprise import adbapi
-from twisted.internet import defer
+from twisted.internet import defer, threads
 
 from ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource \
     import PythonDataSourcePlugin
@@ -28,29 +28,18 @@ from ZenPacks.zenoss.MySqlMonitor.utils import (
 from ZenPacks.zenoss.MySqlMonitor import NAME_SPLITTER
 
 
-def connection_pool(ds, ip):
+def connection_cursor(ds, ip):
     servers = parse_mysql_connection_string(ds.zMySQLConnectionString)
     server = servers[ds.component.split(NAME_SPLITTER)[0]]
-    return adbapi.ConnectionPool(
-        "MySQLdb",
-        cp_reconnect=True,
+    db = MySQLdb.connect(
         host=ip,
         user=server['user'],
         port=server['port'],
         passwd=server['passwd'],
         connect_timeout=ds.zMySqlTimeout
     )
-
-
-def datasource_to_dbpool(ds, ip, dbpool_cache={}):
-    servers = parse_mysql_connection_string(ds.zMySQLConnectionString)
-    server = servers[ds.component.split(NAME_SPLITTER)[0]]
-
-    connection_key = (ip, server['user'], server['port'], server['passwd'])
-    if not((connection_key in dbpool_cache)
-            and dbpool_cache[connection_key].running):
-        dbpool_cache[connection_key] = connection_pool(ds, ip)
-    return dbpool_cache[connection_key]
+    db.ping(True)
+    return db.cursor()
 
 
 class MysqlBasePlugin(PythonDataSourcePlugin):
@@ -74,31 +63,19 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
     def query_results_to_maps(self, results, component):
         return []
 
-    @defer.inlineCallbacks
-    def collect(self, config):
+    def inner(self, config):
         # Data structure with empty events, values and maps.
         data = self.new_data()
 
         # The query execution result.
         res = None
-        dbpool = None
+        curs = None
 
         for ds in config.datasources:
             try:
-                try:
-                    dbpool = datasource_to_dbpool(ds, config.manageIp)
-                    res = yield dbpool.runQuery(self.get_query(ds.component))
-                except Exception as e:
-                    if 'MySQL server has gone away' in str(e) or\
-                            "Can't connect to MySQL server" in str(e):
-                        dbpool = connection_pool(ds, config.manageIp)
-                        res = yield dbpool.runQuery(
-                            self.get_query(ds.component)
-                        )
-                finally:
-                    if dbpool:
-                        dbpool.close()
-
+                curs = connection_cursor(ds, config.manageIp)
+                curs.execute(self.get_query(ds.component))
+                res = curs.fetchall()
                 if res:
                     data['values'][ds.component] = (
                         self.query_results_to_values(res))
@@ -106,22 +83,29 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                         self.query_results_to_events(res, ds))
                     data['maps'].extend(
                         self.query_results_to_maps(res, ds.component))
-
             except Exception as e:
                 # Make sure the event is sent only for MySQLServer
                 # component, but not for all databases.
                 if ds.component and NAME_SPLITTER in ds.component:
                     continue
+                message = str(e)
+
+                if 'MySQL server has gone away' in message or\
+                    "Can't connect to MySQL server" in message:
+                    message = "Can't connect to MySQL server or timeout error."
 
                 data['events'].append({
                     'component': ds.component,
-                    'summary': str(e),
+                    'summary': message,
                     'eventClass': '/Status',
                     'eventKey': 'mysql_result',
                     'severity': ds.severity,
                 })
 
-        defer.returnValue(data)
+        return data
+
+    def collect(self, config):
+        return threads.deferToThread(lambda: self.inner(config))
 
     def onSuccess(self, result, config):
         for component in result["values"].keys():
