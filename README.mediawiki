@@ -227,6 +227,9 @@ Installing this ZenPack will add the following items to your Zenoss system.
 
 == Changes ==
 
+;3.1.0
+* Fix datasources to not block zenpython.
+
 ;3.0.6 (2015-06-18)
 * Added zMySQLTimeout property and timeout for datasource plugins.
 

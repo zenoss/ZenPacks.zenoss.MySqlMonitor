@@ -17,40 +17,6 @@ from ZenPacks.zenoss.MySqlMonitor import NAME_SPLITTER
 from ZenPacks.zenoss.MySqlMonitor import dsplugins
 
 
-class Test_datasource_to_dbpool(BaseTestCase):
-
-    @patch.object(dsplugins, 'parse_mysql_connection_string')
-    @patch.object(dsplugins, 'adbapi')
-    def test_extracts_server(self, adbapi, parse_mysql_connection_string):
-        adbapi.ConnectionPool.return_value = sentinel.dbpool
-        parse_mysql_connection_string.return_value = {
-            'server_id': dict(
-                user=sentinel.user,
-                port=sentinel.port,
-                passwd=sentinel.passwd
-            )
-        }
-        ds = Mock()
-        ds.component = 'server_id' + NAME_SPLITTER + 'something other'
-        ds.zMySQLConnectionString = sentinel.zMySQLConnectionString
-
-        dbpool = dsplugins.datasource_to_dbpool(ds, '127.0.0.1')
-
-        self.assertEquals(dbpool, sentinel.dbpool)
-
-        adbapi.ConnectionPool.assert_called_with(
-            'MySQLdb',
-            passwd=sentinel.passwd,
-            host='127.0.0.1',
-            cp_reconnect=True,
-            user=sentinel.user,
-            port=sentinel.port
-        )
-        parse_mysql_connection_string.assert_called_with(
-            sentinel.zMySQLConnectionString
-        )
-
-
 class TestMysqlBasePlugin(BaseTestCase):
     def setUp(self):
         self.plugin = dsplugins.MysqlBasePlugin()
@@ -529,7 +495,6 @@ class TestMySQLDatabaseExistencePlugin(BaseTestCase):
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
-    suite.addTest(makeSuite(Test_datasource_to_dbpool))
     suite.addTest(makeSuite(TestMysqlBasePlugin))
     suite.addTest(makeSuite(TestMySqlMonitorPlugin))
     suite.addTest(makeSuite(TestMySqlDeadlockPlugin))
