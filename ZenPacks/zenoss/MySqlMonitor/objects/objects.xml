@@ -1217,7 +1217,7 @@ AVERAGE
 <!-- ('', 'zport', 'dmd', 'Devices', 'rrdTemplates', 'MySQLDatabase') -->
 <object id='/zport/dmd/Devices/rrdTemplates/MySQLDatabase' module='Products.ZenModel.RRDTemplate' class='RRDTemplate'>
 <property type="string" id="targetPythonClass" mode="w" >
-Products.ZenModel.Device
+ZenPacks.zenoss.MySqlMonitor.MySQLDatabase
 </property>
 <tomanycont id='datasources'>
 <object id='DbExistence' module='ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource' class='PythonDataSource'>
@@ -1417,7 +1417,7 @@ AVERAGE
 <!-- ('', 'zport', 'dmd', 'Devices', 'rrdTemplates', 'MySQLServer') -->
 <object id='/zport/dmd/Devices/rrdTemplates/MySQLServer' module='Products.ZenModel.RRDTemplate' class='RRDTemplate'>
 <property type="string" id="targetPythonClass" mode="w" >
-Products.ZenModel.Device
+ZenPacks.zenoss.MySqlMonitor.MySQLServer
 </property>
 <tomanycont id='datasources'>
 <object id='DbStats' module='ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource' class='PythonDataSource'>

@@ -11,10 +11,17 @@
 #
 ###########################################################################
 
+from logging import getLogger
+log = getLogger('zen.python')
+
 import os.path
 
 from zope.event import notify
+from twisted.internet import defer
 from Products.Zuul.catalog.events import IndexingEvent
+
+from ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource \
+    import PythonDataSourcePlugin
 
 
 def load_data(filename):
@@ -65,3 +72,20 @@ def test_device(dmd, factor=1):
                     server_id, database_id)))
 
     return device
+
+class MysqlFakePlugin(PythonDataSourcePlugin):
+    """Fake plugin to test non-blocking.
+    1. To make it happen open templates for say 'MySQLServer' and add
+    datasource with any name but type=Python and cycle time=10secs, and
+    plugin class name ZenPacks.zenoss.MySqlMonitor.tests.util.MysqlFakePlugin
+    2. You also need rule for iptables to block normal plugins, like:
+        iptables -A OUTPUT -p tcp -d MYSQL_IP_HERE --dport 3306 -j DROP
+    3. Run zenpython and watch for log.
+    """
+
+    @defer.inlineCallbacks
+    def collect(self, config):
+        log.info("== Fake plugin called")
+        _ = yield
+        log.info("==== After yield in fake plugin")
+        defer.returnValue({})
