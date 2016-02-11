@@ -44,6 +44,7 @@ class ZenossMySqlStatsPlugin:
         ret = cursor.execute(self.cmd)
         if not ret:
             cursor.close()
+            self.conn.close()
             print 'Error getting MySQL statistics'
             sys.exit(1)
 
@@ -51,6 +52,7 @@ class ZenossMySqlStatsPlugin:
             (' '.join(['='.join(r) for r in cursor.fetchall()]))
 
         cursor.close()
+        self.conn.close()
 
 
 if __name__ == "__main__":
