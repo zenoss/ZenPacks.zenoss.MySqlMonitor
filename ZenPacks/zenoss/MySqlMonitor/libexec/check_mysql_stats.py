@@ -27,6 +27,8 @@ class ZenossMySqlStatsPlugin:
             self.cmd = 'SHOW GLOBAL STATUS'
         else:
             self.cmd = 'SHOW STATUS'
+            
+        self.maxconn = 'select "Max_connections" as "Value",cast(@@global.max_connections as char)'    
 
     def run(self):
         try:
@@ -48,8 +50,19 @@ class ZenossMySqlStatsPlugin:
             print 'Error getting MySQL statistics'
             sys.exit(1)
 
-        print "STATUS OK|%s" % \
-            (' '.join(['='.join(r) for r in cursor.fetchall()]))
+        status_variables = cursor.fetchall()
+
+        ret = cursor.execute(self.maxconn)
+        if not ret:
+            cursor.close()
+            self.conn.close()
+            print 'Error getting MySQL statistics (max_connections)'
+            sys.exit(1)
+
+        status_maxconn = cursor.fetchall()
+
+        print "Status OK|%s %s" %\
+            (' '.join([ '='.join(r) for r in status_variables ]),' '.join([ '='.join(r) for r in status_maxconn ]))
 
         cursor.close()
         self.conn.close()
