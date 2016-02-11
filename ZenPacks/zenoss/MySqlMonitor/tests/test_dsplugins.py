@@ -256,7 +256,7 @@ END OF INNODB MONITOR OUTPUT
 
     def test_query_status_deadlock_to_events(self):
         results = (
-            ('1', '2', '''
+            ('InnoDB', '2', '''
 =====================================
 130927 10:27:05 INNODB MONITOR OUTPUT
 =====================================
