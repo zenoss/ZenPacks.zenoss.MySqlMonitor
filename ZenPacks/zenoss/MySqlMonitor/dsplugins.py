@@ -15,7 +15,7 @@ import re
 import time
 import MySQLdb
 
-from twisted.internet import defer, threads
+from twisted.internet import threads
 
 from ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource \
     import PythonDataSourcePlugin
@@ -43,7 +43,14 @@ def connection_cursor(ds, ip):
 
 
 class MysqlBasePlugin(PythonDataSourcePlugin):
-    '''Base plugin for MySQL monitoring tasks'''
+    '''
+    Base plugin for MySQL monitoring tasks.
+
+    Note: For onSuccess(), onError(), inner() and eventKey is set to
+          self.__class__.__name__ to avoid cross event clearing.
+          Do not override these 3 methods in child classes without considering
+          this effect.
+    '''
 
     proxy_attributes = (
         'zMySQLConnectionString',
@@ -98,7 +105,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                     'component': ds.component,
                     'summary': message,
                     'eventClass': '/Status',
-                    'eventKey': 'mysql_result',
+                    'eventKey': self.__class__.__name__,
                     'severity': ds.severity,
                 })
 
@@ -114,7 +121,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                 'component': component,
                 'summary': 'Monitoring ok',
                 'eventClass': '/Status',
-                'eventKey': 'mysql_result',
+                'eventKey': self.__class__.__name__,
                 'severity': ZenEventClasses.Clear,
             })
         return result
@@ -126,7 +133,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         data['events'].append({
             'summary': 'error: %s' % result,
             'eventClass': '/Status',
-            'eventKey': 'mysql_result',
+            'eventKey': self.__class__.__name__,
             'severity': ds0.severity,
         })
         return data
@@ -141,7 +148,6 @@ class MySqlMonitorPlugin(MysqlBasePlugin):
 
 
 class MySqlDeadlockPlugin(MysqlBasePlugin):
-
     proxy_attributes = MysqlBasePlugin.proxy_attributes + ('deadlock_info',)
 
     deadlock_time = None

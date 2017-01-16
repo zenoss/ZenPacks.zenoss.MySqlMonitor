@@ -227,6 +227,9 @@ Installing this ZenPack will add the following items to your Zenoss system.
 
 == Changes ==
 
+;3.0.8
+* Give datasources unique eventKeys to avoid false-clearing. (ZPS-500)
+
 ;3.0.7 (2015-11-25)
 * Fix datasources to not block zenpython. (ZEN-19220)
 
