@@ -8,7 +8,6 @@
 #
 ######################################################################
 
-import unittest
 from mock import Mock, patch, sentinel
 
 from Products.ZenTestCase.BaseTestCase import BaseTestCase
@@ -28,7 +27,7 @@ class TestMysqlBasePlugin(BaseTestCase):
 
         event = result['events'][0]
         self.assertEquals(event['severity'], 0)
-        self.assertEquals(event['eventKey'], 'mysql_result')
+        self.assertEquals(event['eventKey'], 'MysqlBasePlugin')
 
     @patch.object(dsplugins, 'log')
     def test_onError_event(self, log):
@@ -39,7 +38,7 @@ class TestMysqlBasePlugin(BaseTestCase):
 
         event = result['events'][0]
         self.assertEquals(event['severity'], 4)
-        self.assertEquals(event['eventKey'], 'mysql_result')
+        self.assertEquals(event['eventKey'], 'MysqlBasePlugin')
         log.error.assertCalledWith(sentinel.some_result)
 
 
