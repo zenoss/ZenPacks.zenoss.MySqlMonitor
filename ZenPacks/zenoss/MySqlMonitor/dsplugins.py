@@ -36,7 +36,7 @@ def connection_cursor(ds, ip):
         user=server['user'],
         port=server['port'],
         passwd=server['passwd'],
-        connect_timeout=ds.zMySqlTimeout
+        connect_timeout=getattr(ds, 'zMySqlTimeout', 30)
     )
     db.ping(True)
     return db.cursor()
