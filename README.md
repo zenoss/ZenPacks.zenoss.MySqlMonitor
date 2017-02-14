@@ -2,7 +2,7 @@ Zenoss Zenpack for monitoring MySQL server
 ==========================================
 
 Full documentation available at: 
-http://wiki.zenoss.org/ZenPack:MySQL_Database_Monitor_%28Core%29
+https://www.zenoss.com/product/zenpacks/mysql-database-monitor-core
 
 
 http://www.zenoss.com/
