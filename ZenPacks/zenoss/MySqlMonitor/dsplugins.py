@@ -46,8 +46,9 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
     '''
     Base plugin for MySQL monitoring tasks.
 
-    Note: For onSuccess(), onError(), inner() and eventKey is set to
-          self.__class__.__name__ to avoid cross event clearing.
+    Note: For onSuccess(), onError(), and inner(), eventKey and eventClassKey
+          are set to self.__class__.__name__ to avoid cross event clearing and
+          allow easier event-transform definition.
           Do not override these 3 methods in child classes without considering
           this effect.
     '''
@@ -106,6 +107,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                     'summary': message,
                     'eventClass': '/Status',
                     'eventKey': self.__class__.__name__,
+                    'eventClassKey': self.__class__.__name__,
                     'severity': ds.severity,
                 })
 
@@ -122,6 +124,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                 'summary': 'Monitoring ok',
                 'eventClass': '/Status',
                 'eventKey': self.__class__.__name__,
+                'eventClassKey': self.__class__.__name__,
                 'severity': ZenEventClasses.Clear,
             })
         return result
@@ -134,6 +137,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
             'summary': 'error: %s' % result,
             'eventClass': '/Status',
             'eventKey': self.__class__.__name__,
+            'eventClassKey': self.__class__.__name__,
             'severity': ds0.severity,
         })
         return data
