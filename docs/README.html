@@ -1,0 +1,341 @@
+<style>
+img.gallery { width:100px; height:100px; padding:0px; border:0px; margin:0px; }
+</style>
+<h1 id="mysql-database-zenpack">MySQL Database ZenPack</h1>
+<p>This ZenPack provides status and performance monitoring of MySQL.</p>
+<h2 id="support">Support</h2>
+<p>This is an Open Source ZenPack developed by Zenoss, Inc. Enterprise support for this ZenPack is available to commercial customers with an active subscription.</p>
+<h2 id="releases">Releases</h2>
+<dl>
+<dt>Version 3.0.9-<a rel="nofollow" class="external" href="http://wiki.zenoss.org/download/zenpacks/ZenPacks.zenoss.MySqlMonitor/3.0.9/ZenPacks.zenoss.MySqlMonitor-3.0.9.egg">Download</a></dt>
+<dd>Released on 2017/02/(fill-in-at-release-time)
+</dd>
+<dd>Requires <a href="/product/zenpacks/pythoncollector" title="ZenPack:PythonCollector">PythonCollector ZenPack</a>
+</dd>
+<dd><p>Compatible with Zenoss Core 4.2.x, Zenoss Core 5.0.x, Zenoss Resource Manager 4.2.x</p>
+</dd>
+<dt>Version 3.0.8-<a rel="nofollow" class="external" href="http://wiki.zenoss.org/download/zenpacks/ZenPacks.zenoss.MySqlMonitor/3.0.8/ZenPacks.zenoss.MySqlMonitor-3.0.8.egg">Download</a></dt>
+<dd>Released on 2017/01/16
+</dd>
+<dd>Requires <a href="/product/zenpacks/pythoncollector" title="ZenPack:PythonCollector">PythonCollector ZenPack</a>
+</dd>
+<dd><p>Compatible with Zenoss Core 4.2.x, Zenoss Core 5.0.x, Zenoss Resource Manager 4.2.x</p>
+</dd>
+<dt>Version 3.0.7-<a rel="nofollow" class="external" href="http://wiki.zenoss.org/download/zenpacks/ZenPacks.zenoss.MySqlMonitor/3.0.7/ZenPacks.zenoss.MySqlMonitor-3.0.7.egg">Download</a></dt>
+<dd>Released on 2015/11/25
+</dd>
+<dd>Requires <a href="/product/zenpacks/pythoncollector" title="ZenPack:PythonCollector">PythonCollector ZenPack</a>
+</dd>
+<dd><p>Compatible with Zenoss Core 4.2.x, Zenoss Core 5.0.x, Zenoss Resource Manager 4.1.x, Zenoss Resource Manager 4.2.x</p>
+</dd>
+</dl>
+<h2>Contents</h2>
+<div id="TOC">
+<ul>
+<li><a href="#background">Background</a></li>
+<li><a href="#gallery">Gallery</a></li>
+<li><a href="#features">Features</a><ul>
+<li><a href="#discovery">Discovery</a></li>
+<li><a href="#monitoring">Monitoring</a></li>
+<li><a href="#event-monitoring">Event monitoring</a></li>
+<li><a href="#service-impact">Service Impact</a></li>
+</ul></li>
+<li><a href="#usage">Usage</a></li>
+<li><a href="#prerequisites">Prerequisites</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+<li><a href="#migration">Migration</a></li>
+<li><a href="#installed-items">Installed Items</a></li>
+<li><a href="#changes">Changes</a></li>
+</ul>
+</div>
+<h2 id="background">Background</h2>
+<p>This ZenPack provides monitoring for MySQL 5.5 and later. Monitoring for the following MySQL entities is provided using <code>twisted.enterprise.adbapi</code> asynchronous framework. See the Usage section for details.</p>
+<p>Please restart zenoss after installing this ZenPack. Note that the commercial zenoss version requires <em>ZenPacks.zenoss.Impact</em>, otherwise the <em>DynamicServices</em> panel will be missing.</p>
+<h2 id="gallery">Gallery</h2>
+<p><a href="sites/default/files/zenpack/MySQL Monitor/Configuration_properties_panel.png"><img class="gallery" src="sites/default/files/zenpack/MySQL Monitor/Configuration_properties_panel.png" /></a> <a href="sites/default/files/zenpack/MySQL Monitor/Edit_zMySQLConnectionString_property.png"><img class="gallery" src="sites/default/files/zenpack/MySQL Monitor/Edit_zMySQLConnectionString_property.png" /></a> <a href="sites/default/files/zenpack/MySQL Monitor/MySQLServer.png"><img class="gallery" src="sites/default/files/zenpack/MySQL Monitor/MySQLServer.png" /></a> <a href="sites/default/files/zenpack/MySQL Monitor/MySQLDatabase.png"><img class="gallery" src="sites/default/files/zenpack/MySQL Monitor/MySQLDatabase.png" /></a> <a href="sites/default/files/zenpack/MySQL Monitor/MySQLDatabase_Graphs.png"><img class="gallery" src="sites/default/files/zenpack/MySQL Monitor/MySQLDatabase_Graphs.png" /></a> <a href="sites/default/files/zenpack/MySQL Monitor/MySQLServer_Graphs.png"><img class="gallery" src="sites/default/files/zenpack/MySQL Monitor/MySQLServer_Graphs.png" /></a> <a href="sites/default/files/zenpack/MySQL Monitor/MySQL_Impact.png"><img class="gallery" src="sites/default/files/zenpack/MySQL Monitor/MySQL_Impact.png" /></a></p>
+<h2 id="features">Features</h2>
+<p>The features added by this ZenPack can be summarized as follows. They are each detailed further below.</p>
+<ul>
+<li>Discovery of MySQL entities.</li>
+<li>Monitoring of MySQL Server and Database components.</li>
+<li>Event management and monitoring for certain MySQL states.</li>
+<li>Optional service impact with addition of Zenoss Service Dynamics product.</li>
+</ul>
+<h3 id="discovery">Discovery</h3>
+<p>The following entities will be discovered through <em>zMySQLConnectionString</em> property you provide. The attributes, tags and collections will be updated on Zenoss' normal remodeling interval which defaults to every 12 hours.</p>
+<p>Servers:</p>
+<ul>
+<li><em>Attributes</em>: Percentage of full table scans, Slave status, Master status, Number of databases</li>
+<li><em>Tags</em>: Name</li>
+<li><em>Collections</em>: Databases</li>
+</ul>
+<p>Databases:</p>
+<ul>
+<li>Attributes: Number of tables, Default character set, Default collation</li>
+<li>Tags: Name</li>
+</ul>
+<p>Note that all the discovered values for the attributes above are shown as of the last modeling time.</p>
+<h3 id="monitoring">Monitoring</h3>
+<p>The following metrics will be collected every 5 minutes by default. The <em>Average</em> statistic is collected, and the graphed value is per second for anything that resembles a rate.</p>
+<p>Server:</p>
+<ul>
+<li><p>Metrics:</p>
+<table>
+<tbody>
+<tr class="odd">
+<td align="left">* Size</td>
+<td align="left">* Data size</td>
+<td align="left">* Index size</td>
+<td align="left">* Connections</td>
+</tr>
+<tr class="even">
+<td align="left">* Threads connected</td>
+<td align="left">* Max used connections</td>
+<td align="left">* Uptime</td>
+<td align="left">* Aborted clients</td>
+</tr>
+<tr class="odd">
+<td align="left">* Aborted connects</td>
+<td align="left">* Bytes received</td>
+<td align="left">* Bytes sent</td>
+<td align="left">* Com create db</td>
+</tr>
+<tr class="even">
+<td align="left">* Com drop db</td>
+<td align="left">* Com alter db</td>
+<td align="left">* Com create table</td>
+<td align="left">* Com alter table</td>
+</tr>
+<tr class="odd">
+<td align="left">* Com drop table</td>
+<td align="left">* Com create user</td>
+<td align="left">* Com drop user</td>
+<td align="left">* Com call procedure</td>
+</tr>
+<tr class="even">
+<td align="left">* Com commit</td>
+<td align="left">* Com check</td>
+<td align="left">* Com delete</td>
+<td align="left">* Com delete multi</td>
+</tr>
+<tr class="odd">
+<td align="left">* Com execute sql</td>
+<td align="left">* Com flush</td>
+<td align="left">* Com insert</td>
+<td align="left">* Com insert select</td>
+</tr>
+<tr class="even">
+<td align="left">* Com purge</td>
+<td align="left">* Com repair</td>
+<td align="left">* Com replace</td>
+<td align="left">* Com rollback</td>
+</tr>
+<tr class="odd">
+<td align="left">* Com select</td>
+<td align="left">* Com update</td>
+<td align="left">* Com update multi</td>
+<td align="left">* Handler commit</td>
+</tr>
+<tr class="even">
+<td align="left">* Handler delete</td>
+<td align="left">* Handler rollback</td>
+<td align="left">* Handler update</td>
+<td align="left">* Handler write</td>
+</tr>
+<tr class="odd">
+<td align="left">* Handler read first</td>
+<td align="left">* Handler read key</td>
+<td align="left">* Handler read last</td>
+<td align="left">* Handler read next</td>
+</tr>
+<tr class="even">
+<td align="left">* Handler read prev</td>
+<td align="left">* Handler read rnd</td>
+<td align="left">* Handler read rnd next</td>
+<td align="left">* Handler savepoint</td>
+</tr>
+<tr class="odd">
+<td align="left">* Key reads</td>
+<td align="left">* Key writes</td>
+<td align="left">* Key read requests</td>
+<td align="left">* Open files</td>
+</tr>
+<tr class="even">
+<td align="left">* Open streams</td>
+<td align="left">* Open tables</td>
+<td align="left">* Select full join</td>
+<td align="left">* Select full range join</td>
+</tr>
+<tr class="odd">
+<td align="left">* Select range</td>
+<td align="left">* Select range check</td>
+<td align="left">* Select scan</td>
+<td align="left">* nothing</td>
+</tr>
+</tbody>
+</table></li>
+</ul>
+<p>Databases</p>
+<ul>
+<li><p>Metrics:</p></li>
+<li>Size</li>
+<li>Data size</li>
+<li><p>Index size|</p></li>
+</ul>
+<h3 id="event-monitoring">Event monitoring</h3>
+<p>According to the following MySQL states this ZenPack will trigger events with an appropriate summary message.</p>
+<dl>
+<dt>Device</dt>
+<dd><p>Critical event:</p>
+<ul>
+<li>Invalid <em>zMySQLConnectionString</em> property,</li>
+<li>Access denied for user with credentials provided in <em>zMySQLConnectionString</em> property.</li>
+</ul>
+</dd>
+<dt>Service</dt>
+<dd><p>Error event:</p>
+<ul>
+<li>Slave error,</li>
+<li>MySQL server is not accessible.</li>
+</ul>
+</dd>
+<dd><p>Info event:</p>
+<ul>
+<li>A database was dropped.</li>
+</ul>
+</dd>
+<dt>Database</dt>
+<dd><p>Warning event:</p>
+<ul>
+<li>A table was dropped.</li>
+</ul>
+</dd>
+<dd><p>Info event:</p>
+<ul>
+<li>A table was added.</li>
+<li>InnoDB Deadlock occurred.</li>
+</ul>
+</dd>
+</dl>
+<h3 id="service-impact">Service Impact</h3>
+<p>When combined with the Zenoss Service Dynamics product, this ZenPack adds built-in service impact capability for MySQL. The following service impact relationships are automatically added. These will be included in any services that contain one or more of the explicitly mentioned entities.</p>
+<p>Service Impact Relationships</p>
+<ul>
+<li>Device failure impacts the Server component.</li>
+<li>MySQL Server component impacts Database components.</li>
+</ul>
+<h2 id="usage">Usage</h2>
+<p>To start monitoring your MySQL server you will need to setup connection to it as well as bind monitoring templates and modeler plugin to the device or device class containing your MySQL servers.</p>
+<p>Use the following steps to start monitoring MySQL using the Zenoss web interface.</p>
+<ol style="list-style-type: decimal">
+<li>Navigate to the <em>Configuration Properties</em> page of the device containing your MySQL servers (see <a href="http://wiki.zenoss.org/File:Configuration_properties_panel.png">1</a>).</li>
+<li>Set user name, password and port in the appropriate fields of <em>zMySQLConnectionString</em> property (see <a href="http://wiki.zenoss.org/File:Edit_zMySQLConnectionString_property.png">2</a>). For non-root users please make sure to grant all privileges to avoid access denied errors. Note that user name is required.</li>
+<li>Navigate to the <em>Modeler plugins</em> page of the device containing your MySQL servers, add the <em>MySQLCollector</em> modeler plugin and remodel the device. This will automatically find the MySQL servers and databases and begin monitoring them immediately for the previously mentioned metrics.</li>
+</ol>
+<p>As the custom widget for MySQL credentials is not compatible with Zenoss 4.1, the <em>zMySQLConnectionString</em> property in this version should be set as a valid JSON list (e.g. ''[{&quot;user&quot;: &quot;root&quot;, &quot;passwd&quot;: &quot;&quot;, &quot;port&quot;: &quot;3306&quot;}] '')</p>
+<p>Monitoring busy MySQL servers affects <em>zenpython</em> daemon. You may change <em>zMySqlTimeout</em> property to specify how long it should wait for response from MySQL server.</p>
+<p>Legacy method</p>
+<p>The latest version of ZenPack uses <em>zenpython</em> daemon for monitoring and automatically binds monitoring templates to MySQL components. However, if you are inclined to use the legacy method for MySQL monitoring (v2.2.0), you should:</p>
+<ol style="list-style-type: decimal">
+<li>Bind the device-level monitoring template <em>MySQL /Server</em> to the target device.</li>
+<li>Set <em>zMySqlUsername</em>, <em>zMySqlPassword</em> and <em>zMySqlPort</em> configuration properties (if the credentials are not valid or not set, you will receive the event with in 'App/MySQL' event class).</li>
+<li>Make sure that <em>zencommand</em> daemon is running.</li>
+</ol>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>If you are using the commercial zenoss version and <em>zends</em>, please make sure to create a symbolic link by executing the following command:</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>ln -s /var/lib/zends/zends.sock /tmp/mysql.sock</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<p>If you encounter any issues with Zenpack installation, please make sure that you have restarted zenoss after installation and your target disk has enough free memory and read permissions enabled.</p>
+<p>In case of any issues when uninstalling this Zenpack, please remove all components first. Note that device monitoring requires <em>zenpython</em> daemon to be constantly running.</p>
+<p>If you have just enabled monitoring, try pressing <em>Zoom in</em> to see the graphs. In case of any issues you can run zenpython daemon in foreground with <code>zenpython run -v10 -c</code> command and check if there are no exceptions. If zenpython runs without errors and prints monitoring data to stdout, then you should check if monitoring templates are bound to the components.</p>
+<p>In case device modeling fails:</p>
+<ul>
+<li>make sure, that you have specified a correct user, password and port to your MySQL user account;</li>
+<li>grant privileges (see <span class="plainlinks"><a href="http://dev.mysql.com/doc/refman/5.1/en/grant.html">MySQL GRANT Syntax</a></span>) to non-root users to avoid access denied errors by executing the following command. REPLICATION CLIENT privilege is needed to retrieve MySQL Replication data.</li>
+</ul>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>GRANT SELECT, REPLICATION CLIENT ON *.* TO 'username'@'%' WITH GRANT OPTION;</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p>Change '%' to 'localhost' in the statement above if you are modeling the local MySQL server.</p>
+<ul>
+<li>check if firewall allows connections on mysql port;</li>
+<li>ensure that you are able to connect from zenoss server to target MySQL server instance by executing the following from the command line:</li>
+</ul>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>mysql -h<host> -u<username> -p<password> -P<port></p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p>Note that the query <code>select host from mysql.user</code> should have an entry '%' for 'host' field to ensure the remote connection.</p>
+<h2 id="migration">Migration</h2>
+<p>When migrating from MySqlMonitor ZenPack v2.2.0, you should:</p>
+<ul>
+<li>Install the new version of the ZP;</li>
+<li>Restart Zenoss Services;</li>
+<li>Make sure to leave the old version in place during the install process. The new <em>zMySQLConnectionString</em> property will be constructed using MySQL credentials from older ZenPack version;</li>
+<li>Bind the modeler plugin as described in the <em>Usage</em> section;</li>
+<li>Model the device components;</li>
+<li>Remove the old monitoring template (<em>MySQL /Server</em>) from the device.</li>
+</ul>
+<p>Due to different mechanisms of MySQL monitoring, it is not possible to migrate the old RRD data from the previous version of ZenPack. The Graph data will remain and will be updated until the user manually removes the <em>MySQL /Server</em> monitoring template.</p>
+<h2 id="installed-items">Installed Items</h2>
+<p>Installing this ZenPack will add the following items to your Zenoss system.</p>
+<p>Modeler Plugins</p>
+<ul>
+<li>MySQLCollector</li>
+</ul>
+<p>Monitoring Templates</p>
+<ul>
+<li>MySQLServer(in /Server)</li>
+<li>MySQLDatabase (in /Server)</li>
+<li>MySQL (in /Server) (obsolete)</li>
+</ul>
+<p>Component Types</p>
+<ul>
+<li>MySQLServer (on related device)</li>
+<li>MySQLDatabase (on MySQLServer)</li>
+</ul>
+<h2 id="changes">Changes</h2>
+<p>3.0.9 (2017-02-???)</p>
+<ul>
+<li>Update events and event class mappings to facilitate transforms (ZPS-500)</li>
+</ul>
+<p>3.0.8 (2017-01-16)</p>
+<ul>
+<li>Give datasource events unique eventKeys to avoid false-clearing. (ZPS-500)</li>
+<li>Set default timeouts for data collection DB connection. (ZPS-313)</li>
+</ul>
+<p>3.0.7 (2015-11-25)</p>
+<ul>
+<li>Fix datasources to not block zenpython. (ZEN-19220)</li>
+</ul>
+<p>3.0.6 (2015-06-18)</p>
+<ul>
+<li>Added zMySQLTimeout property and timeout for datasource plugins.</li>
+</ul>
+<p>3.0.5 (2015-02-05)</p>
+<ul>
+<li>Restore functionality of deprecated MySqlMonitor datasource. (ZEN-16452)</li>
+</ul>
+<p>3.0.4 (2014-12-18)</p>
+<ul>
+<li>Add support for Zenoss 5x.</li>
+<li>Move InnoDB Deadlock event to database component, and clear it in 30min.</li>
+</ul>
+<p>3.0.3 (2014-11-05)</p>
+<ul>
+<li>Fix graphpoint sequences to fix graphpoint colors.</li>
+<li>Close connections pools when done to avoid leaking threads.</li>
+</ul>

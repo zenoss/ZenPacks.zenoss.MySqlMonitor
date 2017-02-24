@@ -4004,6 +4004,60 @@ history
 </tomanycont>
 </object>
 </object>
+<!-- ('', 'zport', 'dmd', 'Events', 'Status', 'instances', 'MySqlMonitorPlugin') -->
+<object id="/zport/dmd/Events/Status/instances/MySqlMonitorPlugin" module="Products.ZenEvents.EventClassInst" class="EventClassInst">
+<property type="string" id="eventClassKey" mode="w">
+MySqlMonitor
+</property>
+<property type="int" id="sequence" mode="w">
+1010
+</property>
+</object>
+<!-- ('', 'zport', 'dmd', 'Events', 'Status', 'instances', 'MySqlDeadlockPlugin') -->
+<object id="/zport/dmd/Events/Status/instances/MySqlDeadlockPlugin" module="Products.ZenEvents.EventClassInst" class="EventClassInst">
+<property type="string" id="eventClassKey" mode="w">
+MySqlDeadlock
+</property>
+<property type="int" id="sequence" mode="w">
+1010
+</property>
+</object>
+<!-- ('', 'zport', 'dmd', 'Events', 'Status', 'instances', 'MySqlReplicationPlugin') -->
+<object id="/zport/dmd/Events/Status/instances/MySqlReplicationPlugin" module="Products.ZenEvents.EventClassInst" class="EventClassInst">
+<property type="string" id="eventClassKey" mode="w">
+MySqlReplication
+</property>
+<property type="int" id="sequence" mode="w">
+1010
+</property>
+</object>
+<!-- ('', 'zport', 'dmd', 'Events', 'Status', 'instances', 'MySQLMonitorServersPlugin') -->
+<object id="/zport/dmd/Events/Status/instances/MySQLMonitorServersPlugin" module="Products.ZenEvents.EventClassInst" class="EventClassInst">
+<property type="string" id="eventClassKey" mode="w">
+MySQLMonitorServers
+</property>
+<property type="int" id="sequence" mode="w">
+1010
+</property>
+</object>
+<!-- ('', 'zport', 'dmd', 'Events', 'Status', 'instances', 'MySQLMonitorDatabasesPlugin') -->
+<object id="/zport/dmd/Events/Status/instances/MySQLMonitorDatabasesPlugin" module="Products.ZenEvents.EventClassInst" class="EventClassInst">
+<property type="string" id="eventClassKey" mode="w">
+MySQLMonitorDatabases
+</property>
+<property type="int" id="sequence" mode="w">
+1010
+</property>
+</object>
+<!-- ('', 'zport', 'dmd', 'Events', 'Status', 'instances', 'MySQLDatabaseExistencePlugin') -->
+<object id="/zport/dmd/Events/Status/instances/MySQLDatabaseExistencePlugin" module="Products.ZenEvents.EventClassInst" class="EventClassInst">
+<property type="string" id="eventClassKey" mode="w">
+MySQLDatabaseExistence
+</property>
+<property type="int" id="sequence" mode="w">
+1010
+</property>
+</object>
 <!-- ('', 'zport', 'dmd', 'Manufacturers', 'MySQL') -->
 <object id='/zport/dmd/Manufacturers/MySQL' module='Products.ZenModel.Manufacturer' class='Manufacturer'>
 <property type="string" id="url" mode="w" >
