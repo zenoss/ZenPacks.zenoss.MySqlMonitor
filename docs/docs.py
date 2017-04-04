@@ -11,7 +11,7 @@ try:
 
     # Add class to images
     html = re.sub('<img src=', '<img class="gallery" src=', html)
-    html = re.sub('screenshots/', 'sites/default/files/zenpack/MySQL Monitor/', html)
+    html = re.sub('screenshots/', '/sites/default/files/zenpack/MySQL Monitor/', html)
     with open('README.html', 'w') as file:
         file.write(html)
 
