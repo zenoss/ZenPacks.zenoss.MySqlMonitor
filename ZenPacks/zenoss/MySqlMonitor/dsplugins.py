@@ -129,10 +129,11 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         return threads.deferToThread(lambda: self.inner(config))
 
     def onSuccess(self, result, config):
-        for component in result["values"].keys():
+        for ds in config.datasources:
             # Clear events for success components.
-            summary = 'Monitoring ok'
-            event = self.base_event(ZenEventClasses.Clear, summary, component)
+            event = self.base_event(ZenEventClasses.Clear,
+                                    'Monitoring ok',
+                                    ds.component)
             result['events'].insert(0, event)
         return result
 
