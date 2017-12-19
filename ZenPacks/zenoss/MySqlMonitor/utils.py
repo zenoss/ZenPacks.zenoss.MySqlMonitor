@@ -139,7 +139,10 @@ def parse_mysql_connection_string(zMySQLConnectionString):
             result[id] = dict(
                 user=el.get('user'),
                 passwd=el.get('passwd'),
-                port=int(el.get('port'))
+                port=int(el.get('port')),
+                ca=el.get('ca'),
+                cert=el.get('cert'),
+                key=el.get('key')
             )
 
     except (ValueError, TypeError):

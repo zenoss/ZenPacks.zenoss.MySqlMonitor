@@ -36,7 +36,7 @@ if (Ext.version === undefined) {
     Zenoss.form.MultilineCredentials = Ext.extend(Ext.panel.Panel, {
         constructor: function (config) {
             var me = this;
-            config.width = 450;
+            config.width = 700;
             config = Ext.applyIf(config || {}, {
                 title: _t("MySQL Connection Credentials"),
                 id: 'creds',
@@ -61,9 +61,12 @@ if (Ext.version === undefined) {
                         renderer: function(value) {
                             try {
                                 return Ext.String.format(
-                                    "{0}:{1}:{2}", value.user,
+                                    "{0}:{1}:{2}:{3}:{4}:{5}", value.user,
                                     "*".repeat(value.passwd.length),
-                                    value.port
+                                    value.port,
+                                    value.ca || '',
+                                    value.cert || '',
+                                    value.key || ''
                                 );
                             } catch (err) {
                                 return ERROR_MESSAGE;
@@ -77,7 +80,7 @@ if (Ext.version === undefined) {
                     },
 
                     height: this.height || 150,
-                    width: 450,
+                    width: 700,
 
                     tbar: [{
                         itemId: 'user',
@@ -103,18 +106,48 @@ if (Ext.version === undefined) {
                         emptyText:'Port',
                         value: '' //to avoid undefined value
                     },{
+                        itemId: 'ca',
+                        xtype: "textfield",
+                        ref: "editConfig",
+                        scope: this,
+                        width: 120,
+                        emptyText:'SSL CA path',
+                        value: '' //to avoid undefined value
+                    },{
+                        itemId: 'cert',
+                        xtype: "textfield",
+                        ref: "editConfig",
+                        scope: this,
+                        width: 120,
+                        emptyText:'SSL Cert. Path',
+                        value: '' //to avoid undefined value
+                    },{
+                        itemId: 'key',
+                        xtype: "textfield",
+                        ref: "editConfig",
+                        scope: this,
+                        width: 120,
+                        emptyText:'SSL Key Path',
+                        value: '' //to avoid undefined value
+                    },{
                         text: 'Add',
                         scope: this,
                         handler: function() {
                             var user = this.down("textfield[itemId='user']");
                             var password = this.down("textfield[itemId='password']");
                             var port = this.down("textfield[itemId='port']");
+                            var ca = this.down("textfield[itemId='ca']");
+                            var cert = this.down("textfield[itemId='cert']");
+                            var key = this.down("textfield[itemId='key']");
 
                             var grid = this.down('grid');
                             var value = {
                                 'user': user.getValue(),
                                 'passwd': password.getValue(),
-                                'port': port.getValue()
+                                'port': port.getValue(),
+                                'ca': ca.getValue(),
+                                'cert': cert.getValue(),
+                                'key': key.getValue()
                             };
                             if (user.value) {
                                 grid.getStore().add({value: value});
@@ -123,6 +156,9 @@ if (Ext.version === undefined) {
                             user.setValue("");
                             password.setValue("");
                             port.setValue("");
+                            ca.setValue("");
+                            cert.setValue("");
+                            key.setValue("");
                             this.updateHiddenField();
                         }
                     },{
@@ -152,7 +188,7 @@ if (Ext.version === undefined) {
         },
 
         updateHiddenField: function() {
-            this.down('hidden').setValue(this.getValue());        
+            this.down('hidden').setValue(this.getValue());
         },
 
         setValue: function(values) {
@@ -194,7 +230,7 @@ var MySQLConnectionStringRenderer = function(value) {
         var val = JSON.parse(value);
         Ext.each(val, function(v) {
             result.push(
-                [v.user, "*".repeat(v.passwd.length), v.port].join(':'));
+                [v.user, "*".repeat(v.passwd.length), v.port, v.ca || '', v.cert || '', v.key || ''].join(':'));
         });
     } catch (err) {
         result.push('');
