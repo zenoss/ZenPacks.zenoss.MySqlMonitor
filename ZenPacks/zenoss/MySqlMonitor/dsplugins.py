@@ -29,8 +29,17 @@ from ZenPacks.zenoss.MySqlMonitor import NAME_SPLITTER
 
 
 def connection_cursor(ds, ip):
+    if not ds.zMySQLConnectionString:
+        raise Exception('MySQL Connection String not configured')
+
     servers = parse_mysql_connection_string(ds.zMySQLConnectionString)
-    server = servers[ds.component.split(NAME_SPLITTER)[0]]
+    server_id = ds.component.split(NAME_SPLITTER)[0]
+    server = servers.get(server_id)
+    if not server:
+        raise Exception(
+            'MySQL Connection String not configured for {}'.format(server_id)
+        )
+
     db = MySQLdb.connect(
         host=ip,
         user=server['user'],
@@ -129,10 +138,11 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         return threads.deferToThread(lambda: self.inner(config))
 
     def onSuccess(self, result, config):
-        for component in result["values"].keys():
+        for ds in config.datasources:
             # Clear events for success components.
-            summary = 'Monitoring ok'
-            event = self.base_event(ZenEventClasses.Clear, summary, component)
+            event = self.base_event(ZenEventClasses.Clear,
+                                    'Monitoring ok',
+                                    ds.component)
             result['events'].insert(0, event)
         return result
 
@@ -176,7 +186,12 @@ class MySqlDeadlockPlugin(MysqlBasePlugin):
     def query_results_to_events(self, results, ds):
         events = []
 
-        text = results[0][2]
+        # MySQL 5.0 only has a single text block, not three columns
+        if results[0][0] != 'InnoDB':
+            text = results[0][0]
+        else:
+            text = results[0][2]
+
         deadlock_match = self.deadlock_re.search(text)
         component = ds.component
 
@@ -256,14 +271,22 @@ class MySqlReplicationPlugin(MysqlBasePlugin):
         # Last_Error:
         # last_err_no = results[0][18]
         last_err_str = results[0][19]
-        # Last_IO_Errno: 0
-        # Last_IO_Error:
-        # last_io_err_no = results[0][34]
-        last_io_err_str = results[0][35]
-        # Last_SQL_Errno: 0
-        # Last_SQL_Error:
-        # last_sql_err_no = results[0][36]
-        last_sql_err_str = results[0][37]
+
+        # For MySQL 5.0:
+        if (len(results[0]) < 34):
+            last_io_err_no = 0
+            last_io_err_str = ''
+            last_sql_err_no = 0
+            last_sql_err_str = ''
+        else:
+            # Last_IO_Errno: 0
+            # Last_IO_Error:
+            last_io_err_no = results[0][34]
+            last_io_err_str = results[0][35]
+            # Last_SQL_Errno: 0
+            # Last_SQL_Error:
+            last_sql_err_no = results[0][36]
+            last_sql_err_str = results[0][37]
 
         c = ds.component
         events = []

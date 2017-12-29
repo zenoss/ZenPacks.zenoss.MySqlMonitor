@@ -22,8 +22,10 @@ class TestMysqlBasePlugin(BaseTestCase):
 
     def test_onSuccess_clears_event(self):
         result = {'events': [], 'values': {"test": "test"}}
-
-        self.plugin.onSuccess(result, sentinel.any_value)
+        config = ds = Mock()
+        ds.severity = 4
+        config.datasources = [ds]
+        self.plugin.onSuccess(result, config)
 
         event = result['events'][0]
         self.assertEquals(event['severity'], 0)
@@ -255,7 +257,7 @@ END OF INNODB MONITOR OUTPUT
 
     def test_query_status_deadlock_to_events(self):
         results = (
-            ('1', '2', '''
+            ('InnoDB', '2', '''
 =====================================
 130927 10:27:05 INNODB MONITOR OUTPUT
 =====================================
