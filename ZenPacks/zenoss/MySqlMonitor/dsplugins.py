@@ -29,8 +29,17 @@ from ZenPacks.zenoss.MySqlMonitor import NAME_SPLITTER
 
 
 def connection_cursor(ds, ip):
+    if not ds.zMySQLConnectionString:
+        raise Exception('MySQL Connection String not configured')
+
     servers = parse_mysql_connection_string(ds.zMySQLConnectionString)
-    server = servers[ds.component.split(NAME_SPLITTER)[0]]
+    server_id = ds.component.split(NAME_SPLITTER)[0]
+    server = servers.get(server_id)
+    if not server:
+        raise Exception(
+            'MySQL Connection String not configured for {}'.format(server_id)
+        )
+
     db = MySQLdb.connect(
         host=ip,
         user=server['user'],
