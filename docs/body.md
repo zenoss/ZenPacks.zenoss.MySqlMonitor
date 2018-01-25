@@ -225,7 +225,7 @@ Change '%' to 'localhost' in the statement above if you are modeling the local M
 Note that the query ` select host from mysql.user` should have an entry '%' for
 'host' field to ensure the remote connection.
 
-Please note that "MySqlDeadlockPlugin" used to detect deadlocks in MySQL requires PROCESS / SUPER priviledges (depending on MySQL version. Pugin use SQL query like: "SHOW ENGINE INNODB STATUS" to retrieve this information). So for security reasons this plugin may be disabled.
+Please note that "MySqlDeadlockPlugin" used to detect deadlocks in MySQL requires PROCESS / SUPER privileges (depending on MySQL version. Pugin use SQL query like: "SHOW ENGINE INNODB STATUS" to retrieve this information). So for security reasons this plugin may be disabled.
 
 Migration
 ---------
