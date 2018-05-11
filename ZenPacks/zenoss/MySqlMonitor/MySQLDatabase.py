@@ -46,6 +46,8 @@ class MySQLDatabase(MySQLComponent):
 
     _relations = MySQLComponent._relations + (
         ('server', ToOne(ToManyCont, MODULE_NAME['MySQLServer'], 'databases')),
+        ('tables', ToManyCont(
+            ToOne, MODULE_NAME['MySQLTable'], 'databases')),
     )
 
     def device(self):

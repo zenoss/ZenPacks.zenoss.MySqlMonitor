@@ -19,6 +19,12 @@
         factory=".MySQLDatabase.MySQLDatabaseInfo"
         />
 
+    <adapter
+        provides=".MySQLTable.IMySQLTableInfo"
+        for=".MySQLTable.MySQLTable"
+        factory=".MySQLTable.MySQLTableInfo"
+        />
+
     <adapter factory=".datasources.MySqlMonitorDataSource.MySqlMonitorDataSourceInfo"
         for=".datasources.MySqlMonitorDataSource.MySqlMonitorDataSource"
         provides=".datasources.MySqlMonitorDataSource.IMySqlMonitorDataSourceInfo"

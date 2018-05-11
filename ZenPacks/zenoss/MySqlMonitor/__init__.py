@@ -32,7 +32,8 @@ unused(Globals)
 # bidirectional integrity of defined relationships.
 productNames = (
     'MySQLServer',
-    'MySQLDatabase'
+    'MySQLDatabase',
+    'MySQLTable',
     )
 
 # Useful to avoid making literal string references to module and class names
@@ -43,7 +44,6 @@ CLASS_NAME = {}
 for product_name in productNames:
     MODULE_NAME[product_name] = '.'.join([ZP_NAME, product_name])
     CLASS_NAME[product_name] = '.'.join([ZP_NAME, product_name, product_name])
-
 # Useful for components' ids.
 NAME_SPLITTER = '(.)'
 
