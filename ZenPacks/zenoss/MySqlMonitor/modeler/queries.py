@@ -42,3 +42,11 @@ SLAVE_QUERY = """
 VERSION_QUERY = """
     SHOW VARIABLES LIKE "version%";
 """
+
+TABLES_QUERY = """
+    SELECT table_schema, table_name, table_rows,
+    0.1 as 'table_size_mb'
+    -- ,
+    -- round(((data_length + index_length) / 1024 / 1024), 2) as 'table_size_mb'
+    FROM information_schema.tables;
+"""

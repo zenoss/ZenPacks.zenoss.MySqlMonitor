@@ -17,6 +17,7 @@ var ERROR_MESSAGE = "ERROR: Invalid connection string!";
  */
 ZC.registerName('MySQLServer', _t('MySQL Server'), _t('MySQL Servers'));
 ZC.registerName('MySQLDatabase', _t('MySQL Database'), _t('MySQL Databases'));
+ZC.registerName('MySQLTable', _t('MySQL Table'), _t('MySQL Tables'));
 
 /* Helper function to get the number of stars returned for the password */
 String.prototype.repeat = function(num) {

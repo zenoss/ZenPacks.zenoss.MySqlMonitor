@@ -28,32 +28,37 @@ from .utils import updateToMany, updateToOne
 class MySQLTable(MySQLComponent):
     meta_type = portal_type = 'MySQLTable'
 
-    database = None
-    name = None
-    row_numbers = None
+    table_rows = None
+    table_schema = None
+    table_name = None
+    table_size_mb = None
 
     _properties = MySQLComponent._properties + (
-        {'id': 'database', 'type': 'string'},
-        {'id': 'name', 'type': 'string'},
-        {'id': 'row_numbers', 'type': 'int'},
+        {'id': 'table_rows', 'type': 'int'},
+        {'id': 'table_schema', 'type': 'string'},
+        {'id': 'table_name', 'type': 'string'},
+        {'id': 'table_size_mb', 'type': 'int'},
     )
 
     _relations = MySQLComponent._relations + (
-        ('databases', ToOne(ToManyCont, MODULE_NAME['MySQLDatabase'], 'tables')),
+        ('database', ToOne(ToManyCont, MODULE_NAME['MySQLDatabase'], 'tables')),
     )
 
     def device(self):
-        return self.databases().device()
-
+        return self.database().server().device()
 
 class IMySQLTableInfo(IComponentInfo):
     '''
     API Info interface for MySQLTable.
     '''
 
+    device = schema.Entity(title=_t(u'Device'))
+    server = schema.Entity(title=_t(u'Server'))
     database = schema.Entity(title=_t(u'Database'))
-    name = schema.TextLine(title=_t(u'Name'))
-    row_numbers = schema.Int(title=_t(u'Number of rows'))
+    table_schema = schema.TextLine(title=_t(u'Table_schema'))
+    table_name = schema.TextLine(title=_t(u'Table_name'))
+    table_rows = schema.Int(title=_t(u'Number of rows'))
+    table_size_mb = schema.Int(title=_t(u'Size on disk'))
 
 
 class MySQLTableInfo(ComponentInfo):
@@ -64,9 +69,10 @@ class MySQLTableInfo(ComponentInfo):
     implements(IMySQLTableInfo)
     adapts(MySQLTable)
 
-    database = ProxyProperty('database')
-    name = ProxyProperty('name')
-    row_numbers = ProxyProperty('row_numbers')
+    table_rows = ProxyProperty('table_rows')
+    table_schema = ProxyProperty('table_schema')
+    table_name = ProxyProperty('table_name')
+    table_size_mb = ProxyProperty('table_size_mb')
 
     @property
     @info
@@ -75,8 +81,8 @@ class MySQLTableInfo(ComponentInfo):
 
     @property
     @info
-    def databases(self):
-        return self._object.databases()
+    def database(self):
+        return self._object.database()
 
 class MySQLTablePathReporter(DefaultPathReporter):
     ''' Path reporter for MySQLTable.  '''

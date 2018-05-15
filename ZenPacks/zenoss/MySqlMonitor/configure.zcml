@@ -46,6 +46,12 @@
             factory=".impact.MySQLDatabaseRelationsProvider"
             />
 
+        <subscriber
+            provides="ZenPacks.zenoss.Impact.impactd.interfaces.IRelationshipDataProvider"
+            for=".MySQLTable.MySQLTable"
+            factory=".impact.MySQLTableRelationsProvider"
+            />
+
     </configure>
 
     <!-- Browser Resources -->

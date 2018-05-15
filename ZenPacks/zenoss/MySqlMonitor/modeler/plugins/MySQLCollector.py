@@ -44,7 +44,8 @@ class MySQLCollector(PythonPlugin):
         'master': queries.MASTER_QUERY,
         'slave': queries.SLAVE_QUERY,
         'db': queries.DB_QUERY,
-        'version': queries.VERSION_QUERY
+        'version': queries.VERSION_QUERY,
+        'tables': queries.TABLES_QUERY
     }
 
     @defer.inlineCallbacks
@@ -113,6 +114,7 @@ class MySQLCollector(PythonPlugin):
             ('servers', []),
             ('databases', []),
             ('device', []),
+            ('tables', []),
         ])
 
         # List of servers
@@ -135,6 +137,23 @@ class MySQLCollector(PythonPlugin):
                 d_om.id = s_om.id + NAME_SPLITTER + self.prepId(db['title'])
                 db_oms.append(d_om)
 
+                # List of tables
+                tb_oms = []
+                for tb in server['tables']:
+                    if tb['table_schema'] == db['title']:
+                        tb_om = ObjectMap(tb)
+                        tb_om.id = self.prepId(tb['table_name'])
+                        tb_oms.append(tb_om)
+
+                        maps['tables'].append(RelationshipMap(
+                            compname=(
+                                'mysql_servers/%s/databases/%s' %
+                                (s_om.id, d_om.id)
+                            ),
+                            relname='tables',
+                            modname=MODULE_NAME['MySQLTable'],
+                            objmaps=tb_oms))
+
             maps['databases'].append(RelationshipMap(
                 compname='mysql_servers/%s' % s_om.id,
                 relname='databases',
@@ -145,7 +164,6 @@ class MySQLCollector(PythonPlugin):
             relname='mysql_servers',
             modname=MODULE_NAME['MySQLServer'],
             objmaps=server_oms))
-
         log.info(
             'Modeler %s finished processing data for device %s',
             self.name(), device.id
