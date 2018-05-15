@@ -37,7 +37,7 @@ class MySQLTable(MySQLComponent):
         {'id': 'table_rows', 'type': 'int'},
         {'id': 'table_schema', 'type': 'string'},
         {'id': 'table_name', 'type': 'string'},
-        {'id': 'table_size_mb', 'type': 'int'},
+        {'id': 'table_size_mb', 'type': 'string'},
     )
 
     _relations = MySQLComponent._relations + (
@@ -58,7 +58,7 @@ class IMySQLTableInfo(IComponentInfo):
     table_schema = schema.TextLine(title=_t(u'Table_schema'))
     table_name = schema.TextLine(title=_t(u'Table_name'))
     table_rows = schema.Int(title=_t(u'Number of rows'))
-    table_size_mb = schema.Int(title=_t(u'Size on disk'))
+    table_size_mb = schema.TextLine(title=_t(u'Size on disk'))
 
 
 class MySQLTableInfo(ComponentInfo):
