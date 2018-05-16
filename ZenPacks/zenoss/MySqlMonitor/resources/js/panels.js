@@ -264,6 +264,7 @@ ZC.MySQLTablePanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'table_rows'},
                 {name: 'table_schema'},
                 {name: 'table_size_mb'},
+                {name: 'database'},
             ],
             columns: [{
                 id: 'severity',
@@ -295,6 +296,12 @@ ZC.MySQLTablePanel = Ext.extend(ZC.ComponentGridPanel, {
                 header: _t('Database name'),
                 width: 120,
                 // renderer: Zenoss.render.linkFromGrid,
+            },{
+                id: 'database',
+                dataIndex: 'database',
+                header: _t('database'),
+                width: 120,
+                renderer: Zenoss.render.linkFromGrid,
             // },{
             //     id: 'default_collation_name',
             //     dataIndex: 'default_collation_name',
