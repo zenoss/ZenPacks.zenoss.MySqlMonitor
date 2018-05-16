@@ -142,3 +142,8 @@ class MySQLServerRelationsProvider(BaseRelationsProvider):
 
 class MySQLDatabaseRelationsProvider(BaseRelationsProvider):
     impacted_by_relationships = ['server']
+    impact_relationships = ['tables']
+
+
+class MySQLTableRelationsProvider(BaseRelationsProvider):
+    impacted_by_relationships = ['databases']

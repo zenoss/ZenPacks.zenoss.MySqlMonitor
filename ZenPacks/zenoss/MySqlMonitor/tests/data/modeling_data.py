@@ -73,6 +73,12 @@ RESULT1 = [{
         {'Value': 'i686', 'Variable_name': 'version_compile_machine'},
         {'Value': 'Linux', 'Variable_name': 'version_compile_os'}
     ),
+    'tables': ({
+        'table_schema': 'information_schema',
+        'table_name': 'CHARACTER_SETS',
+        'table_rows': '11L',
+        'table_size_mb': '1.15'
+    },),
     'id': 'root_3306'}
 ]
 # -------------------------------------------------------------------------

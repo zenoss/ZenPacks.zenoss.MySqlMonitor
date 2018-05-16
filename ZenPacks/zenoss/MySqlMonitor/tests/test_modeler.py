@@ -50,7 +50,7 @@ class TestMySQLCollector(BaseTestCase):
 
     def test_process_data(self):
         results = modeling_data.RESULT1
-        server_map, db_map = self.collector.\
+        server_map, db_map, tb_map = self.collector.\
             process(self.device, results, self.logger)
 
         self.assertEquals({
@@ -74,6 +74,13 @@ class TestMySQLCollector(BaseTestCase):
             'size': 9216,
             'table_count': 40L,
             'title': 'information_schema'}, db_map.maps[0].asUnitTest())
+
+        self.assertEquals({
+            'id': 'CHARACTER_SETS',
+            'table_name': 'CHARACTER_SETS',
+            'table_rows': '11L',
+            'table_schema': 'information_schema',
+            'table_size_mb': '1.15'}, tb_map.maps[0].asUnitTest())
 
     @patch('ZenPacks.zenoss.MySqlMonitor.modeler.'
            'plugins.MySQLCollector.adbapi')

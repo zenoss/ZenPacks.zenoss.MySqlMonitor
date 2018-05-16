@@ -240,4 +240,130 @@ Zenoss.nav.appendTo('Component', [{
     }
 }]);
 
+Ext.reg('MySQLServerPanel', ZC.MySQLServerPanel);
+
+/* MySQLTable */
+ZC.MySQLTablePanel = Ext.extend(ZC.ComponentGridPanel, {
+    subComponentGridPanel: false,
+
+    constructor: function(config) {
+        config = Ext.applyIf(config||{}, {
+            autoExpandColumn: 'name',
+            componentType: 'MySQLTable',
+            fields: [
+                {name: 'uid'},
+                {name: 'name'},
+                {name: 'severity'},
+                {name: 'usesMonitorAttribute'},
+                {name: 'monitor'},
+                {name: 'monitored'},
+                {name: 'status'},
+                {name: 'locking'},
+                {name: 'size'},
+                {name: 'server'},
+                {name: 'table_rows'},
+                {name: 'table_schema'},
+                {name: 'table_size_mb'},
+                {name: 'database'},
+            ],
+            columns: [{
+                id: 'severity',
+                dataIndex: 'severity',
+                header: _t('Events'),
+                renderer: Zenoss.render.severity,
+                width: 50
+            },{
+                id: 'name',
+                dataIndex: 'name',
+                header: _t('Name'),
+                renderer: Zenoss.render.linkFromSubgrid,
+            },{
+                id: 'server',
+                dataIndex: 'server',
+                header: _t('Server'),
+                // renderer: Zenoss.render.linkFromGrid,
+            },{
+                id: 'table_rows',
+                dataIndex: 'table_rows',
+                header: _t('Number of rows'),
+            },{
+                id: 'table_size_mb',
+                dataIndex: 'table_size_mb',
+                header: _t('Table size, Mb'),
+            },{
+                id: 'table_schema',
+                dataIndex: 'table_schema',
+                header: _t('Database name'),
+                width: 120,
+                // renderer: Zenoss.render.linkFromGrid,
+            },{
+                id: 'database',
+                dataIndex: 'database',
+                header: _t('database'),
+                width: 120,
+                renderer: Zenoss.render.linkFromGrid,
+            // },{
+            //     id: 'default_collation_name',
+            //     dataIndex: 'default_collation_name',
+            //     header: _t('Default collation'),
+            // },{
+            //     id: 'size',
+            //     dataIndex: 'size',
+            //     header: _t('Size'),
+            //     width: 65
+            // },{
+            //     id: 'data_size',
+            //     dataIndex: 'data_size',
+            //     header: _t('Data size'),
+            //     width: 65
+            // },{
+            //     id: 'index_size',
+            //     dataIndex: 'index_size',
+            //     header: _t('Index size'),
+            //     width: 65
+            },{
+                id: 'status',
+                dataIndex: 'status',
+                header: _t('Status'),
+                renderer: Zenoss.render.pingStatus,
+                width: 65
+            },{
+                id: 'monitored',
+                dataIndex: 'monitored',
+                header: _t('Monitored'),
+                renderer: Zenoss.render.checkbox,
+                width: 60
+            },{
+                id: 'locking',
+                dataIndex: 'locking',
+                header: _t('Locking'),
+                renderer: Zenoss.render.locking_icons,
+                width: 60
+            }]
+        });
+        ZC.MySQLTablePanel.superclass.constructor.call(this, config);
+    }
+});
+
+Ext.reg('MySQLTablePanel', ZC.MySQLTablePanel);
+
+
+/* Subcomponent Panels */
+/* MySQLTable */
+Zenoss.nav.appendTo('Component', [{
+    id: 'tables',
+    text: _t('Tables'),
+    xtype: 'MySQLTablesPanel',
+    subComponentGridPanel: true,
+    filterNav: function(navpanel) {
+         switch (navpanel.refOwner.componentType) {
+            case 'MySQLServer': return true;
+            default: return false;
+         }
+    },
+    setContext: function(uid) {
+        ZC.MySQLTablePanel.superclass.setContext.apply(this, [uid]);
+    }
+}]);
+
 })();

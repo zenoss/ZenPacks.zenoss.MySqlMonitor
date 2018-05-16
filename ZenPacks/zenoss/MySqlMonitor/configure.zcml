@@ -19,6 +19,12 @@
         factory=".MySQLDatabase.MySQLDatabaseInfo"
         />
 
+    <adapter
+        provides=".MySQLTable.IMySQLTableInfo"
+        for=".MySQLTable.MySQLTable"
+        factory=".MySQLTable.MySQLTableInfo"
+        />
+
     <adapter factory=".datasources.MySqlMonitorDataSource.MySqlMonitorDataSourceInfo"
         for=".datasources.MySqlMonitorDataSource.MySqlMonitorDataSource"
         provides=".datasources.MySqlMonitorDataSource.IMySqlMonitorDataSourceInfo"
@@ -38,6 +44,12 @@
             provides="ZenPacks.zenoss.Impact.impactd.interfaces.IRelationshipDataProvider"
             for=".MySQLDatabase.MySQLDatabase"
             factory=".impact.MySQLDatabaseRelationsProvider"
+            />
+
+        <subscriber
+            provides="ZenPacks.zenoss.Impact.impactd.interfaces.IRelationshipDataProvider"
+            for=".MySQLTable.MySQLTable"
+            factory=".impact.MySQLTableRelationsProvider"
             />
 
     </configure>
