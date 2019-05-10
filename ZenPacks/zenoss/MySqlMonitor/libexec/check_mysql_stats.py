@@ -13,8 +13,6 @@ import sys
 from optparse import OptionParser
 
 import pymysql
-pymysql.install_as_MySQLdb()
-import MySQLdb
 
 
 class ZenossMySqlStatsPlugin:
@@ -32,7 +30,7 @@ class ZenossMySqlStatsPlugin:
         try:
             # Specify a blank database so no privileges are required
             # Thanks for this tip go to Geoff Franks <gfranks@hwi.buffalo.edu>
-            self.conn = MySQLdb.connect(host=self.host, port=self.port,
+            self.conn = pymysql.connect(host=self.host, port=self.port,
                                         db='', user=self.user,
                                         passwd=self.passwd)
 
