@@ -417,10 +417,11 @@ class MySQLDatabaseExistencePlugin(MysqlBasePlugin):
             # Database does not exist, will be deleted
             server = component.split(NAME_SPLITTER)[0]
             om = ObjectMap({
-                "id": server,
-                "modname": MODULE_NAME['MySQLServer'],
-                "relname": 'mysql_servers',
-                '_remove': True
+                "id": component,
+                "compname": "mysql_servers/%s" % server,
+                "modname": MODULE_NAME['MySQLDatabase'],
+                "relname": "databases",
+                "_remove": True
             })
             return [om]
         return []
