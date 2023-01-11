@@ -1,6 +1,6 @@
 ######################################################################
 #
-# Copyright (C) Zenoss, Inc. 2013, all rights reserved.
+# Copyright (C) Zenoss, Inc. 2013-2022, all rights reserved.
 #
 # This content is made available according to terms specified in
 # License.zenoss under the directory where your Zenoss product is
@@ -25,7 +25,7 @@ from Products.DataCollector.plugins.DataMaps import ObjectMap
 
 from ZenPacks.zenoss.MySqlMonitor.utils import (
     parse_mysql_connection_string, adbapi_safe)
-from ZenPacks.zenoss.MySqlMonitor import NAME_SPLITTER
+from ZenPacks.zenoss.MySqlMonitor import NAME_SPLITTER, MODULE_NAME
 
 
 def connection_cursor(ds, ip):
@@ -243,10 +243,12 @@ class MySqlDeadlockPlugin(MysqlBasePlugin):
             return []
 
         return [ObjectMap({
-            "compname": "mysql_servers/%s" % (component),
-            "modname": "Deadlock time",
+            "id": component,
+            "modname": MODULE_NAME['MySQLServer'],
+            "relname": 'mysql_servers',
             "deadlock_info": (self.deadlock_time, self.deadlock_db,
-                self.deadlock_evt_clear_time)
+                              self.deadlock_evt_clear_time),
+            '_add': False
         })]
 
 
@@ -358,10 +360,12 @@ class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
         table_count = results[0][0]
         server = component.split(NAME_SPLITTER)[0]
         om = ObjectMap({
-            "compname": "mysql_servers/%s/databases/%s" % (
-                server, component),
-            "modname": "Tables count",
-            "table_count": table_count
+            "id": component,
+            "compname": "mysql_servers/%s" % server,
+            "modname": MODULE_NAME['MySQLDatabase'],
+            "relname": "databases",
+            "table_count": table_count,
+            "_add": False
         })
         return [om]
 
@@ -413,9 +417,10 @@ class MySQLDatabaseExistencePlugin(MysqlBasePlugin):
             # Database does not exist, will be deleted
             server = component.split(NAME_SPLITTER)[0]
             om = ObjectMap({
-                "compname": "mysql_servers/%s" % server,
-                "modname": "Remove/add",
-                "remove": component
+                "id": server,
+                "modname": MODULE_NAME['MySQLServer'],
+                "relname": 'mysql_servers',
+                '_remove': True
             })
             return [om]
         return []
