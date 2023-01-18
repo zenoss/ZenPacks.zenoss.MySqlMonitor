@@ -1220,26 +1220,26 @@ AVERAGE
 ZenPacks.zenoss.MySqlMonitor.MySQLDatabase
 </property>
 <tomanycont id='datasources'>
-<object id='DbExistence' module='ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource' class='PythonDataSource'>
-<property select_variable="sourcetypes" type="selection" id="sourcetype" mode="w" >
-Python
-</property>
-<property type="boolean" id="enabled" mode="w" >
-True
-</property>
-<property type="string" id="component" mode="w" >
-${here/id}
-</property>
-<property type="int" id="severity" mode="w" >
-4
-</property>
-<property type="string" id="cycletime" mode="w" >
-300
-</property>
-<property type="string" id="plugin_classname" mode="w" >
-ZenPacks.zenoss.MySqlMonitor.dsplugins.MySQLDatabaseExistencePlugin
-</property>
-</object>
+<!--<object id='DbExistence' module='ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource' class='PythonDataSource'>-->
+<!--<property select_variable="sourcetypes" type="selection" id="sourcetype" mode="w" >-->
+<!--Python-->
+<!--</property>-->
+<!--<property type="boolean" id="enabled" mode="w" >-->
+<!--True-->
+<!--</property>-->
+<!--<property type="string" id="component" mode="w" >-->
+<!--${here/id}-->
+<!--</property>-->
+<!--<property type="int" id="severity" mode="w" >-->
+<!--4-->
+<!--</property>-->
+<!--<property type="string" id="cycletime" mode="w" >-->
+<!--300-->
+<!--</property>-->
+<!--<property type="string" id="plugin_classname" mode="w" >-->
+<!--ZenPacks.zenoss.MySqlMonitor.dsplugins.MySQLDatabaseExistencePlugin-->
+<!--</property>-->
+<!--</object>-->
 <object id='DbStats' module='ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource' class='PythonDataSource'>
 <property select_variable="sourcetypes" type="selection" id="sourcetype" mode="w" >
 Python
@@ -1261,6 +1261,14 @@ ZenPacks.zenoss.MySqlMonitor.dsplugins.MySQLMonitorDatabasesPlugin
 </property>
 <tomanycont id='datapoints'>
 <object id='data_size' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
+GAUGE
+</property>
+<property type="boolean" id="isrow" mode="w" >
+True
+</property>
+</object>
+<object id='table_count' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 GAUGE
 </property>
@@ -1420,6 +1428,26 @@ AVERAGE
 ZenPacks.zenoss.MySqlMonitor.MySQLServer
 </property>
 <tomanycont id='datasources'>
+<object id='DbIncrementalModeling' module='ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource' class='PythonDataSource'>
+<property select_variable="sourcetypes" type="selection" id="sourcetype" mode="w" >
+Python
+</property>
+<property type="boolean" id="enabled" mode="w" >
+True
+</property>
+<property type="string" id="component" mode="w" >
+${here/id}
+</property>
+<property type="int" id="severity" mode="w" >
+4
+</property>
+<property type="string" id="cycletime" mode="w" >
+300
+</property>
+<property type="string" id="plugin_classname" mode="w" >
+ZenPacks.zenoss.MySqlMonitor.dsplugins.MySQLDatabaseIncrementalModelingPlugin
+</property>
+</object>
 <object id='DbStats' module='ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource' class='PythonDataSource'>
 <property select_variable="sourcetypes" type="selection" id="sourcetype" mode="w" >
 Python
@@ -4049,10 +4077,10 @@ MySQLMonitorDatabases
 1010
 </property>
 </object>
-<!-- ('', 'zport', 'dmd', 'Events', 'Status', 'instances', 'MySQLDatabaseExistence') -->
-<object id="/zport/dmd/Events/Status/instances/MySQLDatabaseExistence" module="Products.ZenEvents.EventClassInst" class="EventClassInst">
+<!-- ('', 'zport', 'dmd', 'Events', 'Status', 'instances', 'MySQLDatabaseIncrementalModeling') -->
+<object id="/zport/dmd/Events/Status/instances/MySQLDatabaseIncrementalModeling" module="Products.ZenEvents.EventClassInst" class="EventClassInst">
 <property type="string" id="eventClassKey" mode="w">
-MySQLDatabaseExistence
+MySQLDatabaseIncrementalModeling
 </property>
 <property type="int" id="sequence" mode="w">
 1010
