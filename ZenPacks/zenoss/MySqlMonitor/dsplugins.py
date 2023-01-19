@@ -1,6 +1,6 @@
 ######################################################################
 #
-# Copyright (C) Zenoss, Inc. 2013-2022, all rights reserved.
+# Copyright (C) Zenoss, Inc. 2013-2023, all rights reserved.
 #
 # This content is made available according to terms specified in
 # License.zenoss under the directory where your Zenoss product is
@@ -20,7 +20,8 @@ from twisted.internet import threads
 from ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource \
     import PythonDataSourcePlugin
 from Products.ZenEvents import ZenEventClasses
-from Products.DataCollector.plugins.DataMaps import ObjectMap
+from Products.DataCollector.plugins.DataMaps import ObjectMap, RelationshipMap
+from Products.ZenUtils.Utils import prepId
 #from ZenPacks.zenoss.PythonCollector import patches
 
 from ZenPacks.zenoss.MySqlMonitor.utils import (
@@ -28,7 +29,21 @@ from ZenPacks.zenoss.MySqlMonitor.utils import (
 from ZenPacks.zenoss.MySqlMonitor import NAME_SPLITTER, MODULE_NAME
 
 
-def connection_cursor(ds, ip):
+def connection_cursor(ds, ip, cursor_type=None):
+    """Returns connection cursor for MySql server.
+
+    :param ds: MySqlMonitor datasource
+    :type ds: datasource
+    :param ip: server ip address (device ip address)
+    :type ip: str
+    :param cursor_type: MySQLdb cursor type, defaults to None
+    :type cursor_type: cursor
+
+    :raises Exception: raises Exception if MySql connection string not configured
+
+    :rtype: cursor
+    :return: cursor on which queries may be performed.
+    """
     if not ds.zMySQLConnectionString:
         raise Exception('MySQL Connection String not configured')
 
@@ -48,7 +63,7 @@ def connection_cursor(ds, ip):
         connect_timeout=getattr(ds, 'zMySqlTimeout', 30)
     )
     db.ping(True)
-    return db.cursor()
+    return db.cursor(cursor_type)
 
 
 class MysqlBasePlugin(PythonDataSourcePlugin):
@@ -74,6 +89,22 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                    component=None,
                    eventKey=None,
                    eventClassKey=None):
+        """Returns event during MySQL components monitoring.
+
+        :param severity: severity for generated event
+        :type severity: int
+        :param summary: summary for generated event
+        :type summary: str
+        :param component: component id, defaults to None
+        :type component: str
+        :param eventKey: eventKey for generated event, defaults to None
+        :type eventKey: str
+        :param eventClassKey: eventClassKey for generated event, defaults to None
+        :type eventClassKey: str
+
+        :rtype: dict
+        :return: dictionary that represents event for MySql monitored component
+        """
 
         if not eventKey: eventKey = self.keyName
         if not eventClassKey: eventClassKey = self.keyName
@@ -87,18 +118,57 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         }
 
     def get_query(self, component):
+        """Returns query for MySQL ZP datasource plugin.
+
+        :param component: MySqlMonitor component id
+        :type component: str
+
+        :raises NotImplemented: raises NotImplemented error if not implemented in inherited classes
+
+        :rtype: str
+        :return: query for MySQL ZP datasource plugin
+        """
         raise NotImplemented
 
     def query_results_to_values(self, results):
+        """Returns parsed query results to values for MySqlMonitor components monitoring.
+
+        :param results: raw data structure with monitoring values
+        :type results: tuple
+
+        :rtype: dict
+        :return: dictionary of monitoring values for component
+        """
         return {}
 
     def query_results_to_events(self, results, ds):
+        """Returns parsed query results to events for MySqlMonitor components monitoring.
+
+        :param results: raw data structure with monitoring values
+        :type results: tuple
+        :param ds: MySqlMonitor datasource
+        :type ds: datasource
+
+        :rtype: list
+        :return: list of generated events
+        """
         return []
 
     def query_results_to_maps(self, results, component):
+        """Returns parsed query results to object maps for MySqlMonitor components monitoring.
+
+        :param results: raw data structure with monitoring values
+        :type results: tuple
+        :param component: MySqlMonitor component id
+        :type component: str
+
+        :rtype: list
+        :return: list of collected object maps
+        """
         return []
 
     def inner(self, config):
+        """Returns filled with events, values and maps data structure."""
         # Data structure with empty events, values and maps.
         data = self.new_data()
 
@@ -111,6 +181,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                 curs = connection_cursor(ds, config.manageIp)
                 curs.execute(self.get_query(ds.component))
                 res = curs.fetchall()
+                curs.close()
                 if res:
                     data['values'][ds.component] = (
                         self.query_results_to_values(res))
@@ -339,6 +410,8 @@ class MySQLMonitorServersPlugin(MysqlBasePlugin):
 
 
 class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
+    last_table_count_value = {}
+
     def get_query(self, component):
         return '''
         SELECT
@@ -356,24 +429,12 @@ class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
         fields = enumerate(('table_count', 'size', 'data_size', 'index_size'))
         return dict((f, (results[0][i] or 0)) for i, f in fields)
 
-    def query_results_to_maps(self, results, component):
-        table_count = results[0][0]
-        server = component.split(NAME_SPLITTER)[0]
-        om = ObjectMap({
-            "id": component,
-            "compname": "mysql_servers/%s" % server,
-            "modname": MODULE_NAME['MySQLDatabase'],
-            "relname": "databases",
-            "table_count": table_count,
-            "_add": False
-        })
-        return [om]
-
     def query_results_to_events(self, results, ds):
-        if not ds.table_count:
-            ds.table_count = 0
-
-        diff = results[0][0] - ds.table_count
+        if ds.component not in self.last_table_count_value.keys():
+            self.last_table_count_value[ds.component] = results[0][0]
+            return []
+        diff = results[0][0] - self.last_table_count_value.get(ds.component)
+        self.last_table_count_value[ds.component] = results[0][0]
         if diff == 0:
             return []
 
@@ -385,43 +446,123 @@ class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
         component = ds.component.split(NAME_SPLITTER)[-1]
         event = self.base_event(severity, summary, component, eventKey=eventKey)
 
-        return[event]
+        return [event]
 
 
-class MySQLDatabaseExistencePlugin(MysqlBasePlugin):
+class MySQLDatabaseIncrementalModelingPlugin(MysqlBasePlugin):
+    """
+    An Incremental Modeling datasource plugin for MySQL databases
+    """
+
+    db_configs_by_device = {}
+
+    def produce_event(self, db, state):
+        """Returns event after MySQL database addition or deletion.
+
+        :param db: MySQL database ID
+        :type db: str
+        :param state: key word that indicates whether database was added or deleted
+        :type state: str
+
+        :rtype: dict
+        :return: event dict with all filled event fields
+        """
+        db_name = db.split(NAME_SPLITTER)[-1]
+        summary = 'Database "{}" was {}.'.format(db_name, state)
+        eventKey = self.keyName + '_{}_{}'.format(db_name, state)
+        component = db.split(NAME_SPLITTER)[0]
+        event = self.base_event(ZenEventClasses.Info,
+                                summary,
+                                component=component,
+                                eventKey=eventKey)
+
+        return event
+
     def get_query(self, component):
-        return ''' SELECT COUNT(*)
-            FROM information_schema.SCHEMATA
-            WHERE SCHEMA_NAME="%s"
-        ''' % adbapi_safe(
-            component.split(NAME_SPLITTER)[-1]
-        )
+        return """
+        SELECT schema_name title,
+               default_character_set_name,
+               default_collation_name
+        FROM information_schema.schemata;
+        """
 
-    def query_results_to_events(self, results, ds):
-        if not results[0][0]:
-            # Database does not exist, will be deleted
-            db_name = ds.component.split(NAME_SPLITTER)[-1]
-            summary = 'Database "{}" was dropped.'.format(db_name)
-            eventKey = self.keyName + '_{}_dropped'.format(db_name)
-            component = ds.component.split(NAME_SPLITTER)[0]
-            event = self.base_event(ZenEventClasses.Info,
-                                    summary,
-                                    component=component,
-                                    eventKey=eventKey)
+    def inner(self, config):
+        # Data structure with empty events, values and maps.
+        data = self.new_data()
+        ds0 = config.datasources[0]
+        ds0.id = ds0.device
+        results = []
+        for ds in config.datasources:
+            res = {"id": ds.component}
+            try:
+                cursor = connection_cursor(ds, config.manageIp, cursor_type=MySQLdb.cursors.DictCursor)
+                cursor.execute(self.get_query(ds.component))
+                res['db'] = cursor.fetchall()
+                cursor.close()
+            except Exception as e:
+                message = str(e)
+                if ('MySQL server has gone away' in message or
+                        "Can't connect to MySQL server" in message):
+                    message = "Can't connect to MySQL server or timeout error."
+                event = self.base_event(ds.severity, message, ds.component)
+                data['events'].append(event)
+                continue
+            results.append(res)
+        maps = self.get_db_rel_map(results)
+        # get old configuration from previous run
+        old_db_config = self.db_configs_by_device.get(ds0.device) or []
+        new_db_config = self.create_db_config(maps)
+        if old_db_config != new_db_config:
+            config_diff = list(set(old_db_config) ^ set(new_db_config))
+            for db in config_diff:
+                if ds0.device in self.db_configs_by_device.keys():
+                    if db in new_db_config:
+                        data['events'].append(self.produce_event(db, 'added'))
+                    else:
+                        data['events'].append(self.produce_event(db, 'dropped'))
+            log.info('DB configuration has changed, sending new datamaps.')
+            log.debug('Difference between DB configs %s', config_diff)
+            data['maps'] = maps
+        self.db_configs_by_device[ds0.device] = new_db_config
+        return data
 
-            return [event]
-        return []
+    @staticmethod
+    def create_db_config(rel_maps):
+        """Returns a list of collected during monitoring MySql database ids.
 
-    def query_results_to_maps(self, results, component):
-        if not results[0][0]:
-            # Database does not exist, will be deleted
-            server = component.split(NAME_SPLITTER)[0]
-            om = ObjectMap({
-                "id": component,
-                "compname": "mysql_servers/%s" % server,
-                "modname": MODULE_NAME['MySQLDatabase'],
-                "relname": "databases",
-                "_remove": True
-            })
-            return [om]
-        return []
+        :param rel_maps: list of MySqlDatabase Relationship Maps
+        :type rel_maps: list
+
+        :rtype: list
+        :return: list of database ids
+        """
+        config = []
+        for rel_map in rel_maps:
+            for obj in getattr(rel_map, 'maps', []):
+                config.append(obj.id)
+        return sorted(config)
+
+    @staticmethod
+    def get_db_rel_map(parsed_query_results):
+        """Returns a list of Relationship Maps for collected MySql database components
+
+        :param parsed_query_results: list of MySql Servers data
+        :type parsed_query_results: list
+
+        :rtype: list
+        :return: list of MySql Databases Relationship Maps
+        """
+        maps = []
+        for server in parsed_query_results:
+            # List of databases
+            db_oms = []
+            for db in server['db']:
+                db_om = ObjectMap(db)
+                db_om.id = prepId(server['id']) + NAME_SPLITTER + prepId(db['title'])
+                db_oms.append(db_om)
+            maps.append(RelationshipMap(
+                compname='mysql_servers/%s' % server['id'],
+                relname='databases',
+                modname=MODULE_NAME['MySQLDatabase'],
+                objmaps=db_oms))
+        return maps

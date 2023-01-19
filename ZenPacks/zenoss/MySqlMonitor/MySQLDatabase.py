@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (C) Zenoss, Inc. 2013, all rights reserved.
+# Copyright (C) Zenoss, Inc. 2013-2023, all rights reserved.
 #
 # This content is made available according to terms specified in
 # License.zenoss under the directory where your Zenoss product is installed.
@@ -95,6 +95,11 @@ class MySQLDatabaseInfo(ComponentInfo):
     @info
     def server(self):
         return self._object.server()
+
+    @property
+    @info
+    def table_count(self):
+        return self._object.cacheRRDValue('table_count')
 
 
 class MySQLDatabasePathReporter(DefaultPathReporter):
