@@ -515,13 +515,13 @@ class MySQLDatabaseIncrementalModelingPlugin(MysqlBasePlugin):
         if old_db_config != new_db_config:
             config_diff = list(set(old_db_config) ^ set(new_db_config))
             for db in config_diff:
-                if self.db_configs_by_device:
+                if self.db_configs_by_device.get(ds0.device):
                     if db in new_db_config:
                         data['events'].append(self.produce_event(db, 'added'))
                     else:
                         data['events'].append(self.produce_event(db, 'dropped'))
             log.info('DB configuration has changed, sending new datamaps.')
-            log.info('Diff between DB configs %s', config_diff)
+            log.debug('Difference between DB configs %s', config_diff)
             data['maps'] = maps
         self.db_configs_by_device[ds0.device] = new_db_config
         return data

@@ -11,7 +11,7 @@ from Products.ZenModel.ZenPack import ZenPackMigration
 from Products.ZenModel.migrate.Migrate import Version
 
 
-class DisableDbExistenceDataSource(ZenPackMigration):
+class RemoveDbExistenceDataSource(ZenPackMigration):
     # Main class that contains the migrate() method.
     # Note version setting.
     version = Version(3, 2, 0)
@@ -22,6 +22,4 @@ class DisableDbExistenceDataSource(ZenPackMigration):
         if organizer:
             for template in organizer.getRRDTemplates():
                 if template.id == 'MySQLDatabase':
-                    for ds in template.getRRDDataSources():
-                        if ds.id == 'DbExistence':
-                            ds.enabled = False
+                    template.manage_deleteRRDDataSources(('DbExistence',))
