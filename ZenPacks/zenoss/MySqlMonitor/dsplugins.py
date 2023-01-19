@@ -515,7 +515,7 @@ class MySQLDatabaseIncrementalModelingPlugin(MysqlBasePlugin):
         if old_db_config != new_db_config:
             config_diff = list(set(old_db_config) ^ set(new_db_config))
             for db in config_diff:
-                if self.db_configs_by_device.get(ds0.device):
+                if ds0.device in self.db_configs_by_device.keys():
                     if db in new_db_config:
                         data['events'].append(self.produce_event(db, 'added'))
                     else:
