@@ -204,7 +204,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
                         "Can't connect to MySQL server" in message):
                     message = "Can't connect to MySQL server or timeout error."
 
-                event = self.base_event(ds.severity, message, ds.component)
+                event = self.base_event(ds.severity, message, ds.component, eventClass=ds.eventClass)
                 data['events'].append(event)
 
         return data
@@ -217,7 +217,8 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
             # Clear events for success components.
             event = self.base_event(ZenEventClasses.Clear,
                                     'Monitoring ok',
-                                    ds.component)
+                                    ds.component,
+                                    eventClass=ds.eventClass)
             result['events'].insert(0, event)
         return result
 
@@ -226,7 +227,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         ds0 = config.datasources[0]
         data = self.new_data()
         summary = 'error: {}'.format(result)
-        event = self.base_event(ds0.severity, summary)
+        event = self.base_event(ds0.severity, summary, eventClass=ds0.eventClass)
         data['events'].append(event)
         return data
 
@@ -251,9 +252,9 @@ class MySqlDeadlockPlugin(MysqlBasePlugin):
         re.M | re.DOTALL
     )
 
-    def _event(self, severity, summary, component, ds):
+    def _event(self, severity, summary, component, eventClass):
         event_key = self.keyName + '_innodb'
-        return self.base_event(severity, summary, component, eventKey=event_key, eventClass=ds.eventClass)
+        return self.base_event(severity, summary, component, eventKey=event_key, eventClass=eventClass)
 
     def get_query(self, component):
         return 'show engine innodb status'
@@ -276,7 +277,7 @@ class MySqlDeadlockPlugin(MysqlBasePlugin):
             dl_time, dl_db, evt_clear_time = ds.deadlock_info
 
             if evt_clear_time and time.time() > evt_clear_time:
-                events.append(self._event(ZenEventClasses.Clear, 'Ok', dl_db, ds))
+                events.append(self._event(ZenEventClasses.Clear, 'Ok', dl_db, ds.eventClass))
         else:
             dl_time = dl_db = evt_clear_time = None
 
@@ -306,10 +307,10 @@ class MySqlDeadlockPlugin(MysqlBasePlugin):
                     self.deadlock_evt_clear_time = time.time() + 60*30
                     # Clear a previous event
                     events.append(self._event(
-                        ZenEventClasses.Clear, 'Ok', dl_db, ds))
+                        ZenEventClasses.Clear, 'Ok', dl_db, ds.eventClass))
                     # Create a new event
                     events.append(self._event(
-                        ZenEventClasses.Info, summary, component, ds))
+                        ZenEventClasses.Info, summary, component, ds.eventClass))
 
         return events
 
@@ -331,9 +332,9 @@ class MySqlReplicationPlugin(MysqlBasePlugin):
     def get_query(self, component):
         return 'show slave status'
 
-    def _event(self, severity, summary, ds, suffix):
+    def _event(self, severity, summary,  component, eventClass, suffix):
         eventKey = self.keyName + '_' + suffix
-        return self.base_event(severity, summary, ds.component, eventKey=eventKey, eventClass=ds.eventClass)
+        return self.base_event(severity, summary, component, eventKey=eventKey, eventClass=eventClass)
 
     def query_results_to_events(self, results, ds):
         if not results:
@@ -365,32 +366,34 @@ class MySqlReplicationPlugin(MysqlBasePlugin):
             last_sql_err_no = results[0][36]
             last_sql_err_str = results[0][37]
 
+        c = ds.component
+        eventClass = ds.eventClass
         events = []
 
         if slave_io == "Yes":
-            events.append(self._event(0, "Slave IO Running", ds, "io"))
+            events.append(self._event(0, "Slave IO Running", c, eventClass, "io"))
         else:
-            events.append(self._event(4, "Slave IO NOT Running", ds, "io"))
+            events.append(self._event(4, "Slave IO NOT Running", c, eventClass, "io"))
 
         if slave_sql == "Yes":
-            events.append(self._event(0, "Slave SQL Running", ds, "sql"))
+            events.append(self._event(0, "Slave SQL Running", c, eventClass, "sql"))
         else:
-            events.append(self._event(4, "Slave SQL NOT Running", ds, "sql"))
+            events.append(self._event(4, "Slave SQL NOT Running", c, eventClass, "sql"))
 
         if last_err_str:
-            events.append(self._event(4, last_err_str, ds, "err"))
+            events.append(self._event(4, last_err_str, c, eventClass, "err"))
         else:
-            events.append(self._event(0, "No replication error", ds, "err"))
+            events.append(self._event(0, "No replication error", c, eventClass, "err"))
 
         if last_io_err_str:
-            events.append(self._event(4, last_io_err_str, ds, "ioe"))
+            events.append(self._event(4, last_io_err_str, c, eventClass, "ioe"))
         else:
-            events.append(self._event(0, "No replication IO error", ds, "ioe"))
+            events.append(self._event(0, "No replication IO error", c, eventClass, "ioe"))
 
         if last_sql_err_str:
-            events.append(self._event(4, last_sql_err_str, ds, "se"))
+            events.append(self._event(4, last_sql_err_str, c, eventClass, "se"))
         else:
-            events.append(self._event(0, "No replication SQL error", ds, "se"))
+            events.append(self._event(0, "No replication SQL error", c, eventClass, "se"))
 
         return events
 
@@ -459,7 +462,7 @@ class MySQLDatabaseIncrementalModelingPlugin(MysqlBasePlugin):
 
     db_configs_by_device = {}
 
-    def produce_event(self, db, ds0, state):
+    def produce_event(self, db, eventClass, state):
         """Returns event after MySQL database addition or deletion.
 
         :param db: MySQL database ID
@@ -481,7 +484,7 @@ class MySQLDatabaseIncrementalModelingPlugin(MysqlBasePlugin):
                                 summary,
                                 component=component,
                                 eventKey=eventKey,
-                                eventClass=ds0.eventClass)
+                                eventClass=eventClass)
 
         return event
 
@@ -524,9 +527,9 @@ class MySQLDatabaseIncrementalModelingPlugin(MysqlBasePlugin):
             for db in config_diff:
                 if ds0.device in self.db_configs_by_device.keys():
                     if db in new_db_config:
-                        data['events'].append(self.produce_event(db, ds0, 'added'))
+                        data['events'].append(self.produce_event(db, ds0.eventClass, 'added'))
                     else:
-                        data['events'].append(self.produce_event(db, ds0, 'dropped'))
+                        data['events'].append(self.produce_event(db, ds0.eventClass, 'dropped'))
             log.info('DB configuration has changed, sending new datamaps.')
             log.debug('Difference between DB configs %s', config_diff)
             data['maps'] = maps

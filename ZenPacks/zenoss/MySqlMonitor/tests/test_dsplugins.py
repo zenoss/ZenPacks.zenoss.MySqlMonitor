@@ -80,8 +80,7 @@ class TestMySqlDeadlockPlugin(BaseTestCase):
         self.ds = Mock()
 
     def test_event(self):
-        self.ds.configure_mock(eventClass='/Status')
-        event = self.plugin._event(4, 'summary', self.ds.component, self.ds)
+        event = self.plugin._event(4, 'summary', self.ds.component, '/Status')
         self.assertEquals(event['severity'], 4)
         self.assertEquals(event['eventKey'], 'MySqlDeadlock_innodb')
         self.assertEquals(event['eventClassKey'], 'MySqlDeadlock')
@@ -454,11 +453,12 @@ class TestMySqlReplicationPlugin(BaseTestCase):
         self.ds = Mock()
 
     def test_event(self):
-        event = self.plugin._event(4, 'summary', self.ds.component, 'io')
+        event = self.plugin._event(4, 'summary', self.ds.component, '/Status', 'io')
         self.assertEquals(event['severity'], 4)
         self.assertEquals(event['eventKey'], 'MySqlReplication_io')
         self.assertEquals(event['eventClassKey'], 'MySqlReplication')
         self.assertEquals(event['summary'], 'summary')
+        self.assertEquals(event['eventClass'], '/Status')
 
     def test_query_results_to_events_no_results(self):
         events = self.plugin.query_results_to_events(None, self.ds)
@@ -617,8 +617,7 @@ class TestMySQLDatabaseIncrementalModelingPlugin(BaseTestCase):
         self.config = Mock(manageIp='ip_address')
 
     def test_produce_dropped_event(self):
-        self.ds.configure_mock(eventClass='/Status/SQL')
-        event = self.plugin.produce_event('test_server(.)test_db', self.ds, 'dropped')
+        event = self.plugin.produce_event('test_server(.)test_db', '/Status/SQL', 'dropped')
         self.assertEquals(event['summary'], 'Database "test_db" was dropped.')
         self.assertEquals(event['eventKey'], 'MySQLDatabaseIncrementalModeling_test_db_dropped')
         self.assertEquals(event['component'], 'test_server')
@@ -626,8 +625,7 @@ class TestMySQLDatabaseIncrementalModelingPlugin(BaseTestCase):
         self.assertEquals(event['eventClass'], '/Status/SQL')
 
     def test_produce_added_event(self):
-        self.ds.configure_mock(eventClass='/Status')
-        event = self.plugin.produce_event('test_server(.)test_db', self.ds, 'added')
+        event = self.plugin.produce_event('test_server(.)test_db', '/Status', 'added')
         self.assertEquals(event['summary'], 'Database "test_db" was added.')
         self.assertEquals(event['eventKey'], 'MySQLDatabaseIncrementalModeling_test_db_added')
         self.assertEquals(event['component'], 'test_server')
