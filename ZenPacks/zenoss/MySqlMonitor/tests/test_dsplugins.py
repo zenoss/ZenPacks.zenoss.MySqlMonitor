@@ -46,12 +46,13 @@ class TestMysqlBasePlugin(BaseTestCase):
 
     def test_base_event(self):
         self.ds.component = 'test_component'
-        event = self.plugin.base_event(4, 'summary', self.ds.component)
+        event = self.plugin.base_event(4, 'summary', self.ds.component, eventClass='/Status')
         self.assertEquals(event['severity'], 4)
         self.assertEquals(event['eventKey'], 'MysqlBase')
         self.assertEquals(event['eventClassKey'], 'MysqlBase')
         self.assertEquals(event['component'], 'test_component')
         self.assertEquals(event['summary'], 'summary')
+        self.assertEquals(event['eventClass'], '/Status')
 
 
 class TestMySqlMonitorPlugin(BaseTestCase):
@@ -79,11 +80,12 @@ class TestMySqlDeadlockPlugin(BaseTestCase):
         self.ds = Mock()
 
     def test_event(self):
-        event = self.plugin._event(4, 'summary', self.ds.component)
+        event = self.plugin._event(4, 'summary', self.ds.component, '/Status')
         self.assertEquals(event['severity'], 4)
         self.assertEquals(event['eventKey'], 'MySqlDeadlock_innodb')
         self.assertEquals(event['eventClassKey'], 'MySqlDeadlock')
         self.assertEquals(event['summary'], 'summary')
+        self.assertEquals(event['eventClass'], '/Status')
 
     def test_query_results_to_maps_no_clear_time(self):
         self.plugin.deadlock_evt_clear_time = None
@@ -451,11 +453,12 @@ class TestMySqlReplicationPlugin(BaseTestCase):
         self.ds = Mock()
 
     def test_event(self):
-        event = self.plugin._event(4, 'summary', self.ds.component, 'io')
+        event = self.plugin._event(4, 'summary', self.ds.component, '/Status', 'io')
         self.assertEquals(event['severity'], 4)
         self.assertEquals(event['eventKey'], 'MySqlReplication_io')
         self.assertEquals(event['eventClassKey'], 'MySqlReplication')
         self.assertEquals(event['summary'], 'summary')
+        self.assertEquals(event['eventClass'], '/Status')
 
     def test_query_results_to_events_no_results(self):
         events = self.plugin.query_results_to_events(None, self.ds)
@@ -614,18 +617,20 @@ class TestMySQLDatabaseIncrementalModelingPlugin(BaseTestCase):
         self.config = Mock(manageIp='ip_address')
 
     def test_produce_dropped_event(self):
-        event = self.plugin.produce_event('test_server(.)test_db', 'dropped')
+        event = self.plugin.produce_event('test_server(.)test_db', '/Status/SQL', 'dropped')
         self.assertEquals(event['summary'], 'Database "test_db" was dropped.')
         self.assertEquals(event['eventKey'], 'MySQLDatabaseIncrementalModeling_test_db_dropped')
         self.assertEquals(event['component'], 'test_server')
         self.assertEquals(event['severity'], 2)
+        self.assertEquals(event['eventClass'], '/Status/SQL')
 
     def test_produce_added_event(self):
-        event = self.plugin.produce_event('test_server(.)test_db', 'added')
+        event = self.plugin.produce_event('test_server(.)test_db', '/Status', 'added')
         self.assertEquals(event['summary'], 'Database "test_db" was added.')
         self.assertEquals(event['eventKey'], 'MySQLDatabaseIncrementalModeling_test_db_added')
         self.assertEquals(event['component'], 'test_server')
         self.assertEquals(event['severity'], 2)
+        self.assertEquals(event['eventClass'], '/Status')
 
     def test_create_db_config(self):
         rel_maps = []
