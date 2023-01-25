@@ -1519,7 +1519,7 @@ ZenPacks.zenoss.MySqlMonitor.dsplugins.MySqlMonitorPlugin
 <tomanycont id='datapoints'>
 <object id='aborted_clients' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1527,7 +1527,7 @@ True
 </object>
 <object id='aborted_connects' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1535,7 +1535,7 @@ True
 </object>
 <object id='bytes_received' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1543,7 +1543,7 @@ True
 </object>
 <object id='bytes_sent' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1551,7 +1551,7 @@ True
 </object>
 <object id='com_alter_db' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1559,7 +1559,7 @@ True
 </object>
 <object id='com_alter_table' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1567,7 +1567,7 @@ True
 </object>
 <object id='com_call_procedure' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1575,7 +1575,7 @@ True
 </object>
 <object id='com_check' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1583,7 +1583,7 @@ True
 </object>
 <object id='com_commit' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1591,7 +1591,7 @@ True
 </object>
 <object id='com_create_db' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1599,7 +1599,7 @@ True
 </object>
 <object id='com_create_table' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1607,7 +1607,7 @@ True
 </object>
 <object id='com_create_user' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1615,7 +1615,7 @@ True
 </object>
 <object id='com_delete' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1623,7 +1623,7 @@ True
 </object>
 <object id='com_delete_multi' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1631,7 +1631,7 @@ True
 </object>
 <object id='com_drop_db' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1639,7 +1639,7 @@ True
 </object>
 <object id='com_drop_table' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1647,7 +1647,7 @@ True
 </object>
 <object id='com_drop_user' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1655,7 +1655,7 @@ True
 </object>
 <object id='com_execute_sql' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1663,7 +1663,7 @@ True
 </object>
 <object id='com_flush' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1671,7 +1671,7 @@ True
 </object>
 <object id='com_insert' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1679,7 +1679,7 @@ True
 </object>
 <object id='com_insert_select' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1687,7 +1687,7 @@ True
 </object>
 <object id='com_purge' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1695,7 +1695,7 @@ True
 </object>
 <object id='com_repair' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1703,7 +1703,7 @@ True
 </object>
 <object id='com_replace' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1711,7 +1711,7 @@ True
 </object>
 <object id='com_rollback' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1719,7 +1719,7 @@ True
 </object>
 <object id='com_select' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1727,7 +1727,7 @@ True
 </object>
 <object id='com_update' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1735,7 +1735,7 @@ True
 </object>
 <object id='com_update_multi' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
