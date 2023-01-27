@@ -436,11 +436,13 @@ class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
         return dict((f, (results[0][i] or 0)) for i, f in fields)
 
     def query_results_to_events(self, results, ds):
-        if ds.component not in self.last_table_count_value.keys():
-            self.last_table_count_value[ds.component] = results[0][0]
+        if ds.device not in self.last_table_count_value.keys():
+            self.last_table_count_value[ds.device] = {}
+        if ds.component not in self.last_table_count_value.get(ds.device, {}).keys():
+            self.last_table_count_value[ds.device][ds.component] = results[0][0]
             return []
-        diff = results[0][0] - self.last_table_count_value.get(ds.component)
-        self.last_table_count_value[ds.component] = results[0][0]
+        diff = results[0][0] - self.last_table_count_value.get(ds.device, {}).get(ds.component)
+        self.last_table_count_value[ds.device][ds.component] = results[0][0]
         if diff == 0:
             return []
 
