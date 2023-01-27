@@ -549,47 +549,46 @@ class TestMySQLMonitorDatabasesPlugin(BaseTestCase):
 
     def test_tables_count_event_first_run(self):
         results = ((4, 1, 1, 1),)
-        ds = Mock()
-        ds.component = "test" + NAME_SPLITTER + "test"
-        events = self.plugin.query_results_to_events(results, ds)
+        self.ds.configure_mock(component="test" + NAME_SPLITTER + "test", device='test_device')
+        events = self.plugin.query_results_to_events(results, self.ds)
         self.assertEquals(len(events), 0)
-        self.assertEquals(self.plugin.last_table_count_value[ds.component], 4)
+        self.assertEquals(self.plugin.last_table_count_value[self.ds.device][self.ds.component], 4)
 
     def test_tables_count_event_table_addition(self):
         results = ((4, 1, 1, 1),)
-        self.ds.component = "test" + NAME_SPLITTER + "test"
-
-        self.plugin.last_table_count_value[self.ds.component] = 0
+        self.ds.configure_mock(component="test" + NAME_SPLITTER + "test", device='test_device')
+        self.plugin.last_table_count_value[self.ds.device] = {}
+        self.plugin.last_table_count_value[self.ds.device][self.ds.component] = 0
         events = self.plugin.query_results_to_events(results, self.ds)
         self.assertEquals(len(events), 1)
         self.assertEquals(events[0]['summary'], '4 tables were added.')
         self.assertEquals(events[0]['severity'], 2)
-        self.assertEquals(self.plugin.last_table_count_value[self.ds.component], 4)
+        self.assertEquals(self.plugin.last_table_count_value[self.ds.device][self.ds.component], 4)
 
-        self.plugin.last_table_count_value[self.ds.component] = 3
+        self.plugin.last_table_count_value[self.ds.device][self.ds.component] = 3
         events = self.plugin.query_results_to_events(results, self.ds)
         self.assertEquals(len(events), 1)
         self.assertEquals(events[0]['summary'], '1 table was added.')
         self.assertEquals(events[0]['severity'], 2)
-        self.assertEquals(self.plugin.last_table_count_value[self.ds.component], 4)
+        self.assertEquals(self.plugin.last_table_count_value[self.ds.device][self.ds.component], 4)
 
     def test_tables_count_event_table_deletion(self):
         results = ((1, 1, 1, 1),)
-        self.ds.component = "test" + NAME_SPLITTER + "test"
-
-        self.plugin.last_table_count_value[self.ds.component] = 4
+        self.ds.configure_mock(component="test" + NAME_SPLITTER + "test", device='test_device')
+        self.plugin.last_table_count_value[self.ds.device] = {}
+        self.plugin.last_table_count_value[self.ds.device][self.ds.component] = 4
         events = self.plugin.query_results_to_events(results, self.ds)
         self.assertEquals(len(events), 1)
         self.assertEquals(events[0]['summary'], '3 tables were dropped.')
         self.assertEquals(events[0]['severity'], 3)
-        self.assertEquals(self.plugin.last_table_count_value[self.ds.component], 1)
+        self.assertEquals(self.plugin.last_table_count_value[self.ds.device][self.ds.component], 1)
 
-        self.plugin.last_table_count_value[self.ds.component] = 2
+        self.plugin.last_table_count_value[self.ds.device][self.ds.component] = 2
         events = self.plugin.query_results_to_events(results, self.ds)
         self.assertEquals(len(events), 1)
         self.assertEquals(events[0]['summary'], '1 table was dropped.')
         self.assertEquals(events[0]['severity'], 3)
-        self.assertEquals(self.plugin.last_table_count_value[self.ds.component], 1)
+        self.assertEquals(self.plugin.last_table_count_value[self.ds.device][self.ds.component], 1)
 
 
 class TestMySQLMonitorServersPlugin(BaseTestCase):
