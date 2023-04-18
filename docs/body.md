@@ -13,13 +13,14 @@ zenoss version requires *ZenPacks.zenoss.Impact*, otherwise the
 Gallery
 -------
 
-[![](screenshots/Configuration_properties_panel.png)](screenshots/Configuration_properties_panel.png)
-[![](screenshots/Edit_zMySQLConnectionString_property.png)](screenshots/Edit_zMySQLConnectionString_property.png)
-[![](screenshots/MySQLServer.png)](screenshots/MySQLServer.png)
-[![](screenshots/MySQLDatabase.png)](screenshots/MySQLDatabase.png)
-[![](screenshots/MySQLDatabase_Graphs.png)](screenshots/MySQLDatabase_Graphs.png)
-[![](screenshots/MySQLServer_Graphs.png)](screenshots/MySQLServer_Graphs.png)
-[![](screenshots/MySQL_Impact.png)](screenshots/MySQL_Impact.png)
+[![](screenshots/MySQL_zProperties.png)](screenshots/MySQL_zProperties.png)
+[![](screenshots/MySQL_conn_string.png)](screenshots/MySQL_conn_string.png)
+[![](screenshots/MySQL_server.png)](screenshots/MySQL_server.png)
+[![](screenshots/MySQL_component_graphs_servers.png)](screenshots/MySQL_component_graphs_servers.png)
+[![](screenshots/MySQL_server_databases.png)](screenshots/MySQL_server_databases.png)
+[![](screenshots/MySQL_databases.png)](screenshots/MySQL_databases.png)
+[![](screenshots/MySQL_component_graphs_dbs.png)](screenshots/MySQL_component_dbs.png)
+[![](screenshots/MySQL_impact.png)](screenshots/MySQL_impact.png)
 
 Features
 --------
