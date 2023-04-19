@@ -158,7 +158,7 @@ Use the following steps to start monitoring MySQL using the Zenoss web interface
     **Note 1:** For MySQL 8.0 and later versions Zenoss monitoring user should be identified with *mysql_native_password*
     or the default authentication method for MySQL should set to *Native Pluggable Authentication*.
     **Note 2:** For non-root users the following privileges should be applied:
-    *SUPER*, *PROCESS*, *REPLICATION CLIENT*, *SHOW DATABASES*. 
+    *SUPER*, *PROCESS*, *REPLICATION CLIENT*, *SHOW VIEW*.
 3. Navigate to the *Modeler plugins* page of the device containing your MySQL
     servers, add the *MySQLCollector* modeler plugin and remodel the device.
     This will automatically find the MySQL servers and databases and begin
@@ -234,7 +234,7 @@ Note that the query ` select host from mysql.user` should have an entry '%' for
 
 Please note that "MySqlDeadlockPlugin" used to detect deadlocks in MySQL requires PROCESS / SUPER privileges (depending on MySQL version. Plugin uses SQL query like: "SHOW ENGINE INNODB STATUS" to retrieve this information). So for security reasons this plugin may be disabled.
 
-*Note:* In case when you don't see all databases in the components list you should apply the *SHOW DATABASES* privilege to Zenoss monitoring user.
+*Note:* In case when you don't see all databases in the components list you should apply the *SHOW VIEW* privilege to Zenoss monitoring user.
 
 Migration
 ---------
