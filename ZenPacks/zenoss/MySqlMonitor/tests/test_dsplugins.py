@@ -698,7 +698,7 @@ class TestMySQLDatabaseIncrementalModelingPlugin(BaseTestCase):
 
     @patch('ZenPacks.zenoss.MySqlMonitor.dsplugins.connection_cursor')
     def test_inner_empty_config(self, connection_cursor):
-        expected_db_config = {'mysql_host': ['test_server(.)test_db_1', 'test_server(.)test_db_2']}
+        expected_db_config = {'mysql_host(.)test_server': ['test_server(.)test_db_1', 'test_server(.)test_db_2']}
         self.config.datasources = [MagicMock(component='test_server',
                                              severity=2,
                                              device='mysql_host')]
@@ -707,7 +707,7 @@ class TestMySQLDatabaseIncrementalModelingPlugin(BaseTestCase):
         self.cursor.fetchall.return_value = [{'title': 'test_db_1'}, {'title': 'test_db_2'}]
         data = self.plugin.inner(self.config)
         rel_map = data['maps'][0]
-        self.assertEquals(self.plugin.db_configs_by_device, expected_db_config)
+        self.assertEquals(self.plugin.db_configs_by_server, expected_db_config)
         self.assertEquals(rel_map.relname, 'databases')
         self.assertEquals(rel_map.compname, 'mysql_servers/test_server')
         self.assertEquals(len(rel_map.maps), 2)
@@ -716,8 +716,8 @@ class TestMySQLDatabaseIncrementalModelingPlugin(BaseTestCase):
 
     @patch('ZenPacks.zenoss.MySqlMonitor.dsplugins.connection_cursor')
     def test_inner_delete_db(self, connection_cursor):
-        self.plugin.db_configs_by_device = {'mysql_host': ['test_server(.)test_db_1', 'test_server(.)test_db_2']}
-        expected_db_config = {'mysql_host': []}
+        self.plugin.db_configs_by_server = {'mysql_host(.)test_server': ['test_server(.)test_db_1', 'test_server(.)test_db_2']}
+        expected_db_config = {'mysql_host(.)test_server': []}
         self.config.datasources = [MagicMock(component='test_server',
                                              severity=2,
                                              device='mysql_host')]
@@ -727,14 +727,14 @@ class TestMySQLDatabaseIncrementalModelingPlugin(BaseTestCase):
         data = self.plugin.inner(self.config)
         rel_map = data['maps'][0]
         events = data['events']
-        self.assertEquals(self.plugin.db_configs_by_device, expected_db_config)
+        self.assertEquals(self.plugin.db_configs_by_server, expected_db_config)
         self.assertEquals(len(rel_map.maps), 0)
         self.assertEquals(len(events), 2)
 
     @patch('ZenPacks.zenoss.MySqlMonitor.dsplugins.connection_cursor')
     def test_inner_add_db(self, connection_cursor):
-        self.plugin.db_configs_by_device = {'mysql_host': []}
-        expected_db_config = {'mysql_host': ['test_server(.)test_db_1',
+        self.plugin.db_configs_by_server = {'mysql_host(.)test_server': []}
+        expected_db_config = {'mysql_host(.)test_server': ['test_server(.)test_db_1',
                                              'test_server(.)test_db_2',
                                              'test_server(.)test_db_3']}
         self.config.datasources = [MagicMock(component='test_server',
@@ -745,9 +745,27 @@ class TestMySQLDatabaseIncrementalModelingPlugin(BaseTestCase):
         data = self.plugin.inner(self.config)
         rel_map = data['maps'][0]
         events = data['events']
-        self.assertEquals(self.plugin.db_configs_by_device, expected_db_config)
+        self.assertEquals(self.plugin.db_configs_by_server, expected_db_config)
         self.assertEquals(len(rel_map.maps), 3)
         self.assertEquals(len(events), 3)
+
+    @patch('ZenPacks.zenoss.MySqlMonitor.dsplugins.connection_cursor')
+    def test_inner_raise_exception(self, connection_cursor):
+        expected_db_config = {'mysql_host(.)test_server': ['test_server(.)test_db_1',
+                                             'test_server(.)test_db_2',
+                                             'test_server(.)test_db_3']}
+        self.plugin.db_configs_by_server = expected_db_config
+        self.config.datasources = [MagicMock(component='test_server',
+                                             severity=2,
+                                             device='mysql_host')]
+        connection_cursor.side_effect = Exception("Can't connect to MySQL server")
+        data = self.plugin.inner(self.config)
+        maps = data['maps']
+        events = data['events']
+        self.assertEquals(self.plugin.db_configs_by_server, expected_db_config)
+        self.assertEquals(len(maps), 0)
+        self.assertEquals(len(events), 1)
+        self.assertEquals(events[0]['summary'], "Can't connect to MySQL server or timeout error in MySQLDatabaseIncrementalModelingPlugin.")
 
 
 def test_suite():
