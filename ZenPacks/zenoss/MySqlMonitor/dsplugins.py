@@ -14,6 +14,7 @@ log = getLogger('zen.python')
 import re
 import time
 import MySQLdb
+import MySQLdb.cursors as cursors
 
 from twisted.internet import threads
 
@@ -63,7 +64,7 @@ def connection_cursor(ds, ip, cursor_type=None):
         connect_timeout=getattr(ds, 'zMySqlTimeout', 30)
     )
     db.ping(True)
-    return db.cursor(cursor_type)
+    return db.cursor(cursorclass=cursor_type)
 
 
 class MysqlBasePlugin(PythonDataSourcePlugin):
@@ -202,7 +203,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
 
                 if ('MySQL server has gone away' in message or
                         "Can't connect to MySQL server" in message):
-                    message = "Can't connect to MySQL server or timeout error."
+                    message = "Can't connect to MySQL server or timeout error in {}.".format(self.__class__.__name__)
 
                 event = self.base_event(ds.severity, message, ds.component, eventClass=ds.eventClass)
                 data['events'].append(event)
@@ -293,6 +294,7 @@ class MySqlDeadlockPlugin(MysqlBasePlugin):
             pattern = re.compile("`([\w]*)`\.")
             database = [''.join(pattern.findall(x)) for x in
                         summary.split('\n\n') if '*** (1) TRANSACTION:' in x]
+
             if database:
                 component = ds.component + NAME_SPLITTER + database[0]
 
@@ -443,6 +445,7 @@ class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
             return []
         diff = results[0][0] - self.last_table_count_value.get(ds.device, {}).get(ds.component)
         self.last_table_count_value[ds.device][ds.component] = results[0][0]
+
         if diff == 0:
             return []
 
@@ -462,7 +465,21 @@ class MySQLDatabaseIncrementalModelingPlugin(MysqlBasePlugin):
     An Incremental Modeling datasource plugin for MySQL databases
     """
 
-    db_configs_by_device = {}
+    db_configs_by_server = {}
+
+    @classmethod
+    def config_key(cls, datasource, context):
+        """
+        Return a tuple defining collection uniqueness.
+        """
+        return (
+            context.device().id,
+            datasource.getCycleTime(context),
+            datasource.rrdTemplate().id,
+            datasource.id,
+            datasource.plugin_classname,
+            context.id,
+        )
 
     def produce_event(self, db, eventClass, state):
         """Returns event after MySQL database addition or deletion.
@@ -507,7 +524,7 @@ class MySQLDatabaseIncrementalModelingPlugin(MysqlBasePlugin):
         for ds in config.datasources:
             res = {"id": ds.component}
             try:
-                cursor = connection_cursor(ds, config.manageIp, cursor_type=MySQLdb.cursors.DictCursor)
+                cursor = connection_cursor(ds, config.manageIp, cursor_type=cursors.DictCursor)
                 cursor.execute(self.get_query(ds.component))
                 res['db'] = cursor.fetchall()
                 cursor.close()
@@ -515,19 +532,20 @@ class MySQLDatabaseIncrementalModelingPlugin(MysqlBasePlugin):
                 message = str(e)
                 if ('MySQL server has gone away' in message or
                         "Can't connect to MySQL server" in message):
-                    message = "Can't connect to MySQL server or timeout error."
+                    message = "Can't connect to MySQL server or timeout error in {}.".format(self.__class__.__name__)
                 event = self.base_event(ds.severity, message, ds.component)
                 data['events'].append(event)
-                continue
+                return data
             results.append(res)
         maps = self.get_db_rel_map(results)
         # get old configuration from previous run
-        old_db_config = self.db_configs_by_device.get(ds0.device) or []
+        db_config_key = ds0.id + NAME_SPLITTER + ds0.component
+        old_db_config = self.db_configs_by_server.get(db_config_key) or []
         new_db_config = self.create_db_config(maps)
         if old_db_config != new_db_config:
             config_diff = list(set(old_db_config) ^ set(new_db_config))
             for db in config_diff:
-                if ds0.device in self.db_configs_by_device.keys():
+                if db_config_key in self.db_configs_by_server.keys():
                     if db in new_db_config:
                         data['events'].append(self.produce_event(db, ds0.eventClass, 'added'))
                     else:
@@ -535,7 +553,7 @@ class MySQLDatabaseIncrementalModelingPlugin(MysqlBasePlugin):
             log.info('DB configuration has changed, sending new datamaps.')
             log.debug('Difference between DB configs %s', config_diff)
             data['maps'] = maps
-        self.db_configs_by_device[ds0.device] = new_db_config
+        self.db_configs_by_server[db_config_key] = new_db_config
         return data
 
     @staticmethod
