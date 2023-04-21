@@ -292,7 +292,7 @@ class MySqlDeadlockPlugin(MysqlBasePlugin):
             )
             # Parse LATEST DETECTED DEADLOCK and find database name
             pattern = re.compile("`([\w]*)`\.")
-            database = [''.join(pattern.findall(x)) for x in
+            database = [pattern.findall(x)[0] for x in
                         summary.split('\n\n') if '*** (1) TRANSACTION:' in x]
 
             if database:
