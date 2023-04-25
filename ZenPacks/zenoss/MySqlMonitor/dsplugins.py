@@ -286,17 +286,11 @@ class MySqlDeadlockPlugin(MysqlBasePlugin):
         if deadlock_match:
             summary = deadlock_match.group(1)
             # Parse LATEST DETECTED DEADLOCK and find time identifier
-            dtime = re.match(
-                r'.+DEADLOCK\n-+\n(.+?)\n\*\*\*\s\(1\)\sTRANSACTION',
-                summary
-            )
+            dtime = re.match(r'.+DEADLOCK\n-+\n(.+?)\n\*\*\*\s\(1\)\sTRANSACTION', summary)
             # Parse LATEST DETECTED DEADLOCK and find database name
-            pattern = re.compile("`([\w]*)`\.")
-            database = [pattern.findall(x)[0] for x in
-                        summary.split('\n\n') if '*** (1) TRANSACTION:' in x]
-
+            database = re.search(r"of table `(.+?)`\.", summary)
             if database:
-                component = ds.component + NAME_SPLITTER + database[0]
+                component = ds.component + NAME_SPLITTER + database.group(1)
 
             if dtime:
                 self.deadlock_time = dtime.group(1)
