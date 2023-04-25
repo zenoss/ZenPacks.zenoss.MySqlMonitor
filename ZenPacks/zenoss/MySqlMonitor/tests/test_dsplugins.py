@@ -446,6 +446,170 @@ END OF INNODB MONITOR OUTPUT
         self.assertEquals(events[1]['component'], 'component(.)test')
         self.assertEquals(events[1]['severity'], 2)
 
+    def test_query_status_deadlock_to_events_mysql8(self):
+        results = (
+            ('InnoDB', '2', '''
+=====================================
+130927 10:27:05 INNODB MONITOR OUTPUT
+=====================================
+Per second averages calculated from the last 15 seconds
+-----------------
+BACKGROUND THREAD
+-----------------
+srv_master_thread loops: 28 1_second, 28 sleeps, 2 10_second,
+11 background, 11 flush
+srv_master_thread log flush and writes: 30
+----------
+SEMAPHORES
+----------
+OS WAIT ARRAY INFO: reservation count 7, signal count 7
+Mutex spin waits 4, rounds 51, OS waits 0
+RW-shared spins 6, rounds 180, OS waits 6
+RW-excl spins 0, rounds 0, OS waits 0
+Spin rounds per wait: 12.75 mutex, 30.00 RW-shared, 0.00 RW-excl
+------------------------
+LATEST DETECTED DEADLOCK
+------------------------
+2023-04-25 05:02:43 140663198840576
+*** (1) TRANSACTION:
+TRANSACTION 32848, ACTIVE 32 sec starting index read
+mysql tables in use 1, locked 1
+LOCK WAIT 4 lock struct(s), heap size 1128, 2 row lock(s)
+MySQL thread id 70316, OS thread handle 140662733190912, query id 286347 localhost root updating
+UPDATE Animals SET value=30 WHERE name='Aardvark'
+
+*** (1) HOLDS THE LOCK(S):
+RECORD LOCKS space id 26 page no 4 n bits 72 index PRIMARY of table `testDB5`.`Birds` trx id 32848 lock mode S locks rec but not gap
+Record lock, heap no 2 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 7; hex 42757a7a617264; asc Buzzard;;
+ 1: len 6; hex 00000000804e; asc      N;;
+ 2: len 7; hex 82000000f00110; asc        ;;
+ 3: len 4; hex 80000014; asc     ;;
+
+
+*** (1) WAITING FOR THIS LOCK TO BE GRANTED:
+RECORD LOCKS space id 25 page no 4 n bits 72 index PRIMARY of table `testDB5`.`Animals` trx id 32848 lock_mode X locks rec but not gap waiting
+Record lock, heap no 2 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 8; hex 416172647661726b; asc Aardvark;;
+ 1: len 6; hex 00000000804c; asc      L;;
+ 2: len 7; hex 82000000ee0110; asc        ;;
+ 3: len 4; hex 8000000a; asc     ;;
+
+
+*** (2) TRANSACTION:
+TRANSACTION 32849, ACTIVE 43 sec starting index read
+mysql tables in use 1, locked 1
+LOCK WAIT 4 lock struct(s), heap size 1128, 2 row lock(s)
+MySQL thread id 70338, OS thread handle 140662730028800, query id 286357 10.87.208.131 zenoss updating
+UPDATE Birds SET value=40 WHERE name='Buzzard'
+
+*** (2) HOLDS THE LOCK(S):
+RECORD LOCKS space id 25 page no 4 n bits 72 index PRIMARY of table `testDB5`.`Animals` trx id 32849 lock mode S locks rec but not gap
+Record lock, heap no 2 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 8; hex 416172647661726b; asc Aardvark;;
+ 1: len 6; hex 00000000804c; asc      L;;
+ 2: len 7; hex 82000000ee0110; asc        ;;
+ 3: len 4; hex 8000000a; asc     ;;
+
+
+*** (2) WAITING FOR THIS LOCK TO BE GRANTED:
+RECORD LOCKS space id 26 page no 4 n bits 72 index PRIMARY of table `testDB5`.`Birds` trx id 32849 lock_mode X locks rec but not gap waiting
+Record lock, heap no 2 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 7; hex 42757a7a617264; asc Buzzard;;
+ 1: len 6; hex 00000000804e; asc      N;;
+ 2: len 7; hex 82000000f00110; asc        ;;
+ 3: len 4; hex 80000014; asc     ;;
+
+*** WE ROLL BACK TRANSACTION (2)
+------------
+TRANSACTIONS
+------------
+Trx id counter 11705
+Purge done for trx's n:o < 11705 undo n:o < 0
+History list length 1927
+LIST OF TRANSACTIONS FOR EACH SESSION:
+---TRANSACTION 0, not started
+MySQL thread id 46, OS thread handle 0xa4b6cb40, query id 144 localhost root
+show engine innodb status
+--------
+FILE I/O
+--------
+I/O thread 0 state: waiting for i/o request (insert buffer thread)
+I/O thread 1 state: waiting for i/o request (log thread)
+I/O thread 2 state: waiting for i/o request (read thread)
+I/O thread 3 state: waiting for i/o request (read thread)
+I/O thread 4 state: waiting for i/o request (read thread)
+I/O thread 5 state: waiting for i/o request (read thread)
+I/O thread 6 state: waiting for i/o request (write thread)
+I/O thread 7 state: waiting for i/o request (write thread)
+I/O thread 8 state: waiting for i/o request (write thread)
+I/O thread 9 state: waiting for i/o request (write thread)
+Pending normal aio reads: 0 [0, 0, 0, 0] , aio writes: 0 [0, 0, 0, 0] ,
+ ibuf aio reads: 0, log i/o's: 0, sync i/o's: 0
+Pending flushes (fsync) log: 0; buffer pool: 0
+559 OS file reads, 29 OS file writes, 19 OS fsyncs
+0.00 reads/s, 0 avg bytes/read, 0.00 writes/s, 0.00 fsyncs/s
+-------------------------------------
+INSERT BUFFER AND ADAPTIVE HASH INDEX
+-------------------------------------
+Ibuf: size 1, free list len 0, seg size 2, 0 merges
+merged operations:
+ insert 0, delete mark 0, delete 0
+discarded operations:
+ insert 0, delete mark 0, delete 0
+Hash table size 553193, node heap has 1 buffer(s)
+0.00 hash searches/s, 0.00 non-hash searches/s
+---
+LOG
+---
+Log sequence number 15404422
+Log flushed up to   15404422
+Last checkpoint at  15404422
+0 pending log writes, 0 pending chkp writes
+16 log i/o's done, 0.00 log i/o's/second
+----------------------
+BUFFER POOL AND MEMORY
+----------------------
+Total memory allocated 135987200; in additional pool allocated 0
+Dictionary memory allocated 138491
+Buffer pool size   8191
+Free buffers       7641
+Database pages     549
+Old database pages 222
+Modified db pages  0
+Pending reads 0
+Pending writes: LRU 0, flush list 0, single page 0
+Pages made young 0, not young 0
+0.00 youngs/s, 0.00 non-youngs/s
+Pages read 548, created 1, written 17
+0.00 reads/s, 0.00 creates/s, 0.00 writes/s
+No buffer pool page gets since the last printout
+Pages read ahead 0.00/s, evicted without access 0.00/s,
+Random read ahead 0.00/s
+LRU len: 549, unzip_LRU len: 0
+I/O sum[0]:cur[0], unzip sum[0]:cur[0]
+--------------
+ROW OPERATIONS
+--------------
+0 queries inside InnoDB, 0 queries in queue
+1 read views open inside InnoDB
+Main thread process no. 1127, id 2771835712, state: waiting for server activity
+Number of rows inserted 2, updated 0, deleted 0, read 6
+0.00 inserts/s, 0.00 updates/s, 0.00 deletes/s, 0.00 reads/s
+----------------------------
+END OF INNODB MONITOR OUTPUT
+============================
+'''),)
+
+        self.ds.deadlock_info = None
+        self.ds.component = 'component'
+        events = self.plugin.query_results_to_events(results, self.ds)
+
+        self.assertEquals(len(events), 2)
+        self.assertEquals(events[1]['eventKey'], 'MySqlDeadlock_innodb')
+        self.assertEquals(events[1]['component'], 'component(.)testDB5')
+        self.assertEquals(events[1]['severity'], 2)
+
 
 class TestMySqlReplicationPlugin(BaseTestCase):
     def afterSetUp(self):
