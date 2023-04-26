@@ -527,7 +527,7 @@ class MySQLDatabaseIncrementalModelingPlugin(MysqlBasePlugin):
                 if ('MySQL server has gone away' in message or
                         "Can't connect to MySQL server" in message):
                     message = "Can't connect to MySQL server or timeout error in {}.".format(self.__class__.__name__)
-                event = self.base_event(ds.severity, message, ds.component)
+                event = self.base_event(ds.severity, message, ds.component, eventClass=ds.eventClass)
                 data['events'].append(event)
                 return data
             results.append(res)
