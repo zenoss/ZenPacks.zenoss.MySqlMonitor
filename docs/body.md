@@ -278,7 +278,7 @@ Component Types
 Changes
 -------
 
-3.2.0 ()
+3.2.0 (2023-04-27)
 
 - Rework incremental modeling for MySQL databases. (ZPS-6799)
 - Fix event class setting for MySql datasources. (ZPS-5766)
@@ -286,7 +286,7 @@ Changes
 - Fix "RemoteError" during monitoring. (ZPS-5831)
 - Fix invalid object maps properties in datasource plugins. (ZPS-7081)
 - Change requested MySql datasource datapoints type to DERIVE. (ZPS-7478)
-- Tested with
+- Tested with Zenoss Cloud, Zenoss 6.7.0, and Service Impact 5.6.0
 
 3.1.0 (2017-12-29)
 
