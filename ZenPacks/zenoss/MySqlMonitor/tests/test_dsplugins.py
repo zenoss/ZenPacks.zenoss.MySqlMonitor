@@ -1,31 +1,33 @@
 ######################################################################
 #
-# Copyright (C) Zenoss, Inc. 2013, all rights reserved.
+# Copyright (C) Zenoss, Inc. 2013-2023, all rights reserved.
 #
 # This content is made available according to terms specified in
 # License.zenoss under the directory where your Zenoss product is
 # installed.
 #
 ######################################################################
-
-from mock import Mock, patch, sentinel
+import time
+from mock import Mock, patch, sentinel, MagicMock
 
 from Products.ZenTestCase.BaseTestCase import BaseTestCase
+from Products.DataCollector.plugins.DataMaps import RelationshipMap, ObjectMap
 
 from ZenPacks.zenoss.MySqlMonitor import NAME_SPLITTER
 from ZenPacks.zenoss.MySqlMonitor import dsplugins
 
 
 class TestMysqlBasePlugin(BaseTestCase):
-    def setUp(self):
+    def afterSetUp(self):
         self.plugin = dsplugins.MysqlBasePlugin()
+        self.config = Mock()
+        self.ds = Mock()
 
     def test_onSuccess_clears_event(self):
         result = {'events': [], 'values': {"test": "test"}}
-        config = ds = Mock()
-        ds.severity = 4
-        config.datasources = [ds]
-        self.plugin.onSuccess(result, config)
+        self.ds.severity = 4
+        self.config.datasources = [self.ds]
+        self.plugin.onSuccess(result, self.config)
 
         event = result['events'][0]
         self.assertEquals(event['severity'], 0)
@@ -33,41 +35,77 @@ class TestMysqlBasePlugin(BaseTestCase):
 
     @patch.object(dsplugins, 'log')
     def test_onError_event(self, log):
-        config = ds = Mock()
-        ds.severity = 4
-        config.datasources = [ds]
-        result = self.plugin.onError(sentinel.some_result, config)
+        self.ds.severity = 4
+        self.config.datasources = [self.ds]
+        result = self.plugin.onError(sentinel.some_result, self.config)
 
         event = result['events'][0]
         self.assertEquals(event['severity'], 4)
         self.assertEquals(event['eventKey'], 'MysqlBase')
         log.error.assertCalledWith(sentinel.some_result)
 
+    def test_base_event(self):
+        self.ds.component = 'test_component'
+        event = self.plugin.base_event(4, 'summary', self.ds.component, eventClass='/Status')
+        self.assertEquals(event['severity'], 4)
+        self.assertEquals(event['eventKey'], 'MysqlBase')
+        self.assertEquals(event['eventClassKey'], 'MysqlBase')
+        self.assertEquals(event['component'], 'test_component')
+        self.assertEquals(event['summary'], 'summary')
+        self.assertEquals(event['eventClass'], '/Status')
+
 
 class TestMySqlMonitorPlugin(BaseTestCase):
+    def afterSetUp(self):
+        self.plugin = dsplugins.MySqlMonitorPlugin()
 
     def test_results_to_values(self):
         results = (
             ('Value', sentinel.value),
         )
-
-        plugin = dsplugins.MySqlMonitorPlugin()
-        values = plugin.query_results_to_values(results)
-
+        values = self.plugin.query_results_to_values(results)
         self.assertEquals(values, {
             'value': (sentinel.value, 'N')
         })
 
     def test_empty_results_to_values(self):
         results = ()
-
-        plugin = dsplugins.MySqlMonitorPlugin()
-        values = plugin.query_results_to_values(results)
-
+        values = self.plugin.query_results_to_values(results)
         self.assertEquals(values, {})
 
 
 class TestMySqlDeadlockPlugin(BaseTestCase):
+    def afterSetUp(self):
+        self.plugin = dsplugins.MySqlDeadlockPlugin()
+        self.ds = Mock()
+
+    def test_event(self):
+        event = self.plugin._event(4, 'summary', self.ds.component, '/Status')
+        self.assertEquals(event['severity'], 4)
+        self.assertEquals(event['eventKey'], 'MySqlDeadlock_innodb')
+        self.assertEquals(event['eventClassKey'], 'MySqlDeadlock')
+        self.assertEquals(event['summary'], 'summary')
+        self.assertEquals(event['eventClass'], '/Status')
+
+    def test_query_results_to_maps_no_clear_time(self):
+        self.plugin.deadlock_evt_clear_time = None
+        results = None
+        component = self.ds.component
+        maps = self.plugin.query_results_to_maps(results, component)
+        self.assertEquals(len(maps), 0)
+
+    def test_query_results_to_maps(self):
+        component = 'test_db'
+        self.plugin.deadlock_evt_clear_time = time.time()
+        self.plugin.deadlock_time = time.time()
+        self.plugin.deadlock_db = component
+        results = None
+        maps = self.plugin.query_results_to_maps(results, component)
+        self.assertEquals(len(maps), 1)
+        self.assertEquals(maps[0].id, 'test_db')
+        self.assertEquals(len(maps[0].deadlock_info), 3)
+        self.assertEquals(maps[0].relname, 'mysql_servers')
+        self.assertEquals(maps[0].modname, 'ZenPacks.zenoss.MySqlMonitor.MySQLServer')
 
     def test_query_status_ok_to_events(self):
         results = (
@@ -246,13 +284,11 @@ Number of rows inserted 22379, updated 5922, deleted 18763, read 341468
 ----------------------------
 END OF INNODB MONITOR OUTPUT
 ============================
-'''), )
+'''),)
 
-        plugin = dsplugins.MySqlDeadlockPlugin()
-        ds = Mock()
-        ds.deadlock_info = None
-        ds.component = sentinel.component
-        events = plugin.query_results_to_events(results, ds)
+        self.ds.deadlock_info = None
+        self.ds.component = sentinel.component
+        events = self.plugin.query_results_to_events(results, self.ds)
         self.assertEquals(len(events), 0)
 
     def test_query_status_deadlock_to_events(self):
@@ -399,28 +435,262 @@ Number of rows inserted 2, updated 0, deleted 0, read 6
 ----------------------------
 END OF INNODB MONITOR OUTPUT
 ============================
-'''), )
+'''),)
 
-        plugin = dsplugins.MySqlDeadlockPlugin()
-        ds = Mock()
-        ds.deadlock_info = None
-        ds.component = 'component'
-        events = plugin.query_results_to_events(results, ds)
+        self.ds.deadlock_info = None
+        self.ds.component = 'component'
+        events = self.plugin.query_results_to_events(results, self.ds)
 
         self.assertEquals(len(events), 2)
         self.assertEquals(events[1]['eventKey'], 'MySqlDeadlock_innodb')
         self.assertEquals(events[1]['component'], 'component(.)test')
         self.assertEquals(events[1]['severity'], 2)
 
+    def test_query_status_deadlock_to_events_mysql8(self):
+        results = (
+            ('InnoDB', '2', '''
+=====================================
+130927 10:27:05 INNODB MONITOR OUTPUT
+=====================================
+Per second averages calculated from the last 15 seconds
+-----------------
+BACKGROUND THREAD
+-----------------
+srv_master_thread loops: 28 1_second, 28 sleeps, 2 10_second,
+11 background, 11 flush
+srv_master_thread log flush and writes: 30
+----------
+SEMAPHORES
+----------
+OS WAIT ARRAY INFO: reservation count 7, signal count 7
+Mutex spin waits 4, rounds 51, OS waits 0
+RW-shared spins 6, rounds 180, OS waits 6
+RW-excl spins 0, rounds 0, OS waits 0
+Spin rounds per wait: 12.75 mutex, 30.00 RW-shared, 0.00 RW-excl
+------------------------
+LATEST DETECTED DEADLOCK
+------------------------
+2023-04-25 05:02:43 140663198840576
+*** (1) TRANSACTION:
+TRANSACTION 32848, ACTIVE 32 sec starting index read
+mysql tables in use 1, locked 1
+LOCK WAIT 4 lock struct(s), heap size 1128, 2 row lock(s)
+MySQL thread id 70316, OS thread handle 140662733190912, query id 286347 localhost root updating
+UPDATE Animals SET value=30 WHERE name='Aardvark'
+
+*** (1) HOLDS THE LOCK(S):
+RECORD LOCKS space id 26 page no 4 n bits 72 index PRIMARY of table `testDB5`.`Birds` trx id 32848 lock mode S locks rec but not gap
+Record lock, heap no 2 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 7; hex 42757a7a617264; asc Buzzard;;
+ 1: len 6; hex 00000000804e; asc      N;;
+ 2: len 7; hex 82000000f00110; asc        ;;
+ 3: len 4; hex 80000014; asc     ;;
+
+
+*** (1) WAITING FOR THIS LOCK TO BE GRANTED:
+RECORD LOCKS space id 25 page no 4 n bits 72 index PRIMARY of table `testDB5`.`Animals` trx id 32848 lock_mode X locks rec but not gap waiting
+Record lock, heap no 2 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 8; hex 416172647661726b; asc Aardvark;;
+ 1: len 6; hex 00000000804c; asc      L;;
+ 2: len 7; hex 82000000ee0110; asc        ;;
+ 3: len 4; hex 8000000a; asc     ;;
+
+
+*** (2) TRANSACTION:
+TRANSACTION 32849, ACTIVE 43 sec starting index read
+mysql tables in use 1, locked 1
+LOCK WAIT 4 lock struct(s), heap size 1128, 2 row lock(s)
+MySQL thread id 70338, OS thread handle 140662730028800, query id 286357 10.87.208.131 zenoss updating
+UPDATE Birds SET value=40 WHERE name='Buzzard'
+
+*** (2) HOLDS THE LOCK(S):
+RECORD LOCKS space id 25 page no 4 n bits 72 index PRIMARY of table `testDB5`.`Animals` trx id 32849 lock mode S locks rec but not gap
+Record lock, heap no 2 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 8; hex 416172647661726b; asc Aardvark;;
+ 1: len 6; hex 00000000804c; asc      L;;
+ 2: len 7; hex 82000000ee0110; asc        ;;
+ 3: len 4; hex 8000000a; asc     ;;
+
+
+*** (2) WAITING FOR THIS LOCK TO BE GRANTED:
+RECORD LOCKS space id 26 page no 4 n bits 72 index PRIMARY of table `testDB5`.`Birds` trx id 32849 lock_mode X locks rec but not gap waiting
+Record lock, heap no 2 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 7; hex 42757a7a617264; asc Buzzard;;
+ 1: len 6; hex 00000000804e; asc      N;;
+ 2: len 7; hex 82000000f00110; asc        ;;
+ 3: len 4; hex 80000014; asc     ;;
+
+*** WE ROLL BACK TRANSACTION (2)
+------------
+TRANSACTIONS
+------------
+Trx id counter 11705
+Purge done for trx's n:o < 11705 undo n:o < 0
+History list length 1927
+LIST OF TRANSACTIONS FOR EACH SESSION:
+---TRANSACTION 0, not started
+MySQL thread id 46, OS thread handle 0xa4b6cb40, query id 144 localhost root
+show engine innodb status
+--------
+FILE I/O
+--------
+I/O thread 0 state: waiting for i/o request (insert buffer thread)
+I/O thread 1 state: waiting for i/o request (log thread)
+I/O thread 2 state: waiting for i/o request (read thread)
+I/O thread 3 state: waiting for i/o request (read thread)
+I/O thread 4 state: waiting for i/o request (read thread)
+I/O thread 5 state: waiting for i/o request (read thread)
+I/O thread 6 state: waiting for i/o request (write thread)
+I/O thread 7 state: waiting for i/o request (write thread)
+I/O thread 8 state: waiting for i/o request (write thread)
+I/O thread 9 state: waiting for i/o request (write thread)
+Pending normal aio reads: 0 [0, 0, 0, 0] , aio writes: 0 [0, 0, 0, 0] ,
+ ibuf aio reads: 0, log i/o's: 0, sync i/o's: 0
+Pending flushes (fsync) log: 0; buffer pool: 0
+559 OS file reads, 29 OS file writes, 19 OS fsyncs
+0.00 reads/s, 0 avg bytes/read, 0.00 writes/s, 0.00 fsyncs/s
+-------------------------------------
+INSERT BUFFER AND ADAPTIVE HASH INDEX
+-------------------------------------
+Ibuf: size 1, free list len 0, seg size 2, 0 merges
+merged operations:
+ insert 0, delete mark 0, delete 0
+discarded operations:
+ insert 0, delete mark 0, delete 0
+Hash table size 553193, node heap has 1 buffer(s)
+0.00 hash searches/s, 0.00 non-hash searches/s
+---
+LOG
+---
+Log sequence number 15404422
+Log flushed up to   15404422
+Last checkpoint at  15404422
+0 pending log writes, 0 pending chkp writes
+16 log i/o's done, 0.00 log i/o's/second
+----------------------
+BUFFER POOL AND MEMORY
+----------------------
+Total memory allocated 135987200; in additional pool allocated 0
+Dictionary memory allocated 138491
+Buffer pool size   8191
+Free buffers       7641
+Database pages     549
+Old database pages 222
+Modified db pages  0
+Pending reads 0
+Pending writes: LRU 0, flush list 0, single page 0
+Pages made young 0, not young 0
+0.00 youngs/s, 0.00 non-youngs/s
+Pages read 548, created 1, written 17
+0.00 reads/s, 0.00 creates/s, 0.00 writes/s
+No buffer pool page gets since the last printout
+Pages read ahead 0.00/s, evicted without access 0.00/s,
+Random read ahead 0.00/s
+LRU len: 549, unzip_LRU len: 0
+I/O sum[0]:cur[0], unzip sum[0]:cur[0]
+--------------
+ROW OPERATIONS
+--------------
+0 queries inside InnoDB, 0 queries in queue
+1 read views open inside InnoDB
+Main thread process no. 1127, id 2771835712, state: waiting for server activity
+Number of rows inserted 2, updated 0, deleted 0, read 6
+0.00 inserts/s, 0.00 updates/s, 0.00 deletes/s, 0.00 reads/s
+----------------------------
+END OF INNODB MONITOR OUTPUT
+============================
+'''),)
+
+        self.ds.deadlock_info = None
+        self.ds.component = 'component'
+        events = self.plugin.query_results_to_events(results, self.ds)
+
+        self.assertEquals(len(events), 2)
+        self.assertEquals(events[1]['eventKey'], 'MySqlDeadlock_innodb')
+        self.assertEquals(events[1]['component'], 'component(.)testDB5')
+        self.assertEquals(events[1]['severity'], 2)
+
+
+class TestMySqlReplicationPlugin(BaseTestCase):
+    def afterSetUp(self):
+        self.plugin = dsplugins.MySqlReplicationPlugin()
+        self.ds = Mock()
+
+    def test_event(self):
+        event = self.plugin._event(4, 'summary', self.ds.component, '/Status', 'io')
+        self.assertEquals(event['severity'], 4)
+        self.assertEquals(event['eventKey'], 'MySqlReplication_io')
+        self.assertEquals(event['eventClassKey'], 'MySqlReplication')
+        self.assertEquals(event['summary'], 'summary')
+        self.assertEquals(event['eventClass'], '/Status')
+
+    def test_query_results_to_events_no_results(self):
+        events = self.plugin.query_results_to_events(None, self.ds)
+        self.assertEquals(len(events), 0)
+
+    def test_query_results_to_events_slave_io(self):
+        results = (tuple('Yes' if i == 10 else None for i in xrange(20)),)
+        events = self.plugin.query_results_to_events(results, self.ds)
+        self.assertEquals(len(events), 5)
+        self.assertEquals(events[0]['severity'], 0)
+        self.assertEquals(events[0]['summary'], "Slave IO Running")
+        self.assertEquals(events[0]['eventKey'], "MySqlReplication_io")
+        self.assertEquals(events[1]['severity'], 4)
+        self.assertEquals(events[1]['summary'], "Slave SQL NOT Running")
+        self.assertEquals(events[1]['eventKey'], "MySqlReplication_sql")
+        self.assertEquals(events[2]['severity'], 0)
+        self.assertEquals(events[2]['summary'], "No replication error")
+        self.assertEquals(events[2]['eventKey'], "MySqlReplication_err")
+        self.assertEquals(events[3]['severity'], 0)
+        self.assertEquals(events[3]['summary'], "No replication IO error")
+        self.assertEquals(events[3]['eventKey'], "MySqlReplication_ioe")
+        self.assertEquals(events[4]['severity'], 0)
+        self.assertEquals(events[4]['summary'], "No replication SQL error")
+        self.assertEquals(events[4]['eventKey'], "MySqlReplication_se")
+
+    def test_query_results_to_events_slave_sql(self):
+        results = (tuple('Yes' if i == 11 else None for i in xrange(20)),)
+        events = self.plugin.query_results_to_events(results, self.ds)
+        self.assertEquals(len(events), 5)
+        self.assertEquals(events[1]['severity'], 0)
+        self.assertEquals(events[1]['summary'], "Slave SQL Running")
+        self.assertEquals(events[1]['eventKey'], "MySqlReplication_sql")
+        self.assertEquals(events[0]['severity'], 4)
+        self.assertEquals(events[0]['summary'], "Slave IO NOT Running")
+        self.assertEquals(events[0]['eventKey'], "MySqlReplication_io")
+        self.assertEquals(events[2]['severity'], 0)
+        self.assertEquals(events[2]['summary'], "No replication error")
+        self.assertEquals(events[2]['eventKey'], "MySqlReplication_err")
+        self.assertEquals(events[3]['severity'], 0)
+        self.assertEquals(events[3]['summary'], "No replication IO error")
+        self.assertEquals(events[3]['eventKey'], "MySqlReplication_ioe")
+        self.assertEquals(events[4]['severity'], 0)
+        self.assertEquals(events[4]['summary'], "No replication SQL error")
+        self.assertEquals(events[4]['eventKey'], "MySqlReplication_se")
+
+    def test_query_results_to_events_err_strings(self):
+        results = (tuple('error_string' if i in [19, 35, 37] else None for i in xrange(38)),)
+        events = self.plugin.query_results_to_events(results, self.ds)
+        self.assertEquals(len(events), 5)
+        self.assertEquals(events[2]['severity'], 4)
+        self.assertEquals(events[2]['summary'], "error_string")
+        self.assertEquals(events[2]['eventKey'], "MySqlReplication_err")
+        self.assertEquals(events[3]['severity'], 4)
+        self.assertEquals(events[3]['summary'], "error_string")
+        self.assertEquals(events[3]['eventKey'], "MySqlReplication_ioe")
+        self.assertEquals(events[4]['severity'], 4)
+        self.assertEquals(events[4]['summary'], "error_string")
+        self.assertEquals(events[4]['eventKey'], "MySqlReplication_se")
+
 
 class TestMySQLMonitorDatabasesPlugin(BaseTestCase):
+    def afterSetUp(self):
+        self.plugin = dsplugins.MySQLMonitorDatabasesPlugin()
+        self.ds = Mock()
 
     def test_no_results_to_values(self):
         results = ((0, None, None, None),)
-
-        plugin = dsplugins.MySQLMonitorDatabasesPlugin()
-        values = plugin.query_results_to_values(results)
-
+        values = self.plugin.query_results_to_values(results)
         self.assertEquals(values, dict(
             (k, (0))
             for k in ('table_count', 'size', 'data_size', 'index_size')
@@ -428,15 +698,12 @@ class TestMySQLMonitorDatabasesPlugin(BaseTestCase):
 
     def test_results_to_values(self):
         results = ((
-            sentinel.table_count,
-            sentinel.size,
-            sentinel.data_size,
-            sentinel.index_size,
-        ),)
-
-        plugin = dsplugins.MySQLMonitorDatabasesPlugin()
-        values = plugin.query_results_to_values(results)
-
+                       sentinel.table_count,
+                       sentinel.size,
+                       sentinel.data_size,
+                       sentinel.index_size,
+                   ),)
+        values = self.plugin.query_results_to_values(results)
         self.assertEquals(values, dict(
             table_count=(sentinel.table_count),
             size=(sentinel.size),
@@ -444,50 +711,225 @@ class TestMySQLMonitorDatabasesPlugin(BaseTestCase):
             index_size=(sentinel.index_size),
         ))
 
-    def test_tables_number_event(self):
+    def test_tables_count_event_first_run(self):
         results = ((4, 1, 1, 1),)
-        plugin = dsplugins.MySQLMonitorDatabasesPlugin()
+        self.ds.configure_mock(component="test" + NAME_SPLITTER + "test", device='test_device')
+        events = self.plugin.query_results_to_events(results, self.ds)
+        self.assertEquals(len(events), 0)
+        self.assertEquals(self.plugin.last_table_count_value[self.ds.device][self.ds.component], 4)
 
-        ds = Mock()
-        ds.component = "test" + NAME_SPLITTER + "test"
-        ds.table_count = None
-        events = plugin.query_results_to_events(results, ds)
+    def test_tables_count_event_table_addition(self):
+        results = ((4, 1, 1, 1),)
+        self.ds.configure_mock(component="test" + NAME_SPLITTER + "test", device='test_device')
+        self.plugin.last_table_count_value[self.ds.device] = {}
+        self.plugin.last_table_count_value[self.ds.device][self.ds.component] = 0
+        events = self.plugin.query_results_to_events(results, self.ds)
         self.assertEquals(len(events), 1)
         self.assertEquals(events[0]['summary'], '4 tables were added.')
         self.assertEquals(events[0]['severity'], 2)
+        self.assertEquals(self.plugin.last_table_count_value[self.ds.device][self.ds.component], 4)
 
-        ds.table_count = 3
-        events = plugin.query_results_to_events(results, ds)
+        self.plugin.last_table_count_value[self.ds.device][self.ds.component] = 3
+        events = self.plugin.query_results_to_events(results, self.ds)
+        self.assertEquals(len(events), 1)
         self.assertEquals(events[0]['summary'], '1 table was added.')
         self.assertEquals(events[0]['severity'], 2)
+        self.assertEquals(self.plugin.last_table_count_value[self.ds.device][self.ds.component], 4)
 
-        ds.table_count = 5
-        events = plugin.query_results_to_events(results, ds)
+    def test_tables_count_event_table_deletion(self):
+        results = ((1, 1, 1, 1),)
+        self.ds.configure_mock(component="test" + NAME_SPLITTER + "test", device='test_device')
+        self.plugin.last_table_count_value[self.ds.device] = {}
+        self.plugin.last_table_count_value[self.ds.device][self.ds.component] = 4
+        events = self.plugin.query_results_to_events(results, self.ds)
+        self.assertEquals(len(events), 1)
+        self.assertEquals(events[0]['summary'], '3 tables were dropped.')
+        self.assertEquals(events[0]['severity'], 3)
+        self.assertEquals(self.plugin.last_table_count_value[self.ds.device][self.ds.component], 1)
+
+        self.plugin.last_table_count_value[self.ds.device][self.ds.component] = 2
+        events = self.plugin.query_results_to_events(results, self.ds)
+        self.assertEquals(len(events), 1)
         self.assertEquals(events[0]['summary'], '1 table was dropped.')
         self.assertEquals(events[0]['severity'], 3)
+        self.assertEquals(self.plugin.last_table_count_value[self.ds.device][self.ds.component], 1)
 
 
-class TestMySQLDatabaseExistencePlugin(BaseTestCase):
-    def test_db_not_exists(self):
-        results = ((0,),)
-        ds = Mock()
-        ds.component = "test" + NAME_SPLITTER + "test"
+class TestMySQLMonitorServersPlugin(BaseTestCase):
+    def afterSetUp(self):
+        self.plugin = dsplugins.MySQLMonitorServersPlugin()
+        self.ds = Mock()
 
-        plugin = dsplugins.MySQLDatabaseExistencePlugin()
-        events = plugin.query_results_to_events(results, ds)
+    def test_query_results_to_values(self):
+        results = ((1, 1, 1, 1),)
+        expected_result = {
+            'table_count': 1,
+            'size': 1,
+            'data_size': 1,
+            'index_size': 1
+        }
+        observed_result = self.plugin.query_results_to_values(results)
+        self.assertEquals(observed_result, expected_result)
 
+
+class TestMySQLDatabaseIncrementalModelingPlugin(BaseTestCase):
+    def afterSetUp(self):
+        self.plugin = dsplugins.MySQLDatabaseIncrementalModelingPlugin()
+        self.ds = Mock()
+        self.cursor = MagicMock()
+        self.config = Mock(manageIp='ip_address')
+
+    def test_produce_dropped_event(self):
+        event = self.plugin.produce_event('test_server(.)test_db', '/Status/SQL', 'dropped')
+        self.assertEquals(event['summary'], 'Database "test_db" was dropped.')
+        self.assertEquals(event['eventKey'], 'MySQLDatabaseIncrementalModeling_test_db_dropped')
+        self.assertEquals(event['component'], 'test_server')
+        self.assertEquals(event['severity'], 2)
+        self.assertEquals(event['eventClass'], '/Status/SQL')
+
+    def test_produce_added_event(self):
+        event = self.plugin.produce_event('test_server(.)test_db', '/Status', 'added')
+        self.assertEquals(event['summary'], 'Database "test_db" was added.')
+        self.assertEquals(event['eventKey'], 'MySQLDatabaseIncrementalModeling_test_db_added')
+        self.assertEquals(event['component'], 'test_server')
+        self.assertEquals(event['severity'], 2)
+        self.assertEquals(event['eventClass'], '/Status')
+
+    def test_create_db_config(self):
+        rel_maps = []
+        db_oms = [
+            {
+                'id': 'test_server(.)test_db_1'
+            },
+            {
+                'id': 'test_server(.)test_db_2'
+            },
+            {
+                'id': 'test_server(.)test_db_3'
+            },
+        ]
+        rel_maps.append(RelationshipMap(
+            compname='mysql_servers/test_server',
+            relname='databases',
+            modname='ZenPacks.zenoss.MySqlMonitor.MySQLDatabase',
+            objmaps=db_oms))
+        config = self.plugin.create_db_config(rel_maps)
+        self.assertEquals(len(config), 3)
+        self.assertEquals(config[0], 'test_server(.)test_db_1')
+        self.assertEquals(config[1], 'test_server(.)test_db_2')
+        self.assertEquals(config[2], 'test_server(.)test_db_3')
+
+    def test_get_db_rel_map(self):
+        parsed_query_results = [
+            {
+                'id': 'test_server_1',
+                'db':
+                    [
+                        {
+                            'title': 'test_db_1'
+                        },
+                        {
+                            'title': 'test_db_2'
+                        },
+                        {
+                            'title': 'test_db_3'
+                        }
+                    ]
+            },
+            {
+                'id': 'test_server_2',
+                'db':
+                    [
+                        {
+                            'title': 'test_db_1'
+                        },
+                        {
+                            'title': 'test_db_2'
+                        },
+                        {
+                            'title': 'test_db_3'
+                        }
+                    ]
+            }
+
+        ]
+        maps = self.plugin.get_db_rel_map(parsed_query_results)
+        self.assertEquals(len(maps), 2)
+        self.assertEquals(maps[0].relname, 'databases')
+        self.assertEquals(maps[0].compname, 'mysql_servers/test_server_1')
+        self.assertEquals(maps[0].maps[0].modname, 'ZenPacks.zenoss.MySqlMonitor.MySQLDatabase')
+        self.assertEquals(maps[0].maps[0].id, 'test_server_1(.)test_db_1')
+
+    @patch('ZenPacks.zenoss.MySqlMonitor.dsplugins.connection_cursor')
+    def test_inner_empty_config(self, connection_cursor):
+        expected_db_config = {'mysql_host(.)test_server': ['test_server(.)test_db_1', 'test_server(.)test_db_2']}
+        self.config.datasources = [MagicMock(component='test_server',
+                                             severity=2,
+                                             device='mysql_host')]
+
+        connection_cursor.return_value = self.cursor
+        self.cursor.fetchall.return_value = [{'title': 'test_db_1'}, {'title': 'test_db_2'}]
+        data = self.plugin.inner(self.config)
+        rel_map = data['maps'][0]
+        self.assertEquals(self.plugin.db_configs_by_server, expected_db_config)
+        self.assertEquals(rel_map.relname, 'databases')
+        self.assertEquals(rel_map.compname, 'mysql_servers/test_server')
+        self.assertEquals(len(rel_map.maps), 2)
+        self.assertEquals(rel_map.maps[0].modname, 'ZenPacks.zenoss.MySqlMonitor.MySQLDatabase')
+        self.assertEquals(rel_map.maps[0].id, 'test_server(.)test_db_1')
+
+    @patch('ZenPacks.zenoss.MySqlMonitor.dsplugins.connection_cursor')
+    def test_inner_delete_db(self, connection_cursor):
+        self.plugin.db_configs_by_server = {'mysql_host(.)test_server': ['test_server(.)test_db_1', 'test_server(.)test_db_2']}
+        expected_db_config = {'mysql_host(.)test_server': []}
+        self.config.datasources = [MagicMock(component='test_server',
+                                             severity=2,
+                                             device='mysql_host')]
+
+        connection_cursor.return_value = self.cursor
+        self.cursor.fetchall.return_value = []
+        data = self.plugin.inner(self.config)
+        rel_map = data['maps'][0]
+        events = data['events']
+        self.assertEquals(self.plugin.db_configs_by_server, expected_db_config)
+        self.assertEquals(len(rel_map.maps), 0)
+        self.assertEquals(len(events), 2)
+
+    @patch('ZenPacks.zenoss.MySqlMonitor.dsplugins.connection_cursor')
+    def test_inner_add_db(self, connection_cursor):
+        self.plugin.db_configs_by_server = {'mysql_host(.)test_server': []}
+        expected_db_config = {'mysql_host(.)test_server': ['test_server(.)test_db_1',
+                                             'test_server(.)test_db_2',
+                                             'test_server(.)test_db_3']}
+        self.config.datasources = [MagicMock(component='test_server',
+                                             severity=2,
+                                             device='mysql_host')]
+        connection_cursor.return_value = self.cursor
+        self.cursor.fetchall.return_value = [{'title': 'test_db_1'}, {'title': 'test_db_2'}, {'title': 'test_db_3'}]
+        data = self.plugin.inner(self.config)
+        rel_map = data['maps'][0]
+        events = data['events']
+        self.assertEquals(self.plugin.db_configs_by_server, expected_db_config)
+        self.assertEquals(len(rel_map.maps), 3)
+        self.assertEquals(len(events), 3)
+
+    @patch('ZenPacks.zenoss.MySqlMonitor.dsplugins.connection_cursor')
+    def test_inner_raise_exception(self, connection_cursor):
+        expected_db_config = {'mysql_host(.)test_server': ['test_server(.)test_db_1',
+                                             'test_server(.)test_db_2',
+                                             'test_server(.)test_db_3']}
+        self.plugin.db_configs_by_server = expected_db_config
+        self.config.datasources = [MagicMock(component='test_server',
+                                             severity=2,
+                                             device='mysql_host')]
+        connection_cursor.side_effect = Exception("Can't connect to MySQL server")
+        data = self.plugin.inner(self.config)
+        maps = data['maps']
+        events = data['events']
+        self.assertEquals(self.plugin.db_configs_by_server, expected_db_config)
+        self.assertEquals(len(maps), 0)
         self.assertEquals(len(events), 1)
-        self.assertEquals(events[0]['eventKey'], 'MySQLDatabaseExistence_test_dropped')
-        self.assertEquals(events[0]['component'], 'test')
-        self.assertEquals(events[0]['severity'], 2)
-
-    def test_db_exists(self):
-        results = ((1,),)
-
-        plugin = dsplugins.MySQLDatabaseExistencePlugin()
-        events = plugin.query_results_to_events(results, Mock())
-
-        self.assertEquals(len(events), 0)
+        self.assertEquals(events[0]['summary'], "Can't connect to MySQL server or timeout error in MySQLDatabaseIncrementalModelingPlugin.")
 
 
 def test_suite():
@@ -497,5 +939,7 @@ def test_suite():
     suite.addTest(makeSuite(TestMySqlMonitorPlugin))
     suite.addTest(makeSuite(TestMySqlDeadlockPlugin))
     suite.addTest(makeSuite(TestMySQLMonitorDatabasesPlugin))
-    suite.addTest(makeSuite(TestMySQLDatabaseExistencePlugin))
+    suite.addTest(makeSuite(TestMySqlReplicationPlugin))
+    suite.addTest(makeSuite(TestMySQLMonitorServersPlugin))
+    suite.addTest(makeSuite(TestMySQLDatabaseIncrementalModelingPlugin))
     return suite

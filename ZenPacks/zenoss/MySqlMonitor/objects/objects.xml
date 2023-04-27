@@ -955,7 +955,7 @@ False
 None
 </property>
 <property type="int" id="miny" mode="w" >
--1
+0
 </property>
 <property type="int" id="ceiling" mode="w" >
 None
@@ -1220,26 +1220,6 @@ AVERAGE
 ZenPacks.zenoss.MySqlMonitor.MySQLDatabase
 </property>
 <tomanycont id='datasources'>
-<object id='DbExistence' module='ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource' class='PythonDataSource'>
-<property select_variable="sourcetypes" type="selection" id="sourcetype" mode="w" >
-Python
-</property>
-<property type="boolean" id="enabled" mode="w" >
-True
-</property>
-<property type="string" id="component" mode="w" >
-${here/id}
-</property>
-<property type="int" id="severity" mode="w" >
-4
-</property>
-<property type="string" id="cycletime" mode="w" >
-300
-</property>
-<property type="string" id="plugin_classname" mode="w" >
-ZenPacks.zenoss.MySqlMonitor.dsplugins.MySQLDatabaseExistencePlugin
-</property>
-</object>
 <object id='DbStats' module='ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource' class='PythonDataSource'>
 <property select_variable="sourcetypes" type="selection" id="sourcetype" mode="w" >
 Python
@@ -1261,6 +1241,14 @@ ZenPacks.zenoss.MySqlMonitor.dsplugins.MySQLMonitorDatabasesPlugin
 </property>
 <tomanycont id='datapoints'>
 <object id='data_size' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
+GAUGE
+</property>
+<property type="boolean" id="isrow" mode="w" >
+True
+</property>
+</object>
+<object id='table_count' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 GAUGE
 </property>
@@ -1308,7 +1296,7 @@ False
 None
 </property>
 <property type="int" id="miny" mode="w" >
--1
+0
 </property>
 <property type="int" id="ceiling" mode="w" >
 None
@@ -1420,6 +1408,26 @@ AVERAGE
 ZenPacks.zenoss.MySqlMonitor.MySQLServer
 </property>
 <tomanycont id='datasources'>
+<object id='DbIncrementalModeling' module='ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource' class='PythonDataSource'>
+<property select_variable="sourcetypes" type="selection" id="sourcetype" mode="w" >
+Python
+</property>
+<property type="boolean" id="enabled" mode="w" >
+True
+</property>
+<property type="string" id="component" mode="w" >
+${here/id}
+</property>
+<property type="int" id="severity" mode="w" >
+4
+</property>
+<property type="string" id="cycletime" mode="w" >
+300
+</property>
+<property type="string" id="plugin_classname" mode="w" >
+ZenPacks.zenoss.MySqlMonitor.dsplugins.MySQLDatabaseIncrementalModelingPlugin
+</property>
+</object>
 <object id='DbStats' module='ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource' class='PythonDataSource'>
 <property select_variable="sourcetypes" type="selection" id="sourcetype" mode="w" >
 Python
@@ -1511,7 +1519,7 @@ ZenPacks.zenoss.MySqlMonitor.dsplugins.MySqlMonitorPlugin
 <tomanycont id='datapoints'>
 <object id='aborted_clients' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1519,7 +1527,7 @@ True
 </object>
 <object id='aborted_connects' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1527,7 +1535,7 @@ True
 </object>
 <object id='bytes_received' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1535,7 +1543,7 @@ True
 </object>
 <object id='bytes_sent' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1543,7 +1551,7 @@ True
 </object>
 <object id='com_alter_db' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1551,7 +1559,7 @@ True
 </object>
 <object id='com_alter_table' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1559,7 +1567,7 @@ True
 </object>
 <object id='com_call_procedure' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1567,7 +1575,7 @@ True
 </object>
 <object id='com_check' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1575,7 +1583,7 @@ True
 </object>
 <object id='com_commit' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1583,7 +1591,7 @@ True
 </object>
 <object id='com_create_db' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1591,7 +1599,7 @@ True
 </object>
 <object id='com_create_table' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1599,7 +1607,7 @@ True
 </object>
 <object id='com_create_user' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1607,7 +1615,7 @@ True
 </object>
 <object id='com_delete' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1615,7 +1623,7 @@ True
 </object>
 <object id='com_delete_multi' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1623,7 +1631,7 @@ True
 </object>
 <object id='com_drop_db' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1631,7 +1639,7 @@ True
 </object>
 <object id='com_drop_table' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1639,7 +1647,7 @@ True
 </object>
 <object id='com_drop_user' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1647,7 +1655,7 @@ True
 </object>
 <object id='com_execute_sql' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1655,7 +1663,7 @@ True
 </object>
 <object id='com_flush' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1663,7 +1671,7 @@ True
 </object>
 <object id='com_insert' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1671,7 +1679,7 @@ True
 </object>
 <object id='com_insert_select' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1679,7 +1687,7 @@ True
 </object>
 <object id='com_purge' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1687,7 +1695,7 @@ True
 </object>
 <object id='com_repair' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1695,7 +1703,7 @@ True
 </object>
 <object id='com_replace' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1703,7 +1711,7 @@ True
 </object>
 <object id='com_rollback' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1711,7 +1719,7 @@ True
 </object>
 <object id='com_select' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1719,7 +1727,7 @@ True
 </object>
 <object id='com_update' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1727,7 +1735,7 @@ True
 </object>
 <object id='com_update_multi' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+DERIVE
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -1977,7 +1985,7 @@ False
 None
 </property>
 <property type="int" id="miny" mode="w" >
--1
+0
 </property>
 <property type="int" id="ceiling" mode="w" >
 None
@@ -2072,7 +2080,7 @@ False
 None
 </property>
 <property type="int" id="miny" mode="w" >
--1
+0
 </property>
 <property type="int" id="ceiling" mode="w" >
 None
@@ -2167,7 +2175,7 @@ False
 None
 </property>
 <property type="int" id="miny" mode="w" >
--1
+0
 </property>
 <property type="int" id="ceiling" mode="w" >
 None
@@ -2900,7 +2908,7 @@ False
 None
 </property>
 <property type="int" id="miny" mode="w" >
--1
+0
 </property>
 <property type="int" id="ceiling" mode="w" >
 None
@@ -2966,7 +2974,7 @@ False
 None
 </property>
 <property type="int" id="miny" mode="w" >
--1
+0
 </property>
 <property type="int" id="ceiling" mode="w" >
 None
@@ -3380,7 +3388,7 @@ False
 None
 </property>
 <property type="int" id="miny" mode="w" >
--1
+0
 </property>
 <property type="int" id="ceiling" mode="w" >
 None
@@ -3562,7 +3570,7 @@ False
 None
 </property>
 <property type="int" id="miny" mode="w" >
--1
+0
 </property>
 <property type="int" id="ceiling" mode="w" >
 None
@@ -3686,7 +3694,7 @@ False
 None
 </property>
 <property type="int" id="miny" mode="w" >
--1
+0
 </property>
 <property type="int" id="ceiling" mode="w" >
 None
@@ -3810,7 +3818,7 @@ False
 None
 </property>
 <property type="int" id="miny" mode="w" >
--1
+0
 </property>
 <property type="int" id="ceiling" mode="w" >
 None
@@ -4049,10 +4057,10 @@ MySQLMonitorDatabases
 1010
 </property>
 </object>
-<!-- ('', 'zport', 'dmd', 'Events', 'Status', 'instances', 'MySQLDatabaseExistence') -->
-<object id="/zport/dmd/Events/Status/instances/MySQLDatabaseExistence" module="Products.ZenEvents.EventClassInst" class="EventClassInst">
+<!-- ('', 'zport', 'dmd', 'Events', 'Status', 'instances', 'MySQLDatabaseIncrementalModeling') -->
+<object id="/zport/dmd/Events/Status/instances/MySQLDatabaseIncrementalModeling" module="Products.ZenEvents.EventClassInst" class="EventClassInst">
 <property type="string" id="eventClassKey" mode="w">
-MySQLDatabaseExistence
+MySQLDatabaseIncrementalModeling
 </property>
 <property type="int" id="sequence" mode="w">
 1010

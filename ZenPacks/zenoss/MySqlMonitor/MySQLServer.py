@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (C) Zenoss, Inc. 2013, all rights reserved.
+# Copyright (C) Zenoss, Inc. 2013-2023, all rights reserved.
 #
 # This content is made available according to terms specified in
 # License.zenoss under the directory where your Zenoss product is installed.
@@ -53,10 +53,6 @@ class MySQLServer(MySQLComponent):
         ('databases', ToManyCont(
             ToOne, MODULE_NAME['MySQLDatabase'], 'server')),
     )
-
-    def remove(self, object_id=None):
-        if object_id:
-            self.databases._delObject(object_id)
 
     def device(self):
         return self.mysql_host()

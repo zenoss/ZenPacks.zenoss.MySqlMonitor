@@ -131,6 +131,7 @@ class MySQLCollector(PythonPlugin):
             # List of databases
             db_oms = []
             for db in server['db']:
+                db = {k.lower(): v for k, v in db.items()}
                 d_om = ObjectMap(db)
                 d_om.id = s_om.id + NAME_SPLITTER + self.prepId(db['title'])
                 db_oms.append(d_om)

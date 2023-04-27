@@ -1,7 +1,7 @@
 Background
 ------------
 
-This ZenPack provides monitoring for MySQL 5.5 and later. Monitoring for the
+This ZenPack provides monitoring for MySQL 5.5-5.7, 8.0 and later. Monitoring for the
 following MySQL entities is provided using `twisted.enterprise.adbapi`
 asynchronous framework. See the Usage section for details.
 
@@ -13,13 +13,14 @@ zenoss version requires *ZenPacks.zenoss.Impact*, otherwise the
 Gallery
 -------
 
-[![](screenshots/Configuration_properties_panel.png)](screenshots/Configuration_properties_panel.png)
-[![](screenshots/Edit_zMySQLConnectionString_property.png)](screenshots/Edit_zMySQLConnectionString_property.png)
-[![](screenshots/MySQLServer.png)](screenshots/MySQLServer.png)
-[![](screenshots/MySQLDatabase.png)](screenshots/MySQLDatabase.png)
-[![](screenshots/MySQLDatabase_Graphs.png)](screenshots/MySQLDatabase_Graphs.png)
-[![](screenshots/MySQLServer_Graphs.png)](screenshots/MySQLServer_Graphs.png)
-[![](screenshots/MySQL_Impact.png)](screenshots/MySQL_Impact.png)
+[![](screenshots/MySQL_zProperties.png)](screenshots/MySQL_zProperties.png)
+[![](screenshots/MySQL_conn_string.png)](screenshots/MySQL_conn_string.png)
+[![](screenshots/MySQL_server.png)](screenshots/MySQL_server.png)
+[![](screenshots/MySQL_component_graphs_servers.png)](screenshots/MySQL_component_graphs_servers.png)
+[![](screenshots/MySQL_server_databases.png)](screenshots/MySQL_server_databases.png)
+[![](screenshots/MySQL_databases.png)](screenshots/MySQL_databases.png)
+[![](screenshots/MySQL_component_graphs_dbs.png)](screenshots/MySQL_component_dbs.png)
+[![](screenshots/MySQL_impact.png)](screenshots/MySQL_impact.png)
 
 Features
 --------
@@ -85,9 +86,10 @@ Databases
 
 * Metrics:
 
-  - Size
-  - Data size
-  - Index size|
+  - Size;
+  - Data size;
+  - Index size;
+  - Table count.
 
 ### Event monitoring
 
@@ -101,7 +103,7 @@ Device
      * Invalid *zMySQLConnectionString* property,
      * Access denied for user with credentials provided in *zMySQLConnectionString* property.
 
-Service
+Server
 
 :    Error event:
 
@@ -111,6 +113,7 @@ Service
 :    Info event:
 
      * A database was dropped.
+     * A database was added.
 
 Database
 
@@ -138,21 +141,25 @@ Service Impact Relationships
 Usage
 -----
 
-To start monitoring your MySQL server you will need to setup connection to it
+To start monitoring your MySQL server you will need to set up connection to it
 as well as bind monitoring templates and modeler plugin to the device or device
 class containing your MySQL servers.
 
 Use the following steps to start monitoring MySQL using the Zenoss web interface.
 
-1.  Navigate to the *Configuration Properties* page of the device containing
+1. Navigate to the *Configuration Properties* page of the device containing
     your MySQL servers
     (see [1](http://wiki.zenoss.org/File:Configuration_properties_panel.png)).
-2.  Set user name, password and port in the appropriate fields of
+2. Set username, password and port in the appropriate fields of
     *zMySQLConnectionString* property (see
     [2](http://wiki.zenoss.org/File:Edit_zMySQLConnectionString_property.png)).
     For non-root users please make sure to grant all privileges to avoid access
-    denied errors. Note that user name is required.
-3.  Navigate to the *Modeler plugins* page of the device containing your MySQL
+    denied errors. Note that username is required.
+    **Note 1:** For MySQL 8.0 and later versions Zenoss monitoring user should be identified with *mysql_native_password*
+    or the default authentication method for MySQL should set to *Native Pluggable Authentication*.
+    **Note 2:** For non-root users the following privileges should be applied:
+    *SUPER*, *PROCESS*, *REPLICATION CLIENT*, *SHOW VIEW*.
+3. Navigate to the *Modeler plugins* page of the device containing your MySQL
     servers, add the *MySQLCollector* modeler plugin and remodel the device.
     This will automatically find the MySQL servers and databases and begin
     monitoring them immediately for the previously mentioned metrics.
@@ -225,6 +232,10 @@ Change '%' to 'localhost' in the statement above if you are modeling the local M
 Note that the query ` select host from mysql.user` should have an entry '%' for
 'host' field to ensure the remote connection.
 
+Please note that "MySqlDeadlockPlugin" used to detect deadlocks in MySQL requires PROCESS / SUPER privileges (depending on MySQL version. Plugin uses SQL query like: "SHOW ENGINE INNODB STATUS" to retrieve this information). So for security reasons this plugin may be disabled.
+
+*Note:* In case when you don't see all databases in the components list you should apply the *SHOW VIEW* privilege to Zenoss monitoring user.
+
 Migration
 ---------
 
@@ -266,6 +277,16 @@ Component Types
 
 Changes
 -------
+
+3.2.0 (2023-04-27)
+
+- Rework incremental modeling for MySQL databases. (ZPS-6799)
+- Fix event class setting for MySql datasources. (ZPS-5766)
+- Fix uncorroborated impact relationships. (ZPS-5774)
+- Fix "RemoteError" during monitoring. (ZPS-5831)
+- Fix invalid object maps properties in datasource plugins. (ZPS-7081)
+- Change requested MySql datasource datapoints type to DERIVE. (ZPS-7478)
+- Tested with Zenoss Cloud, Zenoss 6.7.0, and Service Impact 5.6.0
 
 3.1.0 (2017-12-29)
 
