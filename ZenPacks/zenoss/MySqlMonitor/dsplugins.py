@@ -56,16 +56,19 @@ def connection_cursor(ds, ip, cursor_type=None):
             'MySQL Connection String not configured for {}'.format(server_id)
         )
 
-    # TODO: need to make the 'ssl' param optional
-    db = MySQLdb.connect(
-        host=ip,
-        user=server['user'],
-        port=server['port'],
-        passwd=server['passwd'],
-        connect_timeout=getattr(ds, 'zMySqlTimeout', 30),
-        ssl={'ca': ds.zMySqlSslCaPemFile}
-    )
+    dbConnArgs = {
+        'host': ip,
+        'user': server['user'],
+        'port': server['port'],
+        'passwd': server['passwd'],
+        'connect_timeout': getattr(ds, 'zMySqlTimeout', 30),
+    }
+    if ds.zMySqlSslCaPemFile:
+        dbConnArgs['ssl'] = {'ca': ds.zMySqlSslCaPemFile}
+
+    db = MySQLdb.connect(**dbConnArgs)
     db.ping(True)
+
     return db.cursor(cursorclass=cursor_type)
 
 

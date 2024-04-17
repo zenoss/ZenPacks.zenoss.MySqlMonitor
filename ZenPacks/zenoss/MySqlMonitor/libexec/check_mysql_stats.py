@@ -28,14 +28,19 @@ class ZenossMySqlStatsPlugin:
             self.cmd = 'SHOW STATUS'
 
     def run(self):
+        dbConnArgs = {
+            'host': self.host,
+            'user': self.user,
+            'port': self.port,
+            'passwd': self.passwd,
+        }
+        if self.sslCaPemFile:
+            dbConnArgs['ssl'] = {'ca': self.sslCaPemFile}
+
         try:
             # Specify a blank database so no privileges are required
             # Thanks for this tip go to Geoff Franks <gfranks@hwi.buffalo.edu>
-            # TODO: need to make the 'ssl' param optional
-            self.conn = pymysql.connect(host=self.host, port=self.port,
-                                        db='', user=self.user,
-                                        passwd=self.passwd,
-                                        ssl = {'ca': self.sslCaPemFile})
+            self.conn = pymysql.connect(**dbConnArgs)
             # TODO: adding SSL CA info causes "TLSV1_ALERT_PROTOCOL_VERSION".
             # May not be needed, this script may be legacy....
 
