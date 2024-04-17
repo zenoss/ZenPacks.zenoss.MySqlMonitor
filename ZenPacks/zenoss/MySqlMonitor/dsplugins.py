@@ -1,6 +1,6 @@
 ######################################################################
 #
-# Copyright (C) Zenoss, Inc. 2013-2023, all rights reserved.
+# Copyright (C) Zenoss, Inc. 2013-2024, all rights reserved.
 #
 # This content is made available according to terms specified in
 # License.zenoss under the directory where your Zenoss product is
@@ -56,12 +56,14 @@ def connection_cursor(ds, ip, cursor_type=None):
             'MySQL Connection String not configured for {}'.format(server_id)
         )
 
+    # TODO: need to make the 'ssl' param optional
     db = MySQLdb.connect(
         host=ip,
         user=server['user'],
         port=server['port'],
         passwd=server['passwd'],
-        connect_timeout=getattr(ds, 'zMySqlTimeout', 30)
+        connect_timeout=getattr(ds, 'zMySqlTimeout', 30),
+        ssl={'ca': ds.zMySqlSslCaPemFile}
     )
     db.ping(True)
     return db.cursor(cursorclass=cursor_type)
@@ -75,7 +77,8 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
     proxy_attributes = (
         'zMySQLConnectionString',
         'zMySqlTimeout',
-        'table_count'
+        'table_count',
+        'zMySqlSslCaPemFile'
     )
 
     def __init__(self):

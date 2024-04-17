@@ -47,6 +47,7 @@ class MySqlMonitorDataSource(ZenPackPersistence,
     port = '${here/zMySqlPort}'
     username = '${here/zMySqlUsername}'
     password = '${here/zMySqlPassword}'
+    sslCaPemFile = '${here/zMySqlSslCaPemFile}'
 
     _properties = BasicDataSource.BasicDataSource._properties + (
         {'id': 'versionFivePlus', 'type': 'boolean', 'mode': 'w'},
@@ -55,6 +56,7 @@ class MySqlMonitorDataSource(ZenPackPersistence,
         {'id': 'username', 'type': 'string', 'mode': 'w'},
         {'id': 'password', 'type': 'string', 'mode': 'w'},
         {'id': 'timeout', 'type': 'int', 'mode': 'w'},
+        {'id': 'sslCaPemFile', 'type': 'string', 'mode': 'w'},
     )
 
     _relations = BasicDataSource.BasicDataSource._relations + (
@@ -96,6 +98,8 @@ class MySqlMonitorDataSource(ZenPackPersistence,
             parts.append("-w '%s'" % self.password)
         if self.versionFivePlus:
             parts.append("-g")
+        if self.sslCaPemFile:
+            parts.append("-s '%s'" % self.sslCaPemFile)
         cmd = ' '.join(parts)
         cmd = BasicDataSource.BasicDataSource.getCommand(self, context, cmd)
         return cmd
@@ -170,6 +174,10 @@ class IMySqlMonitorDataSourceInfo(IBasicDataSourceInfo):
         title=_t(u'MySQL Version 5+'),
         group=_t(u'MySQL')
     )
+    sslCaPemFile = schema.TextLine(
+        title=_t(u'MySQL CA pem file'),
+        group=_t(u'MySQL')
+    )
 
 
 class MySqlMonitorDataSourceInfo(BasicDataSourceInfo):
@@ -181,6 +189,7 @@ class MySqlMonitorDataSourceInfo(BasicDataSourceInfo):
     port = ProxyProperty('port')
     username = ProxyProperty('username')
     password = ProxyProperty('password')
+    sslCaPemFile = ProxyProperty('sslCaPemFile')
 
     @property
     def testable(self):
