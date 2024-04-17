@@ -36,6 +36,7 @@ class MySQLCollector(PythonPlugin):
 
     deviceProperties = PythonPlugin.deviceProperties + (
         'zMySQLConnectionString',
+        'zMySqlSslCaPemFile'
         )
 
     queries = {
@@ -62,13 +63,15 @@ class MySQLCollector(PythonPlugin):
 
         result = []
         for el in servers.values():
+            # TODO: need to make the 'ssl' param optional
             dbpool = adbapi.ConnectionPool(
                 "MySQLdb",
                 user=el.get("user"),
                 port=el.get("port"),
                 host=device.manageIp,
                 passwd=el.get("passwd"),
-                cursorclass=cursors.DictCursor
+                cursorclass=cursors.DictCursor,
+                ssl={'ca': device.zMySqlSslCaPemFile }
             )
 
             res = {}
