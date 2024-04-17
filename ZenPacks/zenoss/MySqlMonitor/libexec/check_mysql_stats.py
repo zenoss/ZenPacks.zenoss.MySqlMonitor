@@ -33,6 +33,7 @@ class ZenossMySqlStatsPlugin:
             'user': self.user,
             'port': self.port,
             'passwd': self.passwd,
+            'db': ''
         }
         if self.sslCaPemFile:
             dbConnArgs['ssl'] = {'ca': self.sslCaPemFile}
