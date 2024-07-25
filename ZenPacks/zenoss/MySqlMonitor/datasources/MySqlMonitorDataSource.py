@@ -107,7 +107,7 @@ class MySqlMonitorDataSource(ZenPackPersistence,
         if self.sslCertPemFile:
             parts.append("-t '%s'" % self.sslCertPemFile)
         if self.sslKeyPemFile:
-            parts.append("-u '%s'" % self.sslKeyPemFile)
+            parts.append("v '%s'" % self.sslKeyPemFile)
         cmd = ' '.join(parts)
         cmd = BasicDataSource.BasicDataSource.getCommand(self, context, cmd)
         return cmd

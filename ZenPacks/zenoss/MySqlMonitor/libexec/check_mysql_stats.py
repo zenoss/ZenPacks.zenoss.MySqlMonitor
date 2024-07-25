@@ -41,9 +41,9 @@ class ZenossMySqlStatsPlugin:
             'db': ''
         }
         sslArgs = getMySqlSslParam(
-            self.zMySqlSslCaPemFile,
-            self.zMySqlSslCertPemFile,
-            self.zMySqlSslKeyPemFile
+            self.sslCaPemFile,
+            self.sslCertPemFile,
+            self.sslKeyPemFile
         )
         if sslArgs:
             dbConnArgs['ssl'] = sslArgs
@@ -88,7 +88,7 @@ if __name__ == "__main__":
             help='Path to the file that contains a PEM-formatted CA certificate.')
     parser.add_option('-t', '--sslCertPemFile', dest='sslCertPemFile', default='',
             help='Path to the file that contains a PEM-formatted client certificate.')
-    parser.add_option('-u', '--sslKeyPemFile', dest='sslKeyPemFile', default='',
+    parser.add_option('-v', '--sslKeyPemFile', dest='sslKeyPemFile', default='',
             help='Path to the file that contains a PEM-formatted private key for the client certificate.')
     options, args = parser.parse_args()
 
