@@ -15,13 +15,18 @@ from optparse import OptionParser
 import pymysql
 
 
+from ZenPacks.zenoss.MySqlMonitor.utils import getMySqlSslParam
+
+
 class ZenossMySqlStatsPlugin:
-    def __init__(self, host, port, user, passwd, gstatus, sslCaPemFile):
+    def __init__(self, host, port, user, passwd, gstatus, sslCaPemFile, sslCertPemFile, sslKeyPemFile):
         self.host = host
         self.port = port
         self.user = user
         self.passwd = passwd
         self.sslCaPemFile = sslCaPemFile
+        self.sslCertPemFile = sslCertPemFile
+        self.sslKeyPemFile = sslKeyPemFile
         if gstatus:
             self.cmd = 'SHOW GLOBAL STATUS'
         else:
@@ -35,8 +40,13 @@ class ZenossMySqlStatsPlugin:
             'passwd': self.passwd,
             'db': ''
         }
-        if self.sslCaPemFile:
-            dbConnArgs['ssl'] = {'ca': self.sslCaPemFile}
+        sslArgs = getMySqlSslParam(
+            self.zMySqlSslCaPemFile,
+            self.zMySqlSslCertPemFile,
+            self.zMySqlSslKeyPemFile
+        )
+        if sslArgs:
+            dbConnArgs['ssl'] = sslArgs
 
         try:
             # Specify a blank database so no privileges are required
@@ -74,8 +84,12 @@ if __name__ == "__main__":
             help='MySQL password')
     parser.add_option('-g', '--global', dest='gstatus', default=False,
             action='store_true', help="Get global stats (Version 5+)")
-    parser.add_option('-g', '--sslCaPemFile', dest='sslCaPemFile', default='',
-            help='CA pem file used for SSL DB connections')
+    parser.add_option('-s', '--sslCaPemFile', dest='sslCaPemFile', default='',
+            help='Path to the file that contains a PEM-formatted CA certificate.')
+    parser.add_option('-t', '--sslCertPemFile', dest='sslCertPemFile', default='',
+            help='Path to the file that contains a PEM-formatted client certificate.')
+    parser.add_option('-u', '--sslKeyPemFile', dest='sslKeyPemFile', default='',
+            help='Path to the file that contains a PEM-formatted private key for the client certificate.')
     options, args = parser.parse_args()
 
     if not options.host:
@@ -83,6 +97,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     cmd = ZenossMySqlStatsPlugin(options.host, options.port,
-            options.user, options.passwd, options.gstatus, options.sslCaPemFile)
+            options.user, options.passwd, options.gstatus,
+            options.sslCaPemFile, options.sslCertPemFile, options.sslKeyPemFile)
 
     cmd.run()
