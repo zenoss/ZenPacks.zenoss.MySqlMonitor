@@ -26,7 +26,7 @@ from Products.ZenUtils.Utils import prepId
 #from ZenPacks.zenoss.PythonCollector import patches
 
 from ZenPacks.zenoss.MySqlMonitor.utils import (
-    parse_mysql_connection_string, adbapi_safe)
+    parse_mysql_connection_string, adbapi_safe, getMySqlSslParam)
 from ZenPacks.zenoss.MySqlMonitor import NAME_SPLITTER, MODULE_NAME
 
 
@@ -63,8 +63,12 @@ def connection_cursor(ds, ip, cursor_type=None):
         'passwd': server['passwd'],
         'connect_timeout': getattr(ds, 'zMySqlTimeout', 30),
     }
-    if ds.zMySqlSslCaPemFile:
-        dbConnArgs['ssl'] = {'ca': ds.zMySqlSslCaPemFile}
+    sslArgs = getMySqlSslParam(
+        ds.zMySqlSslCaPemFile,
+        ds.zMySqlSslCertPemFile,
+        ds.zMySqlSslKeyPemFile)
+    if sslArgs:
+        dbConnArgs['ssl'] = sslArgs
 
     db = MySQLdb.connect(**dbConnArgs)
     db.ping(True)
@@ -81,7 +85,9 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         'zMySQLConnectionString',
         'zMySqlTimeout',
         'table_count',
-        'zMySqlSslCaPemFile'
+        'zMySqlSslCaPemFile',
+        'zMySqlSslCertPemFile',
+        'zMySqlSslKeyPemFile'
     )
 
     def __init__(self):
