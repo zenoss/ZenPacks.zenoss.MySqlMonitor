@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (C) Zenoss, Inc. 2013, all rights reserved.
+# Copyright (C) Zenoss, Inc. 2013, 2024, all rights reserved.
 #
 # This content is made available according to terms specified in
 # License.zenoss under the directory where your Zenoss product is installed.
@@ -22,7 +22,8 @@ from Products.ZenCollector.interfaces import IEventService
 from ZenPacks.zenoss.MySqlMonitor import MODULE_NAME, NAME_SPLITTER
 from ZenPacks.zenoss.MySqlMonitor.modeler import queries
 
-from ZenPacks.zenoss.MySqlMonitor.utils import parse_mysql_connection_string
+from ZenPacks.zenoss.MySqlMonitor.utils import (
+    parse_mysql_connection_string, getMySqlSslParam)
 
 
 class MySQLCollector(PythonPlugin):
@@ -36,7 +37,9 @@ class MySQLCollector(PythonPlugin):
 
     deviceProperties = PythonPlugin.deviceProperties + (
         'zMySQLConnectionString',
-        'zMySqlSslCaPemFile'
+        'zMySqlSslCaPemFile',
+        'zMySqlSslCertPemFile',
+        'zMySqlSslKeyPemFile'
         )
 
     queries = {
@@ -70,8 +73,13 @@ class MySQLCollector(PythonPlugin):
                 'passwd': el.get("passwd"),
                 'cursorclass': cursors.DictCursor,
             }
-            if device.zMySqlSslCaPemFile:
-                dbConnArgs['ssl'] = {'ca': device.zMySqlSslCaPemFile}
+            sslArgs = getMySqlSslParam(
+                device.zMySqlSslCaPemFile,
+                device.zMySqlSslCertPemFile,
+                device.zMySqlSslKeyPemFile
+            )
+            if sslArgs:
+                dbConnArgs['ssl'] = sslArgs
 
             dbpool = adbapi.ConnectionPool(
                 "MySQLdb",
