@@ -81,6 +81,9 @@ class TestMySQLCollector(BaseTestCase):
     @patch('ZenPacks.zenoss.MySqlMonitor.modeler.'
            'plugins.MySQLCollector.adbapi')
     def test_collect(self, mock_adbapi):
+        self.device.zMySqlSslCaPemFile = ''
+        self.device.zMySqlSslCertPemFile = ''
+        self.device.zMySqlSslKeyPemFile = ''
         self.device.zMySQLConnectionString = ['{"user":"root",'
                                               '"passwd":"zenoss",'
                                               '"port":"3306"}']
