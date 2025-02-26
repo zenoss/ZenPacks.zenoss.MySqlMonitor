@@ -28,7 +28,10 @@ class TestZenossMySqlStatsPlugin(BaseTestCase):
             sentinel.port,
             sentinel.user,
             sentinel.passwd,
-            sentinel.gstatus
+            sentinel.gstatusm,
+            '',
+            '',
+            ''
         )
 
     @patch.object(check_mysql_stats, 'pymysql')

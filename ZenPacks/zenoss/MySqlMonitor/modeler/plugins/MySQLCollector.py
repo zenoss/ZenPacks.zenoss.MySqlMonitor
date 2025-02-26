@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (C) Zenoss, Inc. 2013, all rights reserved.
+# Copyright (C) Zenoss, Inc. 2013, 2024, all rights reserved.
 #
 # This content is made available according to terms specified in
 # License.zenoss under the directory where your Zenoss product is installed.
@@ -22,7 +22,8 @@ from Products.ZenCollector.interfaces import IEventService
 from ZenPacks.zenoss.MySqlMonitor import MODULE_NAME, NAME_SPLITTER
 from ZenPacks.zenoss.MySqlMonitor.modeler import queries
 
-from ZenPacks.zenoss.MySqlMonitor.utils import parse_mysql_connection_string
+from ZenPacks.zenoss.MySqlMonitor.utils import (
+    parse_mysql_connection_string, getMySqlSslParam)
 
 
 class MySQLCollector(PythonPlugin):
@@ -36,6 +37,9 @@ class MySQLCollector(PythonPlugin):
 
     deviceProperties = PythonPlugin.deviceProperties + (
         'zMySQLConnectionString',
+        'zMySqlSslCaPemFile',
+        'zMySqlSslCertPemFile',
+        'zMySqlSslKeyPemFile'
         )
 
     queries = {
@@ -62,13 +66,24 @@ class MySQLCollector(PythonPlugin):
 
         result = []
         for el in servers.values():
+            dbConnArgs = {
+                'host': device.manageIp,
+                'user': el.get("user"),
+                'port': el.get("port"),
+                'passwd': el.get("passwd"),
+                'cursorclass': cursors.DictCursor,
+            }
+            sslArgs = getMySqlSslParam(
+                device.zMySqlSslCaPemFile,
+                device.zMySqlSslCertPemFile,
+                device.zMySqlSslKeyPemFile
+            )
+            if sslArgs:
+                dbConnArgs['ssl'] = sslArgs
+
             dbpool = adbapi.ConnectionPool(
                 "MySQLdb",
-                user=el.get("user"),
-                port=el.get("port"),
-                host=device.manageIp,
-                passwd=el.get("passwd"),
-                cursorclass=cursors.DictCursor
+                **dbConnArgs
             )
 
             res = {}

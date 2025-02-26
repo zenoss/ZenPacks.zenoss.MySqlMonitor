@@ -185,6 +185,20 @@ should:
     the event with in 'App/MySQL' event class).
 3.  Make sure that *zencommand* daemon is running.
 
+Secure, encrypted MySQL connections
+
+Three zProperties can be used for negotiating SSL encrypted connections:
+
+-   **zMySqlSslCaPemFile**: Path to the file that contains a PEM-formatted CA
+    certificate.
+-   **zMySqlSslCertPemFile**: Path to the file that contains a PEM-formatted client
+    certificate.
+-   **zMySqlSslKeyPemFile**: Path to the file that contains a PEM-formatted private
+    key for the client certificate.
+
+These files will need to be pushed out to the collectors prior to setting the 
+zProperties, otherwise a '*file does not exist*' error event will be experienced.
+
 Prerequisites
 -------------
 
@@ -277,6 +291,11 @@ Component Types
 
 Changes
 -------
+
+3.2.1 (2025-02-26)
+
+- Added SSL encrypted connections support for MySQL Server. (ZPS-8822)
+- Tested with Zenoss Cloud, Zenoss 6.8.0, and Service Impact 5.7.1
 
 3.2.0 (2023-04-27)
 

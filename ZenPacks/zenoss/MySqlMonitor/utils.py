@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (C) Zenoss, Inc. 2013, all rights reserved.
+# Copyright (C) Zenoss, Inc. 2013, 2024, all rights reserved.
 #
 # This content is made available according to terms specified in
 # License.zenoss under the directory where your Zenoss product is installed.
@@ -9,6 +9,8 @@
 
 import os
 import json
+
+from os.path import isfile
 
 from Products.AdvancedQuery import Eq, Or
 
@@ -155,3 +157,27 @@ def adbapi_safe(text):
     The method is missing in zenoss 5.
     """
     return text.replace("'", "''").replace("\\", "\\\\")
+
+
+def getMySqlSslParam(caPemFile, certPemFile, keyPemFile):
+    """
+    Return pymysql 'ssl' connection parameter value after performing
+    simple validation.
+    """
+    sslArgs = {}
+    if caPemFile:
+        if isfile(caPemFile):
+            sslArgs['ca'] = caPemFile
+        else:
+            raise IOError('zMySqlSslCaPemFile[{}] file does not exist'.format(caPemFile))
+    if certPemFile:
+        if isfile(certPemFile):
+            sslArgs['cert'] = certPemFile
+        else:
+            raise IOError('zMySqlSslCertPemFile[{}] file does not exist'.format(certPemFile))
+    if keyPemFile:
+        if isfile(keyPemFile):
+            sslArgs['key'] = keyPemFile
+        else:
+            raise IOError('zMySqlSslKeyPemFile[{}] file does not exist'.format(keyPemFile))
+    return sslArgs

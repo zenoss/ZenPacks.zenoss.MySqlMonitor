@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (C) Zenoss, Inc. 2008, all rights reserved.
+# Copyright (C) Zenoss, Inc. 2008, 2024 all rights reserved.
 #
 # This content is made available according to terms specified in
 # License.zenoss under the directory where your Zenoss product is installed.
@@ -47,6 +47,9 @@ class MySqlMonitorDataSource(ZenPackPersistence,
     port = '${here/zMySqlPort}'
     username = '${here/zMySqlUsername}'
     password = '${here/zMySqlPassword}'
+    sslCaPemFile = '${here/zMySqlSslCaPemFile}'
+    sslCertPemFile = '${here/zMySqlSslCertPemFile}'
+    sslKeyPemFile = '${here/zMySqlSslKeyPemFile}'
 
     _properties = BasicDataSource.BasicDataSource._properties + (
         {'id': 'versionFivePlus', 'type': 'boolean', 'mode': 'w'},
@@ -55,6 +58,9 @@ class MySqlMonitorDataSource(ZenPackPersistence,
         {'id': 'username', 'type': 'string', 'mode': 'w'},
         {'id': 'password', 'type': 'string', 'mode': 'w'},
         {'id': 'timeout', 'type': 'int', 'mode': 'w'},
+        {'id': 'sslCaPemFile', 'type': 'string', 'mode': 'w'},
+        {'id': 'sslCertPemFile', 'type': 'string', 'mode': 'w'},
+        {'id': 'sslKeyPemFile', 'type': 'string', 'mode': 'w'},
     )
 
     _relations = BasicDataSource.BasicDataSource._relations + (
@@ -96,6 +102,12 @@ class MySqlMonitorDataSource(ZenPackPersistence,
             parts.append("-w '%s'" % self.password)
         if self.versionFivePlus:
             parts.append("-g")
+        if self.sslCaPemFile:
+            parts.append("-s '%s'" % self.sslCaPemFile)
+        if self.sslCertPemFile:
+            parts.append("-t '%s'" % self.sslCertPemFile)
+        if self.sslKeyPemFile:
+            parts.append("-v '%s'" % self.sslKeyPemFile)
         cmd = ' '.join(parts)
         cmd = BasicDataSource.BasicDataSource.getCommand(self, context, cmd)
         return cmd
@@ -170,6 +182,18 @@ class IMySqlMonitorDataSourceInfo(IBasicDataSourceInfo):
         title=_t(u'MySQL Version 5+'),
         group=_t(u'MySQL')
     )
+    sslCaPemFile = schema.TextLine(
+        title=_t(u'MySQL CA pem file'),
+        group=_t(u'MySQL')
+    )
+    sslCertPemFile = schema.TextLine(
+        title=_t(u'MySQL Cert pem file'),
+        group=_t(u'MySQL')
+    )
+    sslKeyPemFile = schema.TextLine(
+        title=_t(u'MySQL Key pem file'),
+        group=_t(u'MySQL')
+    )
 
 
 class MySqlMonitorDataSourceInfo(BasicDataSourceInfo):
@@ -181,6 +205,9 @@ class MySqlMonitorDataSourceInfo(BasicDataSourceInfo):
     port = ProxyProperty('port')
     username = ProxyProperty('username')
     password = ProxyProperty('password')
+    sslCaPemFile = ProxyProperty('sslCaPemFile')
+    sslCertPemFile = ProxyProperty('sslCertPemFile')
+    sslKeyPemFile = ProxyProperty('sslKeyPemFile')
 
     @property
     def testable(self):
