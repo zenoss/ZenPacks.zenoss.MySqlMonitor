@@ -292,6 +292,11 @@ Component Types
 Changes
 -------
 
+3.2.1 (2025-02-26)
+
+- Added SSL encrypted connections support for MySQL Server. (ZPS-8822)
+- Tested with Zenoss Cloud, Zenoss 6.8.0, and Service Impact 5.7.1
+
 3.2.0 (2023-04-27)
 
 - Rework incremental modeling for MySQL databases. (ZPS-6799)
