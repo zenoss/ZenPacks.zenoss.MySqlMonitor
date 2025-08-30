@@ -23,6 +23,7 @@ from ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource \
 from Products.ZenEvents import ZenEventClasses
 from Products.DataCollector.plugins.DataMaps import ObjectMap, RelationshipMap
 from Products.ZenUtils.Utils import prepId
+from Products.ZenEvents.ZenEventClasses import Clear as CLEAR_SEVERITY
 #from ZenPacks.zenoss.PythonCollector import patches
 
 from ZenPacks.zenoss.MySqlMonitor.utils import (
@@ -226,13 +227,69 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         return threads.deferToThread(lambda: self.inner(config))
 
     def onSuccess(self, result, config):
+        """
+        Adds Clear only where there is no problematic event in the same result
+        for the same (component, eventClassKey/eventClass, eventKey).
+        """
+        events = result.get('events') or []
+
+        problem_keys = set()
+        any_key_by_base = {}
+
+        for ev in events:
+            comp = ev.get('component')
+            cls = ev.get('eventClassKey') or ev.get('eventClass')
+            if not comp or not cls:
+                continue
+            ek = ev.get('eventKey') or cls
+            any_key_by_base[(comp, cls)] = ek
+
+            sev = ev.get('severity', 0) or 0
+            if sev > 0:
+                problem_keys.add((comp, cls, ek))
+
+
+        added = set()
+
         for ds in config.datasources:
-            # Clear events for success components.
-            event = self.base_event(ZenEventClasses.Clear,
-                                    'Monitoring ok',
-                                    ds.component,
-                                    eventClass=ds.eventClass)
-            result['events'].insert(0, event)
+            comp = ds.component
+            cls = getattr(ds, 'eventClassKey', None) or ds.eventClass
+            if not comp or not cls:
+                continue
+
+            ek = (
+                    any_key_by_base.get((comp, cls))
+                    or getattr(ds, 'eventKey', None)
+                    or getattr(ds, 'eventClassKey', None)
+                    or cls
+            )
+
+            key_full = (comp, cls, ek)
+
+            if key_full in problem_keys:
+                continue
+
+            # Protection against double Clear within a single call.
+            if key_full in added:
+                continue
+
+            clear_event = self.base_event(
+                CLEAR_SEVERITY,
+                'Monitoring ok',
+                comp,
+                eventClass=ds.eventClass
+            )
+
+            # We guarantee that the keys match so that Clear will definitely close the problem.
+            # (If eventClassKey is in ds — we will set it; we set eventKey to an explicit constant ek.)
+            if getattr(ds, 'eventClassKey', None):
+                clear_event['eventClassKey'] = ds.eventClassKey
+            clear_event['eventKey'] = ek
+
+            events.insert(0, clear_event)
+            added.add(key_full)
+
+        result['events'] = events
         return result
 
     def onError(self, result, config):
