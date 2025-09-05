@@ -260,7 +260,6 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
             ek = (
                     any_key_by_base.get((comp, cls))
                     or getattr(ds, 'eventKey', None)
-                    or getattr(ds, 'eventClassKey', None)
                     or cls
             )
 
