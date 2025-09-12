@@ -54,6 +54,8 @@ class MySQLCollector(PythonPlugin):
     @defer.inlineCallbacks
     def collect(self, device, log):
         log.info("Collecting data for device %s", device.id)
+        self.is_clear_run = True
+        self.device_om = None
         try:
             servers = parse_mysql_connection_string(
                 device.zMySQLConnectionString)
@@ -167,6 +169,7 @@ class MySQLCollector(PythonPlugin):
             self.name(), device.id
         )
         if self.is_clear_run:
+            log.info("MySQLCollector: sending CLEAR for device %s", device.id)
             self._send_event("clear", device.id, 0, True)
             if self.device_om:
                 maps['device'] = [self.device_om]

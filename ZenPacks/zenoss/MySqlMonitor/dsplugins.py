@@ -23,7 +23,6 @@ from ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource \
 from Products.ZenEvents import ZenEventClasses
 from Products.DataCollector.plugins.DataMaps import ObjectMap, RelationshipMap
 from Products.ZenUtils.Utils import prepId
-from Products.ZenEvents.ZenEventClasses import Clear as CLEAR_SEVERITY
 #from ZenPacks.zenoss.PythonCollector import patches
 
 from ZenPacks.zenoss.MySqlMonitor.utils import (
@@ -227,66 +226,49 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         return threads.deferToThread(lambda: self.inner(config))
 
     def onSuccess(self, result, config):
-        """
-        Adds Clear only where there is no problematic event in the same result
-        for the same (component, eventClassKey/eventClass, eventKey).
-        """
         events = result.get('events') or []
 
-        problem_keys = set()
-        any_key_by_base = {}
-
+        # Сollect the problem keys of this run
+        problem = set()
         for ev in events:
-            comp = ev.get('component')
-            cls = ev.get('eventClassKey') or ev.get('eventClass')
-            if not comp or not cls:
-                continue
-            ek = ev.get('eventKey') or cls
-            any_key_by_base[(comp, cls)] = ek
+            if (ev.get('severity') or 0) > 0:
+                comp = ev.get('component')
+                cls  = ev.get('eventClassKey') or ev.get('eventClass')
+                ek   = ev.get('eventKey') or cls
+                if comp and cls and ek:
+                    problem.add((comp, cls, ek))
 
-            sev = ev.get('severity', 0) or 0
-            if sev > 0:
-                problem_keys.add((comp, cls, ek))
-
-
-        added = set()
-
+        # Device-level components (as in the inner except branch)
+        device_components = []
+        seen = set()
         for ds in config.datasources:
-            comp = ds.component
-            cls = getattr(ds, 'eventClassKey', None) or ds.eventClass
-            if not comp or not cls:
+            comp = getattr(ds, 'component', None)
+            if not comp:
+                continue
+            if NAME_SPLITTER in comp:
+                continue
+            if comp in seen:
+                continue
+            seen.add(comp)
+            device_components.append((comp, getattr(ds, 'eventClass', None)))
+
+        for comp, eventClass in device_components:
+            cls = self.keyName
+            ek  = self.keyName
+            key = (comp, cls, ek)
+
+            if key in problem:
                 continue
 
-            ek = (
-                    any_key_by_base.get((comp, cls))
-                    or getattr(ds, 'eventKey', None)
-                    or cls
-            )
-
-            key_full = (comp, cls, ek)
-
-            if key_full in problem_keys:
-                continue
-
-            # Protection against double Clear within a single call.
-            if key_full in added:
-                continue
-
-            clear_event = self.base_event(
-                CLEAR_SEVERITY,
+            clear_ev = self.base_event(
+                ZenEventClasses.Clear,
                 'Monitoring ok',
                 comp,
-                eventClass=ds.eventClass
+                eventKey=ek,
+                eventClassKey=cls,
+                eventClass=eventClass,
             )
-
-            # We guarantee that the keys match so that Clear will definitely close the problem.
-            # (If eventClassKey is in ds — we will set it; we set eventKey to an explicit constant ek.)
-            if getattr(ds, 'eventClassKey', None):
-                clear_event['eventClassKey'] = ds.eventClassKey
-            clear_event['eventKey'] = ek
-
-            events.insert(0, clear_event)
-            added.add(key_full)
+            events.insert(0, clear_ev)
 
         result['events'] = events
         return result
