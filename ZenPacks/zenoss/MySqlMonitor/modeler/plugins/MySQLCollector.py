@@ -169,7 +169,6 @@ class MySQLCollector(PythonPlugin):
             self.name(), device.id
         )
         if self.is_clear_run:
-            log.info("MySQLCollector: sending CLEAR for device %s", device.id)
             self._send_event("clear", device.id, 0, True)
             if self.device_om:
                 maps['device'] = [self.device_om]
