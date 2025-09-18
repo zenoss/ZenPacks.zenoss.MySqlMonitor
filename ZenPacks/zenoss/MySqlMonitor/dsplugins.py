@@ -190,35 +190,38 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         data = self.new_data()
 
         # The query execution result.
-        res = None
-        curs = None
+        query_result_rows = None
+        cursor = None
 
-        for ds in config.datasources:
+        for datasource in config.datasources:
             try:
-                curs = connection_cursor(ds, config.manageIp)
-                curs.execute(self.get_query(ds.component))
-                res = curs.fetchall()
-                curs.close()
-                if res:
-                    data['values'][ds.component] = (
-                        self.query_results_to_values(res))
-                    data['events'].extend(
-                        self.query_results_to_events(res, ds))
-                    data['maps'].extend(
-                        self.query_results_to_maps(res, ds.component))
-            except Exception as e:
-                # Make sure the event is sent only for MySQLServer
-                # component, but not for all databases.
-                if ds.component and NAME_SPLITTER in ds.component:
-                    continue
-                message = str(e)
+                cursor = connection_cursor(datasource, config.manageIp)
+                cursor.execute(self.get_query(datasource.component))
+                query_result_rows = cursor.fetchall()
+                cursor.close()
 
+                if query_result_rows:
+                    data['values'][datasource.component] = self.query_results_to_values(query_result_rows)
+                    data['events'].extend(self.query_results_to_events(query_result_rows, datasource))
+                    data['maps'].extend(self.query_results_to_maps(query_result_rows, datasource.component))
+
+            except Exception as exc:
+                # Only raise a device-level problem; skip DB subcomponents
+                if datasource.component and NAME_SPLITTER in datasource.component:
+                    continue
+
+                message = str(exc)
                 if ('MySQL server has gone away' in message or
                         "Can't connect to MySQL server" in message):
                     message = "Can't connect to MySQL server or timeout error in {}.".format(self.__class__.__name__)
 
-                event = self.base_event(ds.severity, message, ds.component, eventClass=ds.eventClass)
-                data['events'].append(event)
+                event_dict = self.base_event(
+                    datasource.severity,
+                    message,
+                    datasource.component,
+                    eventClass=datasource.eventClass
+                )
+                data['events'].append(event_dict)
 
         return data
 
@@ -226,23 +229,87 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         return threads.deferToThread(lambda: self.inner(config))
 
     def onSuccess(self, result, config):
-        for ds in config.datasources:
-            # Clear events for success components.
-            event = self.base_event(ZenEventClasses.Clear,
-                                    'Monitoring ok',
-                                    ds.component,
-                                    eventClass=ds.eventClass)
-            result['events'].insert(0, event)
+        events_list = result.get('events') or []
+
+        # Build fingerprints of problems to prevent matching Clears (anti-flap)
+        problem_keys = set()
+        for event_dict in events_list:
+            severity_value = (event_dict.get('severity') or 0)
+            if severity_value > 0:
+                component_id = event_dict.get('component')  # may be None for device-level
+                event_class_key_or_class = event_dict.get('eventClassKey') or event_dict.get('eventClass')
+                event_key = event_dict.get('eventKey') or event_class_key_or_class
+                if event_class_key_or_class and event_key:
+                    problem_keys.add((component_id, event_class_key_or_class, event_key))
+
+        # Device-level Clears (skip subcomponents)
+        device_level_components = []
+        seen_components = set()
+        for datasource in config.datasources:
+            component_id = getattr(datasource, 'component', None)
+            if not component_id:
+                continue
+            if NAME_SPLITTER in component_id:
+                continue
+            if component_id in seen_components:
+                continue
+            seen_components.add(component_id)
+            device_level_components.append((component_id, getattr(datasource, 'eventClass', None)))
+
+        for component_id, event_class_name in device_level_components:
+            event_class_key_default = self.keyName
+            event_key_default = self.keyName
+            composite_key = (component_id, event_class_key_default, event_key_default)
+
+            # Skip Clear if a matching Problem exists in this run
+            if composite_key in problem_keys:
+                continue
+
+            clear_event = self.base_event(
+                ZenEventClasses.Clear,
+                'Monitoring ok',
+                component_id,
+                eventKey=event_key_default,
+                eventClassKey=event_class_key_default,
+                eventClass=event_class_name,
+            )
+            events_list.insert(0, clear_event)
+
+        # Also clear the base onError() device-level event (component=None)
+        if getattr(config, 'datasources', None):
+            first_datasource = config.datasources[0]
+            event_class_key_default = self.keyName
+            event_key_default = self.keyName
+            device_level_composite_key = (None, event_class_key_default, event_key_default)
+
+            if device_level_composite_key not in problem_keys:
+                device_level_clear_event = self.base_event(
+                    ZenEventClasses.Clear,
+                    'Monitoring ok',
+                    component=None,  # device-level (matches onError)
+                    eventKey=event_key_default,
+                    eventClassKey=event_class_key_default,
+                    eventClass=getattr(first_datasource, 'eventClass', None),
+                )
+                events_list.insert(0, device_level_clear_event)
+
+        result['events'] = events_list
         return result
 
     def onError(self, result, config):
         log.error(result)
-        ds0 = config.datasources[0]
+        first_datasource = config.datasources[0]
         data = self.new_data()
-        summary = 'error: {}'.format(result)
-        event = self.base_event(ds0.severity, summary, eventClass=ds0.eventClass)
-        data['events'].append(event)
+        summary_text = 'error: {}'.format(result)
+        # Emit device-level Problem (component=None)
+        event_dict = self.base_event(
+            first_datasource.severity,
+            summary_text,
+            eventClass=first_datasource.eventClass
+        )
+        data['events'].append(event_dict)
         return data
+
 
 
 class MySqlMonitorPlugin(MysqlBasePlugin):

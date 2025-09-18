@@ -54,6 +54,8 @@ class MySQLCollector(PythonPlugin):
     @defer.inlineCallbacks
     def collect(self, device, log):
         log.info("Collecting data for device %s", device.id)
+        self.is_clear_run = True
+        self.device_om = None
         try:
             servers = parse_mysql_connection_string(
                 device.zMySQLConnectionString)
