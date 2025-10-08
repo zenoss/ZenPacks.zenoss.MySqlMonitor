@@ -292,6 +292,11 @@ Component Types
 Changes
 -------
 
+3.2.2 (2025-10-09)
+
+- Fix CLEAR event generation in addition to the problem event.  (ZPS-9016)
+- Fix unit tests.
+
 3.2.1 (2025-02-26)
 
 - Added SSL encrypted connections support for MySQL Server. (ZPS-8822)
