@@ -294,8 +294,8 @@ Changes
 
 3.2.2 (2025-10-09)
 
-- Fix issue "CLEAR event generation in addition to the problem event."  (ZPS-9016)
-- Fix unit tests.
+- Fix events clearing algorithm for MySQL monitor datasources.
+- Tested with Zenoss Cloud, Zenoss 6.8.0, and Service Impact 5.7.2
 
 3.2.1 (2025-02-26)
 
