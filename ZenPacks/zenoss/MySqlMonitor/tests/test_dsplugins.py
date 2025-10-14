@@ -26,6 +26,8 @@ class TestMysqlBasePlugin(BaseTestCase):
     def test_onSuccess_clears_event(self):
         result = {'events': [], 'values': {"test": "test"}}
         self.ds.severity = 4
+        self.ds.eventClass = '/Status'
+        self.ds.component = None
         self.config.datasources = [self.ds]
         self.plugin.onSuccess(result, self.config)
 
@@ -36,6 +38,8 @@ class TestMysqlBasePlugin(BaseTestCase):
     @patch.object(dsplugins, 'log')
     def test_onError_event(self, log):
         self.ds.severity = 4
+        self.ds.eventClass = '/Status'
+        self.ds.component = None
         self.config.datasources = [self.ds]
         result = self.plugin.onError(sentinel.some_result, self.config)
 
@@ -932,18 +936,20 @@ class TestMySQLDatabaseIncrementalModelingPlugin(BaseTestCase):
         self.assertEquals(events[0]['summary'], "Can't connect to MySQL server or timeout error in MySQLDatabaseIncrementalModelingPlugin.")
 
 
+def make_event(severity, component, eventClass='/Status', eventClassKey='MysqlBase', eventKey='MysqlBase',
+               summary=None):
+    ev = {
+        'severity': severity,
+        'component': component,
+        'eventClass': eventClass,
+        'eventClassKey': eventClassKey,
+        'eventKey': eventKey,
+        'summary': summary or ('ok' if severity == 0 else 'problem'),
+    }
+    return ev
+
+
 class TestMysqlBasePluginOnSuccess(BaseTestCase):
-    def make_event(severity, component, eventClass='/Status', eventClassKey='MysqlBase', eventKey='MysqlBase',
-                   summary=None):
-        ev = {
-            'severity': severity,
-            'component': component,
-            'eventClass': eventClass,
-            'eventClassKey': eventClassKey,
-            'eventKey': eventKey,
-            'summary': summary or ('ok' if severity == 0 else 'problem'),
-        }
-        return ev
 
     def afterSetUp(self):
         self.plugin = dsplugins.MysqlBasePlugin()
@@ -951,7 +957,6 @@ class TestMysqlBasePluginOnSuccess(BaseTestCase):
         self.ds_ok = Mock()
         self.ds_bad = Mock()
 
-        # Common defaults, like in your existing tests
         for ds in (self.ds_ok, self.ds_bad):
             ds.severity = 4
             ds.eventClass = '/Status'
@@ -959,7 +964,6 @@ class TestMysqlBasePluginOnSuccess(BaseTestCase):
             ds.eventKey = 'MysqlBase'
 
     def test_onSuccess_does_not_send_clear_when_problem_for_same_key_present(self):
-        """Anti-flap: if there is already a problem for the same key — Clear is not added."""
         self.ds_bad.component = 'db1_3306'
         self.config.datasources = [self.ds_bad]
 
@@ -983,7 +987,6 @@ class TestMysqlBasePluginOnSuccess(BaseTestCase):
         self.assertEquals(len(clears_same), 0)
 
     def test_onSuccess_sends_clear_only_for_healthy_components(self):
-        """An error on one component does not block Clear for another."""
         self.ds_ok.component = 'db2_3306'
         self.ds_bad.component = 'db1_3306'
         self.config.datasources = [self.ds_ok, self.ds_bad]
@@ -1006,13 +1009,11 @@ class TestMysqlBasePluginOnSuccess(BaseTestCase):
         self.assertEquals(clears_db2[0]['eventKey'], 'MysqlBase')
         self.assertEquals(clears_db2[0]['eventClassKey'], 'MysqlBase')
 
-    def test_onSuccess_reuses_existing_eventKey_from_events(self):
-        """If there is already an event with a different eventKey for (component,class), Clear picks up that one."""
+    def test_onSuccess_generates_new_clear_with_standard_eventKey(self):
         self.ds_ok.component = 'db1_3306'
-        self.ds_ok.eventKey = 'DIFF_IN_DS'  # у ds інший ключ
+        self.ds_ok.eventKey = 'DIFF_IN_DS'
         self.config.datasources = [self.ds_ok]
 
-        # As a result, there was already any event with eventKey='MY_EXISTING_KEY'
         info_existing = make_event(
             severity=0,
             component='db1_3306',
@@ -1024,13 +1025,16 @@ class TestMysqlBasePluginOnSuccess(BaseTestCase):
 
         out = self.plugin.onSuccess(result, self.config)
 
-        clears = [e for e in out['events'] if e.get('severity') == 0 and e.get('component') == 'db1_3306']
-        self.assertEquals(len(clears), 1)
-        self.assertEquals(clears[0]['eventKey'], 'MY_EXISTING_KEY')  # взяли з існуючих подій
-        self.assertEquals(clears[0]['eventClassKey'], 'MysqlBase')
+        component_clears = [e for e in out['events'] if e.get('severity') == 0 and e.get('component') == 'db1_3306']
+        self.assertEquals(len(component_clears), 2)
+
+        new_clears = [e for e in component_clears if e.get('eventKey') == 'MysqlBase']
+        self.assertEquals(len(new_clears), 1)
+
+        existing_clears = [e for e in component_clears if e.get('eventKey') == 'MY_EXISTING_KEY']
+        self.assertEquals(len(existing_clears), 1)
 
     def test_onSuccess_local_dedup_when_two_ds_share_same_key(self):
-        """Local deduplication: if two ds with the same (component,class,key) — one Clear."""
         ds1 = Mock()
         ds2 = Mock()
         for ds in (ds1, ds2):
@@ -1052,8 +1056,6 @@ class TestMysqlBasePluginOnSuccess(BaseTestCase):
         self.assertEquals(len(clears), 1)
 
     def test_onSuccess_problem_in_other_class_does_not_block_clear_here(self):
-        """The problem in another eventClass does not block Clear for this eventClass."""
-        # The problem is in /MySql/Replication
         problem = make_event(
             severity=4,
             component='db1_3306',
@@ -1061,7 +1063,6 @@ class TestMysqlBasePluginOnSuccess(BaseTestCase):
             eventClassKey='MySqlReplication',
             eventKey='MySqlReplication',
         )
-        # Our ds is in /Status (MysqlBase)
         self.ds_ok.component = 'db1_3306'
         self.ds_ok.eventClass = '/Status'
         self.ds_ok.eventClassKey = 'MysqlBase'
@@ -1079,7 +1080,6 @@ class TestMysqlBasePluginOnSuccess(BaseTestCase):
         self.assertEquals(len(clears), 1)
 
     def test_onSuccess_keeps_mysqlbase_keys_consistency(self):
-        """Verifying that Clear has the expected MysqlBase keys (compatibility with existing tests)."""
         self.ds_ok.component = 'dbX_3306'
         self.ds_ok.eventClass = '/Status'
         self.ds_ok.eventClassKey = 'MysqlBase'
@@ -1089,12 +1089,75 @@ class TestMysqlBasePluginOnSuccess(BaseTestCase):
         result = {'events': [], 'values': {'dbX_3306': {}}}
         out = self.plugin.onSuccess(result, self.config)
 
-        event = out['events'][0]
-        self.assertEquals(event['severity'], 0)
-        self.assertEquals(event['eventKey'], 'MysqlBase')
-        self.assertEquals(event['eventClassKey'], 'MysqlBase')
-        self.assertEquals(event['component'], 'dbX_3306')
-        self.assertEquals(event['eventClass'], '/Status')
+        component_clears = [e for e in out['events'] if e.get('component') == 'dbX_3306' and e.get('severity') == 0]
+        device_clears = [e for e in out['events'] if e.get('component') is None and e.get('severity') == 0]
+
+        self.assertEquals(len(component_clears), 1)
+        component_event = component_clears[0]
+        self.assertEquals(component_event['severity'], 0)
+        self.assertEquals(component_event['eventKey'], 'MysqlBase')
+        self.assertEquals(component_event['eventClassKey'], 'MysqlBase')
+        self.assertEquals(component_event['component'], 'dbX_3306')
+        self.assertEquals(component_event['eventClass'], '/Status')
+
+        self.assertEquals(len(device_clears), 1)
+
+    def test_onSuccess_currently_sends_duplicate_clear_events(self):
+        self.ds_ok.component = 'db1_3306'
+        self.ds_ok.eventClass = '/Status'
+        self.ds_ok.eventClassKey = 'MysqlBase'
+        self.ds_ok.eventKey = 'MysqlBase'
+        self.config.datasources = [self.ds_ok]
+
+        existing_clear = make_event(
+            severity=0,
+            component='db1_3306',
+            eventClass=self.ds_ok.eventClass,
+            eventClassKey=self.ds_ok.eventClassKey,
+            eventKey=self.ds_ok.eventKey,
+            summary="Already cleared",
+        )
+        result = {'events': [existing_clear], 'values': {'db1_3306': {}}}
+
+        out = self.plugin.onSuccess(result, self.config)
+
+        clears = [
+            e for e in out['events']
+            if e.get('severity') == 0 and e.get('component') == 'db1_3306'
+            and e.get('eventClassKey') == 'MysqlBase' and e.get('eventKey') == 'MysqlBase'
+        ]
+        self.assertEquals(len(clears), 2)
+
+        original_events = [e for e in clears if e.get('summary') == "Already cleared"]
+        self.assertEquals(len(original_events), 1)
+
+        new_events = [e for e in clears if e.get('summary') == "Monitoring ok"]
+        self.assertEquals(len(new_events), 1)
+
+    def test_onSuccess_single_clear_per_component_regardless_of_eventClass(self):
+        ds1 = Mock()
+        ds2 = Mock()
+
+        ds1.component = 'mysql_server'
+        ds1.eventClass = '/App/MySQL'
+        ds1.eventClassKey = 'MysqlBase'
+        ds1.eventKey = 'MysqlBase'
+        ds1.severity = 4
+
+        ds2.component = 'mysql_server'
+        ds2.eventClass = '/Status'
+        ds2.eventClassKey = 'MysqlBase'
+        ds2.eventKey = 'MysqlBase'
+        ds2.severity = 4
+
+        self.config.datasources = [ds1, ds2]
+        result = {'events': [], 'values': {'mysql_server': {}}}
+
+        out = self.plugin.onSuccess(result, self.config)
+
+        component_clears = [e for e in out['events'] if e.get('severity') == 0 and e.get('component') == 'mysql_server']
+        self.assertEquals(len(component_clears), 1)
+        self.assertEquals(component_clears[0]['eventClass'], '/App/MySQL')
 
 
 
