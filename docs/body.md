@@ -292,6 +292,11 @@ Component Types
 Changes
 -------
 
+3.2.2 (2025-10-14)
+
+- Fix events clearing algorithm for MySQL monitor datasources. (ZPS-9016)
+- Tested with Zenoss Cloud, Zenoss 6.8.0, and Service Impact 5.7.2
+
 3.2.1 (2025-02-26)
 
 - Added SSL encrypted connections support for MySQL Server. (ZPS-8822)
