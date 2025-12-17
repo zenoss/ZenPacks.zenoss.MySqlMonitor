@@ -632,15 +632,15 @@ class TestMySqlReplicationPlugin(BaseTestCase):
         events = self.plugin.query_results_to_events(None, self.ds)
         self.assertEquals(len(events), 0)
 
-    def test_query_results_to_events_slave_io(self):
+    def test_query_results_to_events_replica_io(self):
         results = (tuple('Yes' if i == 10 else None for i in xrange(20)),)
         events = self.plugin.query_results_to_events(results, self.ds)
         self.assertEquals(len(events), 5)
         self.assertEquals(events[0]['severity'], 0)
-        self.assertEquals(events[0]['summary'], "Slave IO Running")
+        self.assertEquals(events[0]['summary'], "Replica IO Running")
         self.assertEquals(events[0]['eventKey'], "MySqlReplication_io")
         self.assertEquals(events[1]['severity'], 4)
-        self.assertEquals(events[1]['summary'], "Slave SQL NOT Running")
+        self.assertEquals(events[1]['summary'], "Replica SQL NOT Running")
         self.assertEquals(events[1]['eventKey'], "MySqlReplication_sql")
         self.assertEquals(events[2]['severity'], 0)
         self.assertEquals(events[2]['summary'], "No replication error")
@@ -652,15 +652,15 @@ class TestMySqlReplicationPlugin(BaseTestCase):
         self.assertEquals(events[4]['summary'], "No replication SQL error")
         self.assertEquals(events[4]['eventKey'], "MySqlReplication_se")
 
-    def test_query_results_to_events_slave_sql(self):
+    def test_query_results_to_events_replica_sql(self):
         results = (tuple('Yes' if i == 11 else None for i in xrange(20)),)
         events = self.plugin.query_results_to_events(results, self.ds)
         self.assertEquals(len(events), 5)
         self.assertEquals(events[1]['severity'], 0)
-        self.assertEquals(events[1]['summary'], "Slave SQL Running")
+        self.assertEquals(events[1]['summary'], "Replica SQL Running")
         self.assertEquals(events[1]['eventKey'], "MySqlReplication_sql")
         self.assertEquals(events[0]['severity'], 4)
-        self.assertEquals(events[0]['summary'], "Slave IO NOT Running")
+        self.assertEquals(events[0]['summary'], "Replica IO NOT Running")
         self.assertEquals(events[0]['eventKey'], "MySqlReplication_io")
         self.assertEquals(events[2]['severity'], 0)
         self.assertEquals(events[2]['summary'], "No replication error")

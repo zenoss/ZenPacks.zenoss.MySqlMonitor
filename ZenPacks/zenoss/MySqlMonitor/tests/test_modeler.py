@@ -60,10 +60,10 @@ class TestMySQLCollector(BaseTestCase):
             'data_size': 53423729,
             'id': 'root_3306',
             'index_size': 4143104,
-            'master_status': 'OFF',
+            'source_status': 'OFF',
             'percent_full_table_scans': '71.2%',
             'size': 57566833,
-            'slave_status': 'IO running: No; SQL running: '
+            'replica_status': 'IO running: No; SQL running: '
                             'No; Seconds behind: None',
             'version': '5.5.28 MySQL Community Server (GPL) (i686)',
             'title': 'root_3306'}, server_map.maps[0].asUnitTest())
@@ -107,23 +107,23 @@ class TestMySQLCollector(BaseTestCase):
             'N/A'
         )
 
-    def test_master_status(self):
+    def test_source_status(self):
         self.assertEquals(
-            self.collector._master_status(modeling_data.MASTER_STATUS1),
+            self.collector._source_status(modeling_data.SOURCE_STATUS1),
             "ON; File: mysql-bin.000002; Position: 107"
         )
         self.assertEquals(
-            self.collector._master_status(modeling_data.MASTER_STATUS2),
+            self.collector._source_status(modeling_data.SOURCE_STATUS2),
             "OFF"
         )
 
-    def test_slave_status(self):
+    def test_replica_status(self):
         self.assertEquals(
-            self.collector._slave_status(modeling_data.SLAVE_STATUS1),
+            self.collector._replica_status(modeling_data.REPLICA_STATUS1),
             "IO running: No; SQL running: No; Seconds behind: 10"
         )
         self.assertEquals(
-            self.collector._slave_status(modeling_data.SLAVE_STATUS2),
+            self.collector._replica_status(modeling_data.REPLICA_STATUS2),
             "OFF"
         )
 

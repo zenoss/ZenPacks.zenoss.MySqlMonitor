@@ -1,6 +1,6 @@
 # Result containing slave status data
 RESULT1 = [{
-    'slave': ({
+    'replica': ({
         'Replicate_Wild_Do_Table': '',
         'Master_SSL_CA_Path': '',
         'Last_Error': '',
@@ -60,7 +60,7 @@ RESULT1 = [{
         {'Value': '545', 'Variable_name': 'Handler_read_rnd'},
         {'Value': '25922', 'Variable_name': 'Handler_read_rnd_next'}
     ),
-    'master': (),
+    'source': (),
     'server_size': ({
         'index_size': 4143104,
         'data_size': 53423729,
@@ -97,16 +97,16 @@ SERVER_STATUS2 = (
 )
 # -------------------------------------------------------------------------
 # Master results
-MASTER_STATUS1 = ({
+SOURCE_STATUS1 = ({
     'File': 'mysql-bin.000002',
     'Position': '107',
     'Binlog_Do_DB': '',
     'Binlog_Ignore_DB': '',
 },)
-MASTER_STATUS2 = ()
+SOURCE_STATUS2 = ()
 # -------------------------------------------------------------------------
 # Slave results
-SLAVE_STATUS1 = ({
+REPLICA_STATUS1 = ({
     'Replicate_Wild_Do_Table': '',
     'Master_SSL_CA_Path': '',
     'Last_Error': '',
@@ -148,7 +148,7 @@ SLAVE_STATUS1 = ({
     'Replicate_Wild_Ignore_Table': '',
     'Master_SSL_Cipher': ''
 },)
-SLAVE_STATUS2 = ()
+REPLICA_STATUS2 = ()
 # -------------------------------------------------------------------------
 # Version results
 VERSION1 = (

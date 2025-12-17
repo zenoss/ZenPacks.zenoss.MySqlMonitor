@@ -31,13 +31,18 @@ SERVER_SIZE_QUERY = """
     FROM information_schema.TABLES;
 """
 
-MASTER_QUERY = """
+SOURCE_QUERY = """
     SHOW MASTER STATUS;
 """
 
-SLAVE_QUERY = """
+REPLICA_QUERY = (
+    """
     SHOW SLAVE STATUS;
-"""
+    """,
+    """
+    SHOW REPLICA STATUS;
+    """
+)
 
 VERSION_QUERY = """
     SHOW VARIABLES LIKE "version%";

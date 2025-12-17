@@ -10,6 +10,7 @@
 ''' Models discovery tree for MySQL. '''
 
 import collections
+import re
 import zope.component
 from itertools import chain
 from MySQLdb import cursors
@@ -45,8 +46,8 @@ class MySQLCollector(PythonPlugin):
     queries = {
         'server': queries.SERVER_QUERY,
         'server_size': queries.SERVER_SIZE_QUERY,
-        'master': queries.MASTER_QUERY,
-        'slave': queries.SLAVE_QUERY,
+        'source': queries.SOURCE_QUERY,
+        'replica': queries.REPLICA_QUERY,
         'db': queries.DB_QUERY,
         'version': queries.VERSION_QUERY
     }
@@ -90,27 +91,76 @@ class MySQLCollector(PythonPlugin):
 
             res = {}
             res["id"] = "{0}_{1}".format(el.get("user"), el.get("port"))
-            for key, query in self.queries.iteritems():
-                try:
-                    res[key] = yield dbpool.runQuery(query)
-                except Exception, e:
-                    self.is_clear_run = False
-                    res[key] = ()
-                    msg, severity = self._error(
-                        str(e), el.get("user"), el.get("port"))
 
-                    log.error(msg)
-
-                    if severity == 5:
-                        self._send_event(msg, device.id, severity)
-                        dbpool.close()
-                        defer.returnValue('Error')
-                        return
+            # Perform the simple SQL queries
+            yield self._doSimpleQueries(dbpool, res)
+            if self.is_clear_run is False:
+                dbpool.close()
+                defer.returnValue('Error')
+                return
+            # Perform the more complex or special SQL queries
+            yield self._doReplicaQuery(dbpool, res)
+            if self.is_clear_run is False:
+                dbpool.close()
+                defer.returnValue('Error')
+                return
 
             dbpool.close()
             result.append(res)
 
         defer.returnValue(result)
+
+    @defer.inlineCallbacks
+    def _doSimpleQueries(self, dbpool, res):
+        for key, query in self.queries.iteritems():
+            # non str type queries identify them as complex ones 
+            if not isinstance(query, str):
+                continue
+            try:
+                res[key] = yield dbpool.runQuery(query)
+            except Exception, e:
+                self.is_clear_run = False
+                res[key] = ()
+                msg, severity = self._error(
+                    str(e), el.get("user"), el.get("port"))
+                log.error(msg)
+                if severity == 5:
+                    self._send_event(msg, device.id, severity)
+
+    @defer.inlineCallbacks
+    def _doReplicaQuery(self, dbpool, res):
+        if 'replica' not in self.queries:
+            return
+
+        if 'version' not in res:
+            query = self.queries['replica'][0]
+        numVer = re.match(
+            '(\d+)\.(\d+)\.(\d+)-.*',
+            self._version(res['version'])
+        )
+        if not numVer:
+            self.is_clear_run = False
+            res['replica'] = ()
+            msg = "Problem parsing/comparing MySQL version"
+            severity = 4
+            log.error(msg)
+            self._send_event(msg, device.id, severity)
+        
+        numVer = tuple(int(x) for x in numVer.groups())
+        if numVer < (8, 4, 0):
+            query = self.queries['replica'][0]
+        else:
+            query = self.queries['replica'][1]
+        try:
+            res['replica'] = yield dbpool.runQuery(query)
+        except Exception, e:
+            self.is_clear_run = False
+            res['replica'] = ()
+            msg, severity = self._error(
+                str(e), el.get("user"), el.get("port"))
+            log.error(msg)
+            if severity == 5:
+                self._send_event(msg, device.id, severity)
 
     def process(self, device, results, log):
         log.info(
@@ -140,8 +190,8 @@ class MySQLCollector(PythonPlugin):
             s_om.title = server["id"]
             s_om.percent_full_table_scans = self._table_scans(
                 server.get('server', ''))
-            s_om.master_status = self._master_status(server.get('master', ''))
-            s_om.slave_status = self._slave_status(server.get('slave', ''))
+            s_om.source_status = self._source_status(server.get('source', ''))
+            s_om.replica_status = self._replica_status(server.get('replica', ''))
             s_om.version = self._version(server.get('version', ''))
             server_oms.append(s_om)
 
@@ -217,7 +267,6 @@ class MySQLCollector(PythonPlugin):
         @return: the server version with machine version
         @rtype: str
         """
-
         result = dict((el['Variable_name'], el['Value'])
                       for el in version_result)
 
@@ -258,38 +307,46 @@ class MySQLCollector(PythonPlugin):
 
         return str(round(percent, 3)*100)+'%'
 
-    def _master_status(self, master_result):
+    def _source_status(self, source_result):
         """
-        Parse the result of MASTER_QUERY.
+        Parse the result of SOURCE_QUERY.
 
-        @param master_result: result of MASTER_QUERY
-        @type master_result: string
-        @return: master status
+        @param source_result: result of SOURCE_QUERY
+        @type source_result: string
+        @return: source status
         @rtype: str
         """
 
-        if master_result:
-            master = master_result[0]
+        if source_result:
+            source = source_result[0]
             return "ON; File: %s; Position: %s" % (
-                master['File'], master['Position'])
+                source['File'], source['Position'])
         else:
             return "OFF"
 
-    def _slave_status(self, slave_result):
+    def _replica_status(self, replica_result):
         """
-        Parse the result of SLAVE_QUERY.
+        Parse the result of REPLICA_QUERY.
 
-        @param master_result: result of SLAVE_QUERY
-        @type master_result: string
-        @return: slave status
+        @param source_result: result of REPLICA_QUERY
+        @type source_result: string
+        @return: repica status
         @rtype: str
         """
 
-        if slave_result:
-            slave = slave_result[0]
-            return "IO running: %s; SQL running: %s; Seconds behind: %s" % (
-                slave['Slave_IO_Running'], slave['Slave_SQL_Running'],
-                slave['Seconds_Behind_Master'])
+        if replica_result:
+            replica = replica_result[0]
+            if 'Slave_IO_Running' in replica:
+                return "IO running: %s; SQL running: %s; Seconds behind: %s" % (
+                    replica['Slave_IO_Running'], replica['Slave_SQL_Running'],
+                    replica['Seconds_Behind_Master'])
+            elif 'Replica_IO_Running' in replica:
+                return "IO running: %s; SQL running: %s; Seconds behind: %s" % (
+                    replica['Slave_IO_Running'], replica['Replica_SQL_Running'],
+                    replica['Seconds_Behind_Source'])
+            else:
+                log.error('Could not determine Replica info')
+                return "UNKNOWN"
         else:
             return "OFF"
 
