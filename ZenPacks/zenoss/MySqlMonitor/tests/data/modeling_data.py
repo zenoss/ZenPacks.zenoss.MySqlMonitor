@@ -1,6 +1,6 @@
 # Result containing slave status data
 RESULT1 = [{
-    'slave': ({
+    'replica': ({
         'Replicate_Wild_Do_Table': '',
         'Master_SSL_CA_Path': '',
         'Last_Error': '',
@@ -60,7 +60,7 @@ RESULT1 = [{
         {'Value': '545', 'Variable_name': 'Handler_read_rnd'},
         {'Value': '25922', 'Variable_name': 'Handler_read_rnd_next'}
     ),
-    'master': (),
+    'source': (),
     'server_size': ({
         'index_size': 4143104,
         'data_size': 53423729,
@@ -97,16 +97,16 @@ SERVER_STATUS2 = (
 )
 # -------------------------------------------------------------------------
 # Master results
-MASTER_STATUS1 = ({
+SOURCE_STATUS1 = ({
     'File': 'mysql-bin.000002',
     'Position': '107',
     'Binlog_Do_DB': '',
     'Binlog_Ignore_DB': '',
 },)
-MASTER_STATUS2 = ()
+SOURCE_STATUS2 = ()
 # -------------------------------------------------------------------------
 # Slave results
-SLAVE_STATUS1 = ({
+REPLICA_STATUS1 = ({
     'Replicate_Wild_Do_Table': '',
     'Master_SSL_CA_Path': '',
     'Last_Error': '',
@@ -148,7 +148,70 @@ SLAVE_STATUS1 = ({
     'Replicate_Wild_Ignore_Table': '',
     'Master_SSL_Cipher': ''
 },)
-SLAVE_STATUS2 = ()
+REPLICA_STATUS2 = ()
+# Query sample resp data taken from https://dev.mysql.com/doc/refman/8.4/en/show-replica-status.html
+REPLICA_STATUS1_v84 = ({
+'Replica_IO_State': 'Waiting for source to send event',
+'Source_Host': '127.0.0.1',
+'Source_User': 'root',
+'Source_Port': '13000',
+'Connect_Retry': 1L,
+'Source_Log_File': 'master-bin.000001',
+'Read_Source_Log_Pos': 927,
+'Relay_Log_File': 'slave-relay-bin.000002',
+'Relay_Log_Pos': 1145L,
+'Relay_Source_Log_File': 'master-bin.000001',
+'Replica_IO_Running': 'Yes',
+'Replica_SQL_Running': 'Yes',
+'Replicate_Do_DB': '',
+'Replicate_Ignore_DB': '',
+'Replicate_Do_Table': '',
+'Replicate_Ignore_Table': '',
+'Replicate_Wild_Do_Table': '',
+'Replicate_Wild_Ignore_Table': '',
+'Last_Errno': 0L,
+'Last_Error': '',
+'Skip_Counter': 0L,
+'Exec_Source_Log_Pos': 927,
+'Relay_Log_Space': 1355L,
+'Until_Condition': 'None',
+'Until_Log_File': '',
+'Until_Log_Pos': 0L,
+'Source_SSL_Allowed': 'No',
+'Source_SSL_CA_File': '',
+'Source_SSL_CA_Path': '',
+'Source_SSL_Cert': '',
+'Source_SSL_Cipher': '',
+'Source_SSL_Key': '',
+'Seconds_Behind_Source': 0,
+'Source_SSL_Verify_Server_Cert': 'No',
+'Last_IO_Errno': 0L,
+'Last_IO_Error': '',
+'Last_SQL_Errno': 0L,
+'Last_SQL_Error': '',
+'Replicate_Ignore_Server_Ids': '',
+'Source_Server_Id': 1,
+'Source_UUID': '73f86016-978b-11ee-ade5-8d2a2a562feb',
+'Source_Info_File': 'mysql.slave_master_info',
+'SQL_Delay': 0,
+'SQL_Remaining_Delay': 'NULL',
+'Replica_SQL_Running_State': 'Replica has read all relay log; waiting for more updates',
+'Source_Retry_Count': 10,
+'Source_Bind': '',
+'Last_IO_Error_Timestamp': '',
+'Last_SQL_Error_Timestamp': '',
+'Source_SSL_Crl': '',
+'Source_SSL_Crlpath': '',
+'Retrieved_Gtid_Set': '73f86016-978b-11ee-ade5-8d2a2a562feb:1-3',
+'Executed_Gtid_Set': '73f86016-978b-11ee-ade5-8d2a2a562feb:1-3',
+'Auto_Position': 1,
+'Replicate_Rewrite_DB': '',
+'Channel_Name': '',
+'Source_TLS_Version': '',
+'Source_public_key_path': '',
+'Get_Source_public_key': 0,
+'Network_Namespace': ''
+},)
 # -------------------------------------------------------------------------
 # Version results
 VERSION1 = (

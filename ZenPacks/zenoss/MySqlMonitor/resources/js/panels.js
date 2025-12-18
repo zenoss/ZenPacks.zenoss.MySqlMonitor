@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * Copyright (C) Zenoss, Inc. 2013, all rights reserved.
+ * Copyright (C) Zenoss, Inc. 2013, 2025, all rights reserved.
  *
  * This content is made available according to terms specified in
  * License.zenoss under the directory where your Zenoss product is installed.
@@ -49,8 +49,8 @@ ZC.MySQLServerPanel = Ext.extend(ZC.ComponentGridPanel, {
                 {name: 'data_size'},
                 {name: 'index_size'},
                 {name: 'percent_full_table_scans'},
-                {name: 'slave_status'},
-                {name: 'master_status'},
+                {name: 'replica_status'},
+                {name: 'source_status'},
                 {name: 'version'},
             ],
             columns: [{
@@ -78,13 +78,13 @@ ZC.MySQLServerPanel = Ext.extend(ZC.ComponentGridPanel, {
                 header: _t('Percentage of full table scans'),
                 width: 150
             },{
-                id: 'slave_status',
-                dataIndex: 'slave_status',
-                header: _t('Slave status'),
+                id: 'replica_status',
+                dataIndex: 'replica_status',
+                header: _t('Replica status'),
             },{
-                id: 'master_status',
-                dataIndex: 'master_status',
-                header: _t('Master status'),
+                id: 'source_status',
+                dataIndex: 'source_status',
+                header: _t('Source status'),
             // },{
             //     id: 'size',
             //     dataIndex: 'size',
