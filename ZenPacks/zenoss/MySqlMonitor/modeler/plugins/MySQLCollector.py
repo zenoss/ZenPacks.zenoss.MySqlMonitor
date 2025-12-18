@@ -134,24 +134,25 @@ class MySQLCollector(PythonPlugin):
 
         if 'version' not in res:
             query = self.queries['replica'][0]
-        numVer = re.match(
-            '(\d+)\.(\d+)\.(\d+)-.*',
-            self._version(res['version'])
-        )
-        if not numVer:
-            self.is_clear_run = False
-            res['replica'] = ()
-            msg = "Problem parsing/comparing MySQL version"
-            severity = 4
-            log.error(msg)
-            self._send_event(msg, device.id, severity)
-            return
-        
-        numVer = tuple(int(x) for x in numVer.groups())
-        if numVer < (8, 4, 0):
-            query = self.queries['replica'][0]
         else:
-            query = self.queries['replica'][1]
+            numVer = re.match(
+                '(\d+)\.(\d+)\.(\d+)-.*',
+                self._version(res['version'])
+            )
+            if not numVer:
+                self.is_clear_run = False
+                res['replica'] = ()
+                msg = "Problem parsing/comparing MySQL version"
+                severity = 4
+                log.error(msg)
+                self._send_event(msg, device.id, severity)
+                return
+            
+            numVer = tuple(int(x) for x in numVer.groups())
+            if numVer < (8, 4, 0):
+                query = self.queries['replica'][0]
+            else:
+                query = self.queries['replica'][1]
         try:
             res['replica'] = yield dbpool.runQuery(query)
         except Exception as ex:
