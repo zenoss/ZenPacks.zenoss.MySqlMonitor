@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (C) Zenoss, Inc. 2013, 2024, all rights reserved.
+# Copyright (C) Zenoss, Inc. 2013, 2024, 2025, all rights reserved.
 #
 # This content is made available according to terms specified in
 # License.zenoss under the directory where your Zenoss product is installed.
@@ -118,11 +118,11 @@ class MySQLCollector(PythonPlugin):
                 continue
             try:
                 res[key] = yield dbpool.runQuery(query)
-            except Exception, e:
+            except Exception as ex:
                 self.is_clear_run = False
                 res[key] = ()
                 msg, severity = self._error(
-                    str(e), el.get("user"), el.get("port"))
+                    str(ex), el.get("user"), el.get("port"))
                 log.error(msg)
                 if severity == 5:
                     self._send_event(msg, device.id, severity)
@@ -145,6 +145,7 @@ class MySQLCollector(PythonPlugin):
             severity = 4
             log.error(msg)
             self._send_event(msg, device.id, severity)
+            return
         
         numVer = tuple(int(x) for x in numVer.groups())
         if numVer < (8, 4, 0):
@@ -153,11 +154,11 @@ class MySQLCollector(PythonPlugin):
             query = self.queries['replica'][1]
         try:
             res['replica'] = yield dbpool.runQuery(query)
-        except Exception, e:
+        except Exception as ex:
             self.is_clear_run = False
             res['replica'] = ()
             msg, severity = self._error(
-                str(e), el.get("user"), el.get("port"))
+                str(ex), el.get("user"), el.get("port"))
             log.error(msg)
             if severity == 5:
                 self._send_event(msg, device.id, severity)
@@ -342,7 +343,7 @@ class MySQLCollector(PythonPlugin):
                     replica['Seconds_Behind_Master'])
             elif 'Replica_IO_Running' in replica:
                 return "IO running: %s; SQL running: %s; Seconds behind: %s" % (
-                    replica['Slave_IO_Running'], replica['Replica_SQL_Running'],
+                    replica['Replica_IO_Running'], replica['Replica_SQL_Running'],
                     replica['Seconds_Behind_Source'])
             else:
                 log.error('Could not determine Replica info')

@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (C) Zenoss, Inc. 2013, all rights reserved.
+# Copyright (C) Zenoss, Inc. 2013, 1015, all rights reserved.
 #
 # This content is made available according to terms specified in
 # License.zenoss under the directory where your Zenoss product is installed.
@@ -126,6 +126,11 @@ class TestMySQLCollector(BaseTestCase):
             self.collector._replica_status(modeling_data.REPLICA_STATUS2),
             "OFF"
         )
+
+    def test_replica_status_v84(self):
+        self.assertEquals(
+            self.collector._replica_status(modeling_data.REPLICA_STATUS1_v84),
+            "IO running: Yes; SQL running: Yes; Seconds behind: 0"
 
     def test_version(self):
         self.assertEquals(
