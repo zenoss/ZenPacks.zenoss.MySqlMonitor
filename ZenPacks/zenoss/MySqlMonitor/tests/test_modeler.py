@@ -131,6 +131,7 @@ class TestMySQLCollector(BaseTestCase):
         self.assertEquals(
             self.collector._replica_status(modeling_data.REPLICA_STATUS1_v84),
             "IO running: Yes; SQL running: Yes; Seconds behind: 0"
+        )
 
     def test_version(self):
         self.assertEquals(
