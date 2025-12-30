@@ -407,15 +407,22 @@ class MySqlReplicationPlugin(MysqlBasePlugin):
     proxy_attributes = MysqlBasePlugin.proxy_attributes + ('version',)
 
     def get_query(self, component, datasource):
-        numVer = re.match(
-            '(\d+)\.(\d+)\.(\d+)-.*',
-            datasource.version
-        )
-        numVer = tuple(int(x) for x in numVer.groups())
-        if numVer < (8, 4, 0):
+        version_str = datasource.version or ''
+        is_mariadb = 'mariadb' in version_str.lower()
+
+        numVer = re.match('(\d+)\.(\d+)\.(\d+)', version_str)
+        if not numVer:
+            # Default to slave status if version can't be parsed
             return 'show slave status'
-        else:
+
+        numVer = tuple(int(x) for x in numVer.groups())
+
+        # MariaDB: >= 10.5.2 uses REPLICA STATUS, < 10.5.2 uses SLAVE STATUS
+        # MySQL: >= 8.4.0 uses REPLICA STATUS, < 8.4.0 uses SLAVE STATUS
+        if (is_mariadb and numVer >= (10, 5, 2)) or (not is_mariadb and numVer >= (8, 4, 0)):
             return 'show replica status'
+        else:
+            return 'show slave status'
 
     def _event(self, severity, summary,  component, eventClass, suffix):
         eventKey = self.keyName + '_' + suffix

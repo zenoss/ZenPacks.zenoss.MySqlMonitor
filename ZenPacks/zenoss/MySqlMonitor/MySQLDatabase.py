@@ -20,9 +20,8 @@ from Products.Zuul.infos.component import ComponentInfo
 from Products.Zuul.interfaces.component import IComponentInfo
 from Products.Zuul.utils import ZuulMessageFactory as _t
 
-from . import CLASS_NAME, MODULE_NAME, SizeUnitsProxyProperty
+from . import MODULE_NAME, SizeUnitsProxyProperty
 from .MySQLComponent import MySQLComponent
-from .utils import updateToMany, updateToOne
 
 
 class MySQLDatabase(MySQLComponent):
@@ -51,9 +50,6 @@ class MySQLDatabase(MySQLComponent):
     def device(self):
         return self.server().device()
 
-    # def getStatus(self):
-    #     return super(MySQLDatabase, self).getStatus("/Status")
-
 
 class IMySQLDatabaseInfo(IComponentInfo):
     '''
@@ -62,9 +58,6 @@ class IMySQLDatabaseInfo(IComponentInfo):
 
     device = schema.Entity(title=_t(u'Device'))
     server = schema.Entity(title=_t(u'Server'))
-    # size = schema.TextLine(title=_t(u'Size'))
-    # data_size = schema.TextLine(title=_t(u'Data size'))
-    # index_size = schema.TextLine(title=_t(u'Index size'))
     default_character_set_name = \
         schema.TextLine(title=_t(u'Default character set'))
     default_collation_name = schema.TextLine(title=_t(u'Default collation'))

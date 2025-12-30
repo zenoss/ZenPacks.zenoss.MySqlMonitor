@@ -31,9 +31,25 @@ SERVER_SIZE_QUERY = """
     FROM information_schema.TABLES;
 """
 
-SOURCE_QUERY = """
+SOURCE_QUERY_MYSQL = (
+    """
     SHOW MASTER STATUS;
-"""
+    """,
+    """
+    SHOW BINARY LOG STATUS;
+    """
+)
+
+SOURCE_QUERY_MARIADB = (
+    """
+    SHOW MASTER STATUS;
+    """,
+    """
+    SHOW BINLOG STATUS;
+    """
+)
+
+SOURCE_QUERY = SOURCE_QUERY_MYSQL
 
 REPLICA_QUERY = (
     """
