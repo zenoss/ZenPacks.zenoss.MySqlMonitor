@@ -69,10 +69,12 @@ class MySQLCollector(PythonPlugin):
 
         result = []
         for el in servers.values():
+            user = el.get("user")
+            port = el.get("port")
             dbConnArgs = {
                 'host': device.manageIp,
-                'user': el.get("user"),
-                'port': el.get("port"),
+                'user': user,
+                'port': port,
                 'passwd': el.get("passwd"),
                 'cursorclass': cursors.DictCursor,
             }
@@ -90,16 +92,18 @@ class MySQLCollector(PythonPlugin):
             )
 
             res = {}
-            res["id"] = "{0}_{1}".format(el.get("user"), el.get("port"))
+            res["id"] = "{0}_{1}".format(user, port)
 
             # Perform the simple SQL queries
-            yield self._doSimpleQueries(dbpool, res)
+            yield self._doSimpleQueries(dbpool, res, user, port, device.id, log)
             if self.is_clear_run is False:
                 dbpool.close()
                 defer.returnValue('Error')
                 return
+            log.info("_doSimpleQueries results - {}".format(res))
+            log.info("_doSimpleQueries results ver - {}".format(res['version']))
             # Perform the more complex or special SQL queries
-            yield self._doReplicaQuery(dbpool, res)
+            yield self._doComplexQuery(dbpool, res, user, port, device.id, log)
             if self.is_clear_run is False:
                 dbpool.close()
                 defer.returnValue('Error')
@@ -111,7 +115,7 @@ class MySQLCollector(PythonPlugin):
         defer.returnValue(result)
 
     @defer.inlineCallbacks
-    def _doSimpleQueries(self, dbpool, res):
+    def _doSimpleQueries(self, dbpool, res, user, port, device_id, log):
         for key, query in self.queries.iteritems():
             # non str type queries identify them as complex ones 
             if not isinstance(query, str):
@@ -122,47 +126,44 @@ class MySQLCollector(PythonPlugin):
                 self.is_clear_run = False
                 res[key] = ()
                 msg, severity = self._error(
-                    str(ex), el.get("user"), el.get("port"))
+                    str(ex), user, port)
                 log.error(msg)
                 if severity == 5:
-                    self._send_event(msg, device.id, severity)
+                    self._send_event(msg, device_id, severity)
 
     @defer.inlineCallbacks
-    def _doReplicaQuery(self, dbpool, res):
-        if 'replica' not in self.queries:
-            return
+    def _doComplexQuery(self, dbpool, res, user, port, device_id, log):
+        # Get version info once
+        is_mariadb, version_tuple = self._get_version_info(res.get('version'))
+        if is_mariadb:
+            log.info("Detected MariaDB database")
 
-        if 'version' not in res:
-            query = self.queries['replica'][0]
-        else:
-            numVer = re.match(
-                '(\d+)\.(\d+)\.(\d+)-.*',
-                self._version(res['version'])
-            )
-            if not numVer:
-                self.is_clear_run = False
-                res['replica'] = ()
-                msg = "Problem parsing/comparing MySQL version"
-                severity = 4
-                log.error(msg)
-                self._send_event(msg, device.id, severity)
-                return
-            
-            numVer = tuple(int(x) for x in numVer.groups())
-            if numVer < (8, 4, 0):
-                query = self.queries['replica'][0]
-            else:
-                query = self.queries['replica'][1]
-        try:
-            res['replica'] = yield dbpool.runQuery(query)
-        except Exception as ex:
-            self.is_clear_run = False
-            res['replica'] = ()
-            msg, severity = self._error(
-                str(ex), el.get("user"), el.get("port"))
-            log.error(msg)
-            if severity == 5:
-                self._send_event(msg, device.id, severity)
+        for key, query in self.queries.iteritems():
+            if not isinstance(query, str):
+                if version_tuple is None:
+                    # No version info, use first query as default
+                    query = self.queries[key][0]
+                elif is_mariadb and key == 'source':
+                    # MariaDB source query: >= 10.5.2 uses BINLOG STATUS, < 10.5.2 uses MASTER STATUS
+                    query_tuple = queries.SOURCE_QUERY_MARIADB
+                    query = query_tuple[1] if version_tuple >= (10, 5, 2) else query_tuple[0]
+                elif is_mariadb:
+                    # Other MariaDB queries: use first query
+                    query = self.queries[key][0]
+                else:
+                    # MySQL: >= 8.4.0 uses second query, < 8.4.0 uses first query
+                    query = self.queries[key][1] if version_tuple >= (8, 4, 0) else self.queries[key][0]
+
+                try:
+                    res[key] = yield dbpool.runQuery(query)
+                except Exception as ex:
+                    self.is_clear_run = False
+                    res[key] = ()
+                    msg, severity = self._error(
+                        str(ex), user, port)
+                    log.error(msg)
+                    if severity == 5:
+                        self._send_event(msg, device_id, severity)
 
     def process(self, device, results, log):
         log.info(
@@ -193,7 +194,7 @@ class MySQLCollector(PythonPlugin):
             s_om.percent_full_table_scans = self._table_scans(
                 server.get('server', ''))
             s_om.source_status = self._source_status(server.get('source', ''))
-            s_om.replica_status = self._replica_status(server.get('replica', ''))
+            s_om.replica_status = self._replica_status(server.get('replica', ''), log)
             s_om.version = self._version(server.get('version', ''))
             server_oms.append(s_om)
 
@@ -259,6 +260,32 @@ class MySQLCollector(PythonPlugin):
             severity = 5
 
         return msg, severity
+
+    def _get_version_info(self, version_result):
+        """
+        Extract version information from VERSION_QUERY result.
+
+        @param version_result: result of VERSION_QUERY
+        @type version_result: list
+        @return: tuple of (is_mariadb, version_tuple) where version_tuple is (major, minor, patch) or None
+        @rtype: tuple
+        """
+        if not version_result:
+            return (False, None)
+
+        result = dict((el['Variable_name'], el['Value'])
+                      for el in version_result)
+        version_comment = result.get('version_comment', '').lower()
+        is_mariadb = 'mariadb' in version_comment
+
+        version_str = result.get('version', '')
+        numVer = re.match('(\d+)\.(\d+)\.(\d+)', version_str)
+        if numVer:
+            version_tuple = tuple(int(x) for x in numVer.groups())
+        else:
+            version_tuple = None
+
+        return (is_mariadb, version_tuple)
 
     def _version(self, version_result):
         """
@@ -326,7 +353,7 @@ class MySQLCollector(PythonPlugin):
         else:
             return "OFF"
 
-    def _replica_status(self, replica_result):
+    def _replica_status(self, replica_result, log):
         """
         Parse the result of REPLICA_QUERY.
 

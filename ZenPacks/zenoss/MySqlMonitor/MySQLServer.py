@@ -20,9 +20,8 @@ from Products.Zuul.infos.component import ComponentInfo
 from Products.Zuul.interfaces.component import IComponentInfo
 from Products.Zuul.utils import ZuulMessageFactory as _t
 
-from . import CLASS_NAME, MODULE_NAME, SizeUnitsProxyProperty
+from . import MODULE_NAME, SizeUnitsProxyProperty
 from .MySQLComponent import MySQLComponent
-from .utils import updateToMany, updateToOne
 
 
 class MySQLServer(MySQLComponent):
@@ -57,18 +56,12 @@ class MySQLServer(MySQLComponent):
     def device(self):
         return self.mysql_host()
 
-    # def getStatus(self):
-        # return super(MySQLServer, self).getStatus("/Status")
-
 
 class IMySQLServerInfo(IComponentInfo):
     '''
     API Info interface for MySQLServer.
     '''
 
-    # size = schema.TextLine(title=_t(u'Size'))
-    # data_size = schema.TextLine(title=_t(u'Data Size'))
-    # index_size = schema.TextLine(title=_t(u'Index Size'))
     percent_full_table_scans = schema.TextLine(
         title=_t(u'Percentage of full table scans'))
     replica_status = schema.TextLine(title=_t(u'Replica status'))
