@@ -292,6 +292,11 @@ Component Types
 Changes
 -------
 
+3.2.3 (2026-01-08)
+
+- Add support for MySQL 8.4.0 and later, MariaDB 10.5.2 and later. (ZPS-9151)
+- Tested with Zenoss Cloud, Zenoss 6.9.0, and Service Impact 5.7.2
+
 3.2.2 (2025-10-14)
 
 - Fix events clearing algorithm for MySQL monitor datasources. (ZPS-9016)
