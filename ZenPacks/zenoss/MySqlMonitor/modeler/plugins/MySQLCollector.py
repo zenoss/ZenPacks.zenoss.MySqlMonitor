@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (C) Zenoss, Inc. 2013, 2024, all rights reserved.
+# Copyright (C) Zenoss, Inc. 2013, 2024, 2025, all rights reserved.
 #
 # This content is made available according to terms specified in
 # License.zenoss under the directory where your Zenoss product is installed.
@@ -10,6 +10,7 @@
 ''' Models discovery tree for MySQL. '''
 
 import collections
+import re
 import zope.component
 from itertools import chain
 from MySQLdb import cursors
@@ -45,8 +46,8 @@ class MySQLCollector(PythonPlugin):
     queries = {
         'server': queries.SERVER_QUERY,
         'server_size': queries.SERVER_SIZE_QUERY,
-        'master': queries.MASTER_QUERY,
-        'slave': queries.SLAVE_QUERY,
+        'source': queries.SOURCE_QUERY,
+        'replica': queries.REPLICA_QUERY,
         'db': queries.DB_QUERY,
         'version': queries.VERSION_QUERY
     }
@@ -68,10 +69,12 @@ class MySQLCollector(PythonPlugin):
 
         result = []
         for el in servers.values():
+            user = el.get("user")
+            port = el.get("port")
             dbConnArgs = {
                 'host': device.manageIp,
-                'user': el.get("user"),
-                'port': el.get("port"),
+                'user': user,
+                'port': port,
                 'passwd': el.get("passwd"),
                 'cursorclass': cursors.DictCursor,
             }
@@ -89,28 +92,76 @@ class MySQLCollector(PythonPlugin):
             )
 
             res = {}
-            res["id"] = "{0}_{1}".format(el.get("user"), el.get("port"))
-            for key, query in self.queries.iteritems():
-                try:
-                    res[key] = yield dbpool.runQuery(query)
-                except Exception, e:
-                    self.is_clear_run = False
-                    res[key] = ()
-                    msg, severity = self._error(
-                        str(e), el.get("user"), el.get("port"))
+            res["id"] = "{0}_{1}".format(user, port)
 
-                    log.error(msg)
-
-                    if severity == 5:
-                        self._send_event(msg, device.id, severity)
-                        dbpool.close()
-                        defer.returnValue('Error')
-                        return
+            # Perform the simple SQL queries
+            yield self._doSimpleQueries(dbpool, res, user, port, device.id, log)
+            if self.is_clear_run is False:
+                dbpool.close()
+                defer.returnValue('Error')
+                return
+            # Perform the more complex or special SQL queries
+            yield self._doComplexQuery(dbpool, res, user, port, device.id, log)
+            if self.is_clear_run is False:
+                dbpool.close()
+                defer.returnValue('Error')
+                return
 
             dbpool.close()
             result.append(res)
 
         defer.returnValue(result)
+
+    @defer.inlineCallbacks
+    def _doSimpleQueries(self, dbpool, res, user, port, device_id, log):
+        for key, query in self.queries.iteritems():
+            # non str type queries identify them as complex ones 
+            if not isinstance(query, str):
+                continue
+            try:
+                res[key] = yield dbpool.runQuery(query)
+            except Exception as ex:
+                self.is_clear_run = False
+                res[key] = ()
+                msg, severity = self._error(
+                    str(ex), user, port)
+                log.error(msg)
+                if severity == 5:
+                    self._send_event(msg, device_id, severity)
+
+    @defer.inlineCallbacks
+    def _doComplexQuery(self, dbpool, res, user, port, device_id, log):
+        # Get version info once
+        is_mariadb, version_tuple = self._get_version_info(res.get('version'))
+        if is_mariadb:
+            log.info("Detected MariaDB database")
+
+        for key, query in self.queries.iteritems():
+            if not isinstance(query, str):
+                if version_tuple is None:
+                    # No version info, use first query as default
+                    query = self.queries[key][0]
+                elif is_mariadb and key == 'source':
+                    # MariaDB source query: >= 10.5.2 uses BINLOG STATUS, < 10.5.2 uses MASTER STATUS
+                    query_tuple = queries.SOURCE_QUERY_MARIADB
+                    query = query_tuple[1] if version_tuple >= (10, 5, 2) else query_tuple[0]
+                elif is_mariadb:
+                    # Other MariaDB queries: use first query
+                    query = self.queries[key][0]
+                else:
+                    # MySQL: >= 8.4.0 uses second query, < 8.4.0 uses first query
+                    query = self.queries[key][1] if version_tuple >= (8, 4, 0) else self.queries[key][0]
+
+                try:
+                    res[key] = yield dbpool.runQuery(query)
+                except Exception as ex:
+                    self.is_clear_run = False
+                    res[key] = ()
+                    msg, severity = self._error(
+                        str(ex), user, port)
+                    log.error(msg)
+                    if severity == 5:
+                        self._send_event(msg, device_id, severity)
 
     def process(self, device, results, log):
         log.info(
@@ -140,8 +191,8 @@ class MySQLCollector(PythonPlugin):
             s_om.title = server["id"]
             s_om.percent_full_table_scans = self._table_scans(
                 server.get('server', ''))
-            s_om.master_status = self._master_status(server.get('master', ''))
-            s_om.slave_status = self._slave_status(server.get('slave', ''))
+            s_om.source_status = self._source_status(server.get('source', ''))
+            s_om.replica_status = self._replica_status(server.get('replica', ''), log)
             s_om.version = self._version(server.get('version', ''))
             server_oms.append(s_om)
 
@@ -208,6 +259,32 @@ class MySQLCollector(PythonPlugin):
 
         return msg, severity
 
+    def _get_version_info(self, version_result):
+        """
+        Extract version information from VERSION_QUERY result.
+
+        @param version_result: result of VERSION_QUERY
+        @type version_result: list
+        @return: tuple of (is_mariadb, version_tuple) where version_tuple is (major, minor, patch) or None
+        @rtype: tuple
+        """
+        if not version_result:
+            return (False, None)
+
+        result = dict((el['Variable_name'], el['Value'])
+                      for el in version_result)
+        version_comment = result.get('version_comment', '').lower()
+        is_mariadb = 'mariadb' in version_comment
+
+        version_str = result.get('version', '')
+        numVer = re.match('(\d+)\.(\d+)\.(\d+)', version_str)
+        if numVer:
+            version_tuple = tuple(int(x) for x in numVer.groups())
+        else:
+            version_tuple = None
+
+        return (is_mariadb, version_tuple)
+
     def _version(self, version_result):
         """
         Return the version of MySQL server.
@@ -217,7 +294,6 @@ class MySQLCollector(PythonPlugin):
         @return: the server version with machine version
         @rtype: str
         """
-
         result = dict((el['Variable_name'], el['Value'])
                       for el in version_result)
 
@@ -258,38 +334,46 @@ class MySQLCollector(PythonPlugin):
 
         return str(round(percent, 3)*100)+'%'
 
-    def _master_status(self, master_result):
+    def _source_status(self, source_result):
         """
-        Parse the result of MASTER_QUERY.
+        Parse the result of SOURCE_QUERY.
 
-        @param master_result: result of MASTER_QUERY
-        @type master_result: string
-        @return: master status
+        @param source_result: result of SOURCE_QUERY
+        @type source_result: string
+        @return: source status
         @rtype: str
         """
 
-        if master_result:
-            master = master_result[0]
+        if source_result:
+            source = source_result[0]
             return "ON; File: %s; Position: %s" % (
-                master['File'], master['Position'])
+                source['File'], source['Position'])
         else:
             return "OFF"
 
-    def _slave_status(self, slave_result):
+    def _replica_status(self, replica_result, log):
         """
-        Parse the result of SLAVE_QUERY.
+        Parse the result of REPLICA_QUERY.
 
-        @param master_result: result of SLAVE_QUERY
-        @type master_result: string
-        @return: slave status
+        @param source_result: result of REPLICA_QUERY
+        @type source_result: string
+        @return: repica status
         @rtype: str
         """
 
-        if slave_result:
-            slave = slave_result[0]
-            return "IO running: %s; SQL running: %s; Seconds behind: %s" % (
-                slave['Slave_IO_Running'], slave['Slave_SQL_Running'],
-                slave['Seconds_Behind_Master'])
+        if replica_result:
+            replica = replica_result[0]
+            if 'Slave_IO_Running' in replica:
+                return "IO running: %s; SQL running: %s; Seconds behind: %s" % (
+                    replica['Slave_IO_Running'], replica['Slave_SQL_Running'],
+                    replica['Seconds_Behind_Master'])
+            elif 'Replica_IO_Running' in replica:
+                return "IO running: %s; SQL running: %s; Seconds behind: %s" % (
+                    replica['Replica_IO_Running'], replica['Replica_SQL_Running'],
+                    replica['Seconds_Behind_Source'])
+            else:
+                log.error('Could not determine Replica info')
+                return "UNKNOWN"
         else:
             return "OFF"
 

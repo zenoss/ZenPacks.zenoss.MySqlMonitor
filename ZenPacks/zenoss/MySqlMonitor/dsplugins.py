@@ -1,6 +1,6 @@
 ######################################################################
 #
-# Copyright (C) Zenoss, Inc. 2013-2024, all rights reserved.
+# Copyright (C) Zenoss, Inc. 2013-2025, all rights reserved.
 #
 # This content is made available according to terms specified in
 # License.zenoss under the directory where your Zenoss product is
@@ -134,7 +134,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
             'eventClass': eventClass
         }
 
-    def get_query(self, component):
+    def get_query(self, component, datasource):
         """Returns query for MySQL ZP datasource plugin.
 
         :param component: MySqlMonitor component id
@@ -196,7 +196,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
         for datasource in config.datasources:
             try:
                 cursor = connection_cursor(datasource, config.manageIp)
-                cursor.execute(self.get_query(datasource.component))
+                cursor.execute(self.get_query(datasource.component, datasource))
                 query_result_rows = cursor.fetchall()
                 cursor.close()
 
@@ -313,7 +313,7 @@ class MysqlBasePlugin(PythonDataSourcePlugin):
 
 
 class MySqlMonitorPlugin(MysqlBasePlugin):
-    def get_query(self, component):
+    def get_query(self, component, datasource):
         return 'show global status'
 
     def query_results_to_values(self, results):
@@ -336,7 +336,7 @@ class MySqlDeadlockPlugin(MysqlBasePlugin):
         event_key = self.keyName + '_innodb'
         return self.base_event(severity, summary, component, eventKey=event_key, eventClass=eventClass)
 
-    def get_query(self, component):
+    def get_query(self, component, datasource):
         return 'show engine innodb status'
 
     def query_results_to_events(self, results, ds):
@@ -404,8 +404,25 @@ class MySqlDeadlockPlugin(MysqlBasePlugin):
 
 
 class MySqlReplicationPlugin(MysqlBasePlugin):
-    def get_query(self, component):
-        return 'show slave status'
+    proxy_attributes = MysqlBasePlugin.proxy_attributes + ('version',)
+
+    def get_query(self, component, datasource):
+        version_str = datasource.version or ''
+        is_mariadb = 'mariadb' in version_str.lower()
+
+        numVer = re.match('(\d+)\.(\d+)\.(\d+)', version_str)
+        if not numVer:
+            # Default to slave status if version can't be parsed
+            return 'show slave status'
+
+        numVer = tuple(int(x) for x in numVer.groups())
+
+        # MariaDB: >= 10.5.2 uses REPLICA STATUS, < 10.5.2 uses SLAVE STATUS
+        # MySQL: >= 8.4.0 uses REPLICA STATUS, < 8.4.0 uses SLAVE STATUS
+        if (is_mariadb and numVer >= (10, 5, 2)) or (not is_mariadb and numVer >= (8, 4, 0)):
+            return 'show replica status'
+        else:
+            return 'show slave status'
 
     def _event(self, severity, summary,  component, eventClass, suffix):
         eventKey = self.keyName + '_' + suffix
@@ -413,13 +430,13 @@ class MySqlReplicationPlugin(MysqlBasePlugin):
 
     def query_results_to_events(self, results, ds):
         if not results:
-            # Not a slave MySQL
+            # Not a replica MySQL
             return []
 
-        # Slave_IO_Running: Yes
-        # Slave_SQL_Running: Yes
-        slave_io = results[0][10]
-        slave_sql = results[0][11]
+        # Replica_IO_Running: Yes
+        # Replica_SQL_Running: Yes
+        replica_io = results[0][10]
+        replica_sql = results[0][11]
         # Last_Errno: 0
         # Last_Error:
         # last_err_no = results[0][18]
@@ -445,15 +462,15 @@ class MySqlReplicationPlugin(MysqlBasePlugin):
         eventClass = ds.eventClass
         events = []
 
-        if slave_io == "Yes":
-            events.append(self._event(0, "Slave IO Running", c, eventClass, "io"))
+        if replica_io == "Yes":
+            events.append(self._event(0, "Replica IO Running", c, eventClass, "io"))
         else:
-            events.append(self._event(4, "Slave IO NOT Running", c, eventClass, "io"))
+            events.append(self._event(4, "Replica IO NOT Running", c, eventClass, "io"))
 
-        if slave_sql == "Yes":
-            events.append(self._event(0, "Slave SQL Running", c, eventClass, "sql"))
+        if replica_sql == "Yes":
+            events.append(self._event(0, "Replica SQL Running", c, eventClass, "sql"))
         else:
-            events.append(self._event(4, "Slave SQL NOT Running", c, eventClass, "sql"))
+            events.append(self._event(4, "Replica SQL NOT Running", c, eventClass, "sql"))
 
         if last_err_str:
             events.append(self._event(4, last_err_str, c, eventClass, "err"))
@@ -474,7 +491,7 @@ class MySqlReplicationPlugin(MysqlBasePlugin):
 
 
 class MySQLMonitorServersPlugin(MysqlBasePlugin):
-    def get_query(self, component):
+    def get_query(self, component, datasource):
         return '''
         SELECT
             count(table_name) table_count,
@@ -493,7 +510,7 @@ class MySQLMonitorServersPlugin(MysqlBasePlugin):
 class MySQLMonitorDatabasesPlugin(MysqlBasePlugin):
     last_table_count_value = {}
 
-    def get_query(self, component):
+    def get_query(self, component, datasource):
         return '''
         SELECT
             count(table_name) table_count,
@@ -580,7 +597,7 @@ class MySQLDatabaseIncrementalModelingPlugin(MysqlBasePlugin):
 
         return event
 
-    def get_query(self, component):
+    def get_query(self, component, datasource):
         return """
         SELECT schema_name title,
                default_character_set_name,
@@ -598,7 +615,7 @@ class MySQLDatabaseIncrementalModelingPlugin(MysqlBasePlugin):
             res = {"id": ds.component}
             try:
                 cursor = connection_cursor(ds, config.manageIp, cursor_type=cursors.DictCursor)
-                cursor.execute(self.get_query(ds.component))
+                cursor.execute(self.get_query(ds.component, ds))
                 res['db'] = cursor.fetchall()
                 cursor.close()
             except Exception as e:

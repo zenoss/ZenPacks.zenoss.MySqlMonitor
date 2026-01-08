@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (C) Zenoss, Inc. 2013, all rights reserved.
+# Copyright (C) Zenoss, Inc. 2013, 2025, all rights reserved.
 #
 # This content is made available according to terms specified in
 # License.zenoss under the directory where your Zenoss product is installed.
@@ -31,13 +31,34 @@ SERVER_SIZE_QUERY = """
     FROM information_schema.TABLES;
 """
 
-MASTER_QUERY = """
+SOURCE_QUERY_MYSQL = (
+    """
     SHOW MASTER STATUS;
-"""
+    """,
+    """
+    SHOW BINARY LOG STATUS;
+    """
+)
 
-SLAVE_QUERY = """
+SOURCE_QUERY_MARIADB = (
+    """
+    SHOW MASTER STATUS;
+    """,
+    """
+    SHOW BINLOG STATUS;
+    """
+)
+
+SOURCE_QUERY = SOURCE_QUERY_MYSQL
+
+REPLICA_QUERY = (
+    """
     SHOW SLAVE STATUS;
-"""
+    """,
+    """
+    SHOW REPLICA STATUS;
+    """
+)
 
 VERSION_QUERY = """
     SHOW VARIABLES LIKE "version%";
