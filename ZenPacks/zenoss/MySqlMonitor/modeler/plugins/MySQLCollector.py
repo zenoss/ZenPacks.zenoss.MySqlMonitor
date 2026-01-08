@@ -100,8 +100,6 @@ class MySQLCollector(PythonPlugin):
                 dbpool.close()
                 defer.returnValue('Error')
                 return
-            log.info("_doSimpleQueries results - {}".format(res))
-            log.info("_doSimpleQueries results ver - {}".format(res['version']))
             # Perform the more complex or special SQL queries
             yield self._doComplexQuery(dbpool, res, user, port, device.id, log)
             if self.is_clear_run is False:
